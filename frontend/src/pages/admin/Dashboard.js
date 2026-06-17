@@ -16,11 +16,6 @@ export default function AdminDashboard() {
   };
 
   const navigate = useNavigate();
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('role');
-    navigate('/');
-  };
 
   useEffect(() => {
     loadData();

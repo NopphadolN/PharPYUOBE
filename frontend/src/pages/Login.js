@@ -10,7 +10,7 @@ export default function Login() {
   const [newPassword, setNewPassword] = useState('');
 
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+
   const [showNewPassword, setShowNewPassword] = useState(false);
   
   const navigate = useNavigate();

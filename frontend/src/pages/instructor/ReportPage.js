@@ -1,11 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../../services/api';
 import InstructorMenu from '../../components/InstructorMenu';
 import { Radar } from 'react-chartjs-2';
 import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
-import Select from '../../components/ui/Select';
-import Button from '../../components/ui/Button';
+
+
 import { Bar } from 'react-chartjs-2';
 
 import {
@@ -49,7 +49,7 @@ export default function ReportPage() {
   const [courseYear, setCourseYear] = useState('');
   const [courseSemester, setCourseSemester] = useState('');
 
-  const [viewMode, setViewMode] = useState('plo');
+  
   const [yloResults, setYloResults] = useState([]);
 
   /* ================= LOAD ================= */
@@ -90,6 +90,13 @@ useEffect(() => {
   })();
 }, []);
 
+const getInstanceFromCourse = useCallback((courseId) => {
+  const r = cloResults.find(r =>
+    String(r.course_id) === String(courseId)
+  );
+  return r?.course_instance_id;
+}, [cloResults]);
+
 useEffect(() => {
   const currentYear = new Date().getFullYear() + 543;
   setCourseYear(String(currentYear));
@@ -118,7 +125,7 @@ useEffect(() => {
       console.log("CLO LOAD ERROR:", err.message);
     }
   })();
-}, [selectedCourse]);
+}, [selectedCourse, getInstanceFromCourse]);
 
 useEffect(() => {
   if (!selectedStudent) return;
@@ -325,13 +332,6 @@ const getCourseInfo = (courseId) => {
   return m
     ? `${m.code_en} - ${m.name_th}`
     : `Course ${courseId}`;
-};
-
-const getInstanceFromCourse = (courseId) => {
-  const r = cloResults.find(r =>
-    String(r.course_id) === String(courseId)
-  );
-  return r?.course_instance_id;
 };
 
   /* ================= UI ================= */

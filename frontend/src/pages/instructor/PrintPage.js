@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import api from '../../services/api';
 import InstructorMenu from '../../components/InstructorMenu';
 import Card from '../../components/ui/Card';
-import Input from '../../components/ui/Input';
+
 import Select from '../../components/ui/Select';
 import Button from '../../components/ui/Button';
 
@@ -12,28 +12,6 @@ export default function PrintPage() {
   const [year, setYear] = useState('');
   const [semester, setSemester] = useState('');
   const [courses, setCourses] = useState([]);
-  const [years, setYears] = useState([]);
-  const [user, setUser] = useState(null);
-
-  /* =========================
-     โหลด user
-  ========================= */
-  useEffect(() => {
-    api.get('/instructor/me')
-      .then(res => setUser(res.data));
-  }, []);
-
-/* =========================
-     สร้างปีการศึกษา (อัตโนมัติ)
-========================= */
-  useEffect(() => {
-    const thisYear = new Date().getFullYear() + 543;
-    const arr = [];
-    for (let i = 0; i < 5; i++) {
-      arr.push(thisYear - i);
-    }
-    setYears(arr);
-  }, []);
 
   // ✅ load courses
 const loadCourses = async () => {
@@ -42,7 +20,7 @@ const loadCourses = async () => {
     return;
   }
   try {
-    const userRes = await api.get('/instructor/me');
+    
     const res = await api.get('/instructor/dashboard-by-term', {
       params: {
         year,
@@ -52,7 +30,7 @@ const loadCourses = async () => {
     console.log("PRINT COURSES:", res.data);
     setCourses(res.data);
   } catch (err) {
-    console.log("LOAD ERROR:", err);
+    console.error("LOAD ERROR:", err);
   }
 };
 

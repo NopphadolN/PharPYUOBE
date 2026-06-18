@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../../services/api';
 import InstructorMenu from '../../components/InstructorMenu';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -15,19 +15,19 @@ export default function CoursePage() {
   const [semester, setSemester] = useState('');
   const [showPopup, setShowPopup] = useState(null);
   const [search, setSearch] = useState('');
-  
+  const [loadingCourses, setLoadingCourses] = useState(true);
 
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState('');
   const [courseDetail, setCourseDetail] = useState(null);
   const [prereq, setPrereq] = useState('');
   const [courseType, setCourseType] = useState('');
-  const [loadingCourses, setLoadingCourses] = useState(true);
+  
 
   const [instanceId, setInstanceId] = useState(null);
   const [instructors, setInstructors] = useState([]);
-  const [selectedInstructors, setSelectedInstructors] = useState([]);
-  const [ownerId, setOwnerId] = useState('');
+
+
 
   const [savedClos, setSavedClos] = useState([]);
   const [currentClo, setCurrentClo] = useState({
@@ -76,20 +76,40 @@ useEffect(() => {
     });
 }, []);
 
-  useEffect(() => {
-    if (!courses.length) return;
-    const state = location.state;
-    if (state?.course_id && state?.year && state?.semester) {
-      setYear(state.year);
-      setSemester(state.semester);
-      setSelectedCourse(state.course_id); 
+  /* =========================
+     LOAD COURSE + CLO
+  ========================= */
+  const handleSelect = useCallback(async (value) => {
+  const id = Number(value);
+  setSelectedCourse(id);
+  const c = courses.find(x => x.id === id);
+  setCourseDetail(c);
+  if (!year || !semester) return;
+  try {
+    const res = await api.get('/instructor/instance', {
+      params: { course_id: id, year, semester }
+    });
+    if (res.data) {
+      const instId = res.data.id;
+      const cloRes = await api.get('/instructor/clos', {
+        params: { course_instance_id: instId }
+      });
+      setInstanceId(instId);
+      setPrereq(res.data.prerequisite || '');
+      setCourseType(res.data.course_type || '');
+      setOwner(res.data.owner);
+      setOwnerUser(res.data.owner);
+      setSavedClos(cloRes.data);
+    }
+  } catch (err) {
+    console.error(err);
   }
-  }, [courses]);
+}, [courses, year, semester]);
 
   useEffect(() => {
     if (!selectedCourse || !year || !semester) return;
       handleSelect(selectedCourse);
-    }, [selectedCourse, year, semester]);
+    }, [selectedCourse, year, semester, handleSelect]);
 
   useEffect(() => {
   api.get('/instructor/me').then(res => setUser(res.data));
@@ -103,38 +123,7 @@ useEffect(() => {
     setSemester(state.semester);
     setSelectedCourse(state.course_id);
   }
-  }, [courses]);
-
-  /* =========================
-     LOAD COURSE + CLO
-  ========================= */
-  const handleSelect = async (value) => {
-    const id = Number(value);
-    setSelectedCourse(id);
-    const c = courses.find(x => x.id === id);
-    setCourseDetail(c);
-    if (!year || !semester) return;
-    try {
-      const res = await api.get('/instructor/instance', {
-        params: { course_id: id, year, semester }
-      });
-      if (res.data) {
-        const instId = res.data.id;
-        const cloRes = await api.get('/instructor/clos', {
-          params: { course_instance_id: instId }
-        });
-        setInstanceId(instId);
-        setPrereq(res.data.prerequisite || '');
-        setCourseType(res.data.course_type || '');
-        setOwner(res.data.owner); 
-        setOwnerUser(res.data.owner);
-        setSavedClos(cloRes.data);
-        }
-
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  }, [courses, location.state]);
 
   /* =========================
      CLO FUNCTIONS
@@ -152,7 +141,7 @@ const handleSave = async () => {
   let currentInstanceId = instanceId;
   // ✅ ถ้ายังไม่มี instance → สร้างก่อน
   if (!currentInstanceId) {
-    const res = await api.post('/instructor/instance', {
+    await api.post('/instructor/instance', {
       course_id: selectedCourse,
       year,
       semester,
@@ -194,12 +183,6 @@ const handleSave = async () => {
   alert('✅ save สำเร็จ');
 };
   
-  const calculateTotal = (methods) => {
-  return methods.reduce(
-    (sum, m) => sum + Number(m.percent || 0),
-    0
-  );
-};
 
 const addIndicator = () => {
   setCurrentClo({
@@ -394,15 +377,15 @@ const ploGroups = subPlos.reduce((acc, p) => {
 
 const isOwner = ownerUser?.id === user?.id;
 const hasOwner = !!ownerUser;
-{!hasOwner && (
-  <div className="text-yellow-600 text-sm">
-    ⚠️ กรุณากำหนดผู้รับผิดชอบก่อนใช้งาน
-  </div>
-)}
+
+if (loadingCourses) {
+  return <div>Loading...</div>;
+}
   /* =========================
      UI
   ========================= */
   return (
+
 <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-white">
   <InstructorMenu />
   <div className="flex-1 p-6 space-y-6">
@@ -493,8 +476,8 @@ const hasOwner = !!ownerUser;
     </div>
   </div>
 {!hasOwner && (
-  <div className="text-yellow-600 text-sm mb-2">
-    ⚠️ ยังไม่ได้บันทึกผู้รับผิดชอบ
+  <div className="text-yellow-600 text-sm">
+    ⚠️ กรุณากำหนดผู้รับผิดชอบก่อนใช้งาน
   </div>
 )}
 {hasOwner && (

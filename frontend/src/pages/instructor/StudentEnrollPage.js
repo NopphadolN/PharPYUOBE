@@ -12,8 +12,6 @@ export default function StudentEnrollPage() {
   const [year, setYear] = useState('');
   const [semester, setSemester] = useState('');
 
-  const [years, setYears] = useState([]);
-
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
 
@@ -42,18 +40,6 @@ export default function StudentEnrollPage() {
   }, []);
 
   /* =========================
-     สร้างปีการศึกษา (อัตโนมัติ)
-  ========================= */
-  useEffect(() => {
-    const thisYear = new Date().getFullYear() + 543;
-    const arr = [];
-    for (let i = 0; i < 5; i++) {
-      arr.push(thisYear - i);
-    }
-    setYears(arr);
-  }, []);
-
-  /* =========================
      LOAD COURSES
   ========================= */
   const loadCourses = async () => {
@@ -66,15 +52,6 @@ export default function StudentEnrollPage() {
     }
   });
   setCourses(res.data);
-  };
-
-  const handleSelect = async (id) => {
-  const course = courses.find(x => x.id === id);
-  setSelectedCourse(course);
-  const res = await api.get('/student/course-students', {
-    params: { course_instance_id: id }
-  });
-  setStudents(res.data);
   };
 
   /* =========================

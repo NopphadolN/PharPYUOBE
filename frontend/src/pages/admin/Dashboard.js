@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../../services/api';
 import AdminMenu from '../../components/AdminMenu';
-import { useNavigate } from 'react-router-dom';
 
 export default function AdminDashboard() {
   const [year, setYear] = useState('');
@@ -15,12 +14,9 @@ export default function AdminDashboard() {
     }
   };
 
-  const navigate = useNavigate();
-
   useEffect(() => {
     loadData();
   }, []);
-
   if (!data) return <h2>Loading...</h2>;
 
 const handleSaveAll = async () => {

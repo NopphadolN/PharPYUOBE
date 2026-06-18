@@ -3,7 +3,7 @@ import api from '../../services/api';
 import InstructorMenu from '../../components/InstructorMenu';
 import { Bar } from 'react-chartjs-2';
 import Card from '../../components/ui/Card';
-import Input from '../../components/ui/Input';
+
 import Select from '../../components/ui/Select';
 import Button from '../../components/ui/Button';
 
@@ -362,13 +362,6 @@ const getStudentTotal = (studentId, cloId) => {
   , 0);
 };
 
-const getStudentMax = (cloId) => {
-  const evals = getEvalByCLO(cloId);
-  return evals.reduce((sum, e) =>
-    sum + getEvalScoreForCLO(e, cloId)   
-  , 0);
-};
-
 const getStudentPercent = (studentId, cloId) => {
   const evals = getEvalByCLO(cloId);
   const total = getStudentTotal(studentId, cloId);
@@ -377,47 +370,6 @@ const getStudentPercent = (studentId, cloId) => {
   , 0);
   if (max === 0) return 0;
   return (total / max) * 100;
-};
-
-const getTarget = (clo) => {
-  if (!clo.indicators?.length) return 50;
-  return Math.max(...clo.indicators.map(i => Number(i.target || 50)));
-};
-
-const handlePaste = (e) => {
-  e.preventDefault();
-  const text = e.clipboardData.getData('text');
-  // ✅ split rows
-  const rows = text.trim().split('\n');
-  const cloId = document.getElementById('cloSelect').value;
-  const evalId = document.getElementById('evalSelect').value;
-  if (!cloId || !evalId) {
-    alert('เลือก CLO และ วิธีประเมินก่อน');
-    return;
-  }
-  const updated = { ...scores };
-  rows.forEach((row, index) => {
-    // ✅ รองรับ excel (tab หรือ ,)
-    const cols = row.split(/\t|,/);
-    // ✅ ถ้ามี student_code + score
-    let studentCode, score;
-    if (cols.length >= 2) {
-      studentCode = cols[0];
-      score = Number(cols[1]);
-    } else {
-      // ✅ ถ้า paste แค่คะแนน (เรียงตามนักศึกษา)
-      const st = students[index];
-      if (!st) return;
-      studentCode = st.user_code;
-      score = Number(cols[0]);
-    }
-    const student = students.find(s => s.user_code == studentCode);
-    if (!student) return;
-    if (!updated[student.id]) updated[student.id] = {};
-    if (!updated[student.id][cloId]) updated[student.id][cloId] = {};
-    updated[student.id][cloId][evalId] = score;
-  });
-  setScores({ ...updated });  // ✅ force re-render
 };
 
 const handleImport = () => {
@@ -441,7 +393,7 @@ const handleImport = () => {
       studentCode = st.user_code;
       score = Number(cols[0]);
     }
-    const student = students.find(s => s.user_code == studentCode);
+    const student = students.find(s => s.user_code === studentCode);
     if (!student) return;
     if (!updated[student.id]) updated[student.id] = {};
     if (!updated[student.id][cloId]) updated[student.id][cloId] = {};

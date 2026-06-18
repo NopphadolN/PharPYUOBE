@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, Fragment } from 'react';
+import { useState, useEffect, useMemo, Fragment, useCallback } from 'react';
 import api from '../../services/api';
 import InstructorMenu from '../../components/InstructorMenu';
 import Card from '../../components/ui/Card';
@@ -103,17 +103,18 @@ useEffect(() => {
   const filteredStudents = students.filter(st =>
     year && String(st.user_code).startsWith(year.slice(-2))
   );
-  /* ================= CHECK PASS COURSE ================= */
-  const checkStudentPassCourse = (studentId, courseId) => {
+
+/* ================= CHECK PASS COURSE ================= */
+const checkStudentPassCourse = useCallback((studentId, courseId) => {
   return courseResults.some(r =>
     r.student_id === studentId &&
     r.course_id === courseId &&
     r.is_pass === true
   );
-};
+}, [courseResults]);
 
-  /* ================= INDICATOR % ================= */
-const getIndicatorPercent = (studentId, indicatorCode) => {
+/* ================= INDICATOR % ================= */
+const getIndicatorPercent = useCallback((studentId, indicatorCode) => {
   const mappedCourses = mappings.filter(m =>
     String(m.indicator_code).toLowerCase() === String(indicatorCode).toLowerCase()
   );
@@ -125,13 +126,12 @@ const getIndicatorPercent = (studentId, indicatorCode) => {
     }
   });
   return (pass / mappedCourses.length) * 100;
-};
+}, [mappings, checkStudentPassCourse]);
 
-  /* ================= PLO AVG ================= */
-const getPloAvg = (studentId, plo) => {
+/* ================= PLO AVG ================= */
+const getPloAvg = useCallback((studentId, plo) => {
   const values = plo.indicators.map(ind => {
     let val = getIndicatorPercent(studentId, ind.code);
-    // ✅ fallback to admin
     if (val === null) {
       val = manualChecks?.[studentId]?.[ind.id]
         ? 100
@@ -141,9 +141,9 @@ const getPloAvg = (studentId, plo) => {
   });
   if (!values.length) return 0;
   return values.reduce((a, b) => a + b, 0) / values.length;
-};
+}, [manualChecks, getIndicatorPercent]);
 
-  /* ================= Chart ================= */ 
+/* ================= CHART DATA ================= */
 const ploAvgData = useMemo(() => {
   const result = {};
   plos.forEach(plo => {
@@ -156,8 +156,9 @@ const ploAvgData = useMemo(() => {
     result[plo.code] = Number(avg.toFixed(2));
   });
   return result;
-}, [plos, filteredStudents, manualChecks, courseResults]);
+}, [plos, filteredStudents, getPloAvg]);
 
+/* ================= BAR CONFIG ================= */
 const barData = {
   labels: Object.keys(ploAvgData),
   datasets: [
@@ -169,17 +170,10 @@ const barData = {
   ]
 };
 const barOptions = {
-  indexAxis: 'y', // ✅ horizontal
+  indexAxis: 'y',
   scales: {
     x: { min: 0, max: 100 }
   }
-};
-
-const getYLOByStudent = (studentId) => {
-  return yloResults.filter(r =>
-    r.student_id === studentId &&
-    (!year || String(r.year) === year)
-  );
 };
 
   /* ================= UI ================= */

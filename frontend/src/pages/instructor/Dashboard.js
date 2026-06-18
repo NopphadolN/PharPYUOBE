@@ -44,6 +44,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year, semester]);
 
   const totalHours = teaching.reduce(

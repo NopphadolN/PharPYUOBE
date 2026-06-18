@@ -18,7 +18,6 @@ export default function CourseStep2() {
   const { course_id, year, semester } = location.state || {};
   const [showDropdown, setShowDropdown] = useState(false);
   const [instanceId, setInstanceId] = useState(null);
-  const [owner_id, setOwnerId] = useState(null);
 
   /* =========================
      BASIC
@@ -36,7 +35,6 @@ export default function CourseStep2() {
   const [popupType, setShowPopup] = useState(null);
   const [search, setSearch] = useState('');
   
-
   /* =========================
      CLO
   ========================= */
@@ -118,7 +116,6 @@ useEffect(() => {
       setCourseType(data.course_type || '');
       setGuestTeachers(data.guestTeachers || []);
       setOwner(data.owner);
-      setOwnerId(data.owner_id || null);
       setCourses(data);
       setInstanceId(data.id);
       // ✅ owner check
@@ -224,22 +221,6 @@ const addTeacher = (t) => {
   };
 
   /* =========================
-     SUM
-  ========================= */
-  const sumHours = (type) =>
-    contents
-      .filter(c => c.type === type)
-      .reduce((s, c) => s + Number(c.hours || 0), 0);
-
-  const totalExamScore = contents.reduce(
-    (s, c) => s + Number(c.examScore || 0), 0
-  );
-
-  const totalWorkScore = contents.reduce(
-    (s, c) => s + Number(c.workScore || 0), 0
-  );
-
-  /* =========================
      EVAL CALC
   ========================= */
 const calculateTotal = (lectureIds, labIds) => {
@@ -284,38 +265,6 @@ const addEval = () => {
     labIds: [],
     total: 0
   });
-};
-  const totalEval = evaluations.reduce(
-    (s, e) => s + Number(e.total || 0), 0
-  );
-
-  // calculateCLO
-const getEvalCloScore = (evalObj, cloId) => {
-  let total = 0;
-  const contentIds = [
-    ...(evalObj.lectureIds || []),
-    ...(evalObj.labIds || [])
-  ];
-  contentIds.forEach(cid => {
-    const content = contents.find(c =>
-      String(c.id) === String(cid)
-    );
-    if (!content) return;
-    const cloList = content.cloIds || [];
-    if (!cloList.includes(String(cloId))) return;
-    let score = 0;
-
-    // ✅ ใช้คะแนนจริงจาก content
-    if (evalObj.type === 'สอบ') {
-      score = Number(content.examScore || content.exam_score || 0);
-    } else if (evalObj.type === 'งาน') {
-      score = Number(content.workScore || content.work_score || 0);
-    }
-
-    total += score / (cloList.length || 1);
-
-  });
-  return total;
 };
 
 // formatDate
@@ -506,11 +455,6 @@ let cleanContents = contents.map(c => {
   );
   };
 
-  const totalEvalScore = evaluations.reduce(
-  (sum, e) => sum + Number(e.total || 0),
-  0
-  );
-
 // CalCloSummary
 const getCloSummary = () => {
   const result = {};
@@ -612,7 +556,7 @@ evaluations.forEach(e => {
                 textAlign: 'center', whiteSpace: 'nowrap' }}>{c.order}</td>
               <td style={{ textAlign: 'center' }}>
                 {c.cloIds?.map(id => 
-                clos.find(x => x.id == id)?.code + ' '
+                clos.find(x => x.id === id)?.code + ' '
                 )}
               </td>
               <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
@@ -630,7 +574,7 @@ evaluations.forEach(e => {
 <td style={{ textAlign: 'center'}}>
 {
   (() => {
-    const teacher = selectedTeachers.find(t => t.id == c.instructor);
+    const teacher = selectedTeachers.find(t => t.id === c.instructor);
     if (c.instructor === 'faculty') return 'คณาจารย์';
     if (teacher) return teacher.name_th;
     return `${c.instructor}`; // ✅ fallback debug
@@ -950,7 +894,7 @@ const isOwner = courses?.owner_id === user?.id;
       >
         {currentContent.cloIds.length > 0
           ? currentContent.cloIds
-              .map(id => clos.find(c => c.id == id)?.code)
+              .map(id => clos.find(c => c.id === id)?.code)
               .join(', ')
           : 'เลือก CLO'}
       </div>
@@ -1019,10 +963,9 @@ const isOwner = courses?.owner_id === user?.id;
           const val = e.target.value;
           setCurrentContent({
             ...currentContent,
-            instructor
-            : val === 'faculty'
-        ? 'faculty'
-            : !isNaN(val) ? Number(val) : val
+            instructor: val === 'faculty'
+              ? 'faculty'
+              : !isNaN(val) ? Number(val) : val
           });
         }}
       >
@@ -1289,7 +1232,7 @@ const isOwner = courses?.owner_id === user?.id;
           });
           const cloIds = Array.from(cloSet);
           return cloIds.map((cloId, i) => {
-            const cloCode = clos.find(c => c.id == cloId)?.code;
+            const cloCode = clos.find(c => c.id === cloId)?.code;
             return (
               <tr
                 key={`${index}_${i}`}

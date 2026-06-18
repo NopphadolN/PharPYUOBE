@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://pharpyuobe.onrender.com'
+  baseURL: 'https://pharpyuobe.onrender.com/api'
 });
 
 // แนบ token อัตโนมัติ

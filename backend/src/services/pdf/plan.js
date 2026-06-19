@@ -46,26 +46,15 @@ const generatePlanPDF = async (data, res) => {
       printBackground: true,
       displayHeaderFooter: true,    
 
-headerTemplate: `
-  <div style="
-    font-family: Arial, sans-serif;
-    font-size: 10px;
-    width: 100%;
-    text-align: center;
-  ">
-    แผนการสอนรายวิชา
-  </div>
-`,
-
 footerTemplate: `
   <div style="
     font-family: Arial, sans-serif;
     font-size: 10px;
     width: 100%;
     text-align: right;
-    padding-right: 10px;
+    padding-right: 80px;
   ">
-    หน้า <span class="pageNumber"></span> / <span class="totalPages"></span>
+    <span class="pageNumber"></span> / <span class="totalPages"></span>
   </div>
 `,
 

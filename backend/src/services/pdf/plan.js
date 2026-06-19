@@ -48,11 +48,10 @@ const generatePlanPDF = async (data, res) => {
 
 footerTemplate: `
   <div style="
-    font-family: Arial, sans-serif;
-    font-size: 10px;
-    width: 100%;
-    text-align: right;
-    padding-right: 80px;
+    font-size:10px;
+    width:100%;
+    text-align:right;
+    padding-right:80px;
   ">
     <span class="pageNumber"></span> / <span class="totalPages"></span>
   </div>
@@ -60,7 +59,7 @@ footerTemplate: `
 
   margin: {
     top: '80px',
-    bottom: '80px',
+    bottom: '100px',
     left: '1in',
     right: '1in'
   }

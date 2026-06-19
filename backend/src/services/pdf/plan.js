@@ -42,9 +42,20 @@ const generatePlanPDF = async (data, res) => {
     const buffer = await page.pdf({
       format: 'A4',
       printBackground: true,
+      displayHeaderFooter: true,      
+      headerTemplate: `
+      <div style="font-size:10px; width:100%; text-align:center;">
+      แผนการสอนรายวิชา
+      </div>
+      `,
+      footerTemplate: `
+      <div style="font-size:10px; width:100%; text-align:right; padding-right:10px;">
+      หน้า <span class="pageNumber"></span> / <span class="totalPages"></span>
+      </div>
+      `,
       margin: {
-        top: '1in',
-        bottom: '1in',
+        top: '80px',
+        bottom: '80px',
         left: '1in',
         right: '1in'
       }

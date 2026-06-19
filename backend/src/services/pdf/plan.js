@@ -1,5 +1,5 @@
-const puppeteer = require('puppeteer-core');
-const chromium = require('@sparticuz/chromium');
+const puppeteer = require('puppeteer');
+
 const fs = require('fs');
 const path = require('path');
 
@@ -24,8 +24,7 @@ const generatePlanPDF = async (data, res) => {
   html = html.replace('{{content}}', content);
 
 const browser = await puppeteer.launch({
-  args: chromium.args,
-  executablePath: await chromium.executablePath(),
+  args: ['--no-sandbox', '--disable-setuid-sandbox'],
   headless: true,
 });
 

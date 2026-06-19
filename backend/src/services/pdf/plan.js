@@ -49,19 +49,16 @@ const buffer = await page.pdf({
   headerTemplate: `<div></div>`,
 
   footerTemplate: `
-    <div style="
-      font-size:12px;
-      width:100%;
-      text-align:right;
-      padding-right:80px;
-    ">
-      <span class="pageNumber"></span> / <span class="totalPages"></span>
+    <div style="font-size:10px;width:100%;text-align:center;">
+      <span class="pageNumber"></span>
+      <span>&nbsp;/&nbsp;</span>
+      <span class="totalPages"></span>
     </div>
   `,
 
   margin: {
     top: '80px',
-    bottom: '100px',
+    bottom: '80px',
     left: '1in',
     right: '1in'
   }

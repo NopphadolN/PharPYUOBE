@@ -17,28 +17,14 @@ const generatePlanPDF = async (data, res) => {
     let html = fs.readFileSync(templatePath, 'utf8');
 
     // ✅ รวม content
-    const sections = [
-  renderHeader(data),
-  renderSection1(data),
-  renderSection2(data),
-  renderSection3(data)
-];
+const content = `
+  ${renderHeader(data)}
+  ${renderSection1(data)}
+  ${renderSection2(data)}
+  ${renderSection3(data)}
+`;
 
-let htmlPages = '';
-
-sections.forEach((section, index) => {
-  htmlPages += `
-    <div class="page">
-      ${section}
-
-      <div class="footer">
-        ${index + 1}
-      </div>
-    </div>
-  `;
-});
-
-html = html.replace('{{content}}', htmlPages);
+html = html.replace('{{content}}', content);
 
     // ✅ launch browser (Render compatible)
     const browser = await puppeteer.launch({
@@ -52,6 +38,17 @@ html = html.replace('{{content}}', htmlPages);
 
     // ✅ ใส่ HTML ลงไป
     await page.setContent(html, { waitUntil: 'networkidle0' });
+    
+    await page.evaluate(() => {
+    const pageHeight = window.innerHeight;
+    const totalHeight = document.body.scrollHeight;
+    const totalPages = Math.ceil(totalHeight / pageHeight);
+    const footers = document.querySelectorAll('.footer');
+    footers.forEach((footer, i) => {
+    footer.innerText = `${i + 1}`;
+    });
+    });
+    
     await page.evaluateHandle('document.fonts.ready');
 
     // ✅ generate PDF
@@ -59,8 +56,8 @@ const buffer = await page.pdf({
   format: 'A4',
   printBackground: true,
   margin: {
-    top: '20px',
-    bottom: '20px',
+    top: '1in',
+    bottom: '1in',
     left: '1in',
     right: '1in'
   }

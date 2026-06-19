@@ -1,4 +1,5 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
+const chromium = require('@sparticuz/chromium');
 
 const fs = require('fs');
 const path = require('path');
@@ -23,14 +24,18 @@ const generatePlanPDF = async (data, res) => {
 
   html = html.replace('{{content}}', content);
 
-const browser = await puppeteer.launch({
-  args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  headless: true,
-});
-
+async function generatePlanPDF() {
+  const browser = await puppeteer.launch({
+    args: chromium.args,
+    executablePath: await chromium.executablePath(), // ✅ อันนี้ใช้ได้กับ version นี้
+    headless: true,
+  });
   const page = await browser.newPage();
-
-  await page.setContent(html, { waitUntil: 'load' });
+  await page.setContent('<h1>Hello PDF</h1>');
+  const pdf = await page.pdf();
+  await browser.close();
+  return pdf;
+}
 
   const buffer = await page.pdf({
   format: 'A4',

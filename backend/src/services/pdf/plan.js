@@ -41,25 +41,27 @@ const generatePlanPDF = async (data, res) => {
     await page.evaluateHandle('document.fonts.ready');
 
     // ✅ generate PDF
-    const buffer = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      displayHeaderFooter: true,    
+const buffer = await page.pdf({
+  format: 'A4',
+  printBackground: true,
+  displayHeaderFooter: true,
 
-footerTemplate: `
-  <div style="
-    font-size:10px;
-    width:100%;
-    text-align:right;
-    padding-right:80px;
-  ">
-    <span class="pageNumber"></span> / <span class="totalPages"></span>
-  </div>
-`,
+  headerTemplate: `<div></div>`,
+
+  footerTemplate: `
+    <div style="
+      font-size:10px;
+      width:100%;
+      text-align:right;
+      padding-right:20px;
+    ">
+      <span class="pageNumber"></span> / <span class="totalPages"></span>
+    </div>
+  `,
 
   margin: {
     top: '80px',
-    bottom: '100px',
+    bottom: '80px',
     left: '1in',
     right: '1in'
   }

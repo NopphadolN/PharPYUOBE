@@ -37,6 +37,7 @@ const generatePlanPDF = async (data, res) => {
 
     // ✅ ใส่ HTML ลงไป
     await page.setContent(html, { waitUntil: 'networkidle0' });
+    await page.evaluateHandle('document.fonts.ready');
 
     // ✅ generate PDF
     const buffer = await page.pdf({

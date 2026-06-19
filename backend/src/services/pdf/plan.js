@@ -17,14 +17,28 @@ const generatePlanPDF = async (data, res) => {
     let html = fs.readFileSync(templatePath, 'utf8');
 
     // ✅ รวม content
-    const content = `
-      ${renderHeader(data)}
-      ${renderSection1(data)}
-      ${renderSection2(data)}
-      ${renderSection3(data)}
-    `;
+    const sections = [
+  renderHeader(data),
+  renderSection1(data),
+  renderSection2(data),
+  renderSection3(data)
+];
 
-    html = html.replace('{{content}}', content);
+let htmlPages = '';
+
+sections.forEach((section, index) => {
+  htmlPages += `
+    <div class="page">
+      ${section}
+
+      <div class="footer">
+        ${index + 1}
+      </div>
+    </div>
+  `;
+});
+
+html = html.replace('{{content}}', htmlPages);
 
     // ✅ launch browser (Render compatible)
     const browser = await puppeteer.launch({
@@ -44,21 +58,9 @@ const generatePlanPDF = async (data, res) => {
 const buffer = await page.pdf({
   format: 'A4',
   printBackground: true,
-  displayHeaderFooter: true,
-
-  headerTemplate: `<div></div>`,
-
-  footerTemplate: `
-    <div style="font-size:10px;width:100%;text-align:center;">
-      <span class="pageNumber"></span>
-      <span>&nbsp;/&nbsp;</span>
-      <span class="totalPages"></span>
-    </div>
-  `,
-
   margin: {
-    top: '80px',
-    bottom: '80px',
+    top: '20px',
+    bottom: '20px',
     left: '1in',
     right: '1in'
   }

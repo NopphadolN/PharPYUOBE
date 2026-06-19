@@ -25,9 +25,10 @@ const generatePlanPDF = async (data, res) => {
 
 const browser = await puppeteer.launch({
   args: chromium.args,
-  executablePath: chromium.executablePath,
+  executablePath: await chromium.executablePath(),
   headless: true,
 });
+
   const page = await browser.newPage();
 
   await page.setContent(html, { waitUntil: 'load' });

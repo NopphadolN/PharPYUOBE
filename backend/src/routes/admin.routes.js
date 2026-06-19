@@ -269,6 +269,37 @@ router.post('/ylos', async (req, res) => {
   }
 });
 
+// search user
+router.get('/users', async (req, res) => {
+  try {
+    const { username } = req.query;
+    const result = await pool.query(`
+      SELECT id, username
+      FROM users
+      WHERE username ILIKE $1
+      ORDER BY username
+    `, [`%${username}%`]);
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'search error' });
+  }
+});
+
+// delete user
+router.delete('/users/:id', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query(`
+      DELETE FROM users WHERE id = $1
+    `, [id]);
+    res.json({ message: 'Deleted' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'delete error' });
+  }
+});
+
 // SAVE ALL RESULTS
 router.post('/save-all-results', async (req, res) => {
   const { year } = req.body;

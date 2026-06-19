@@ -46,40 +46,28 @@ const generatePlanPDF = async (data, res) => {
       printBackground: true,
       displayHeaderFooter: true,    
 
-  headerTemplate: `
-    <style>
-      @font-face {
-        font-family: 'Sarabun';
-        src: url(data:font/truetype;base64,${fontBase64}) format('truetype');
-      }
-      body {
-        font-family: 'Sarabun';
-        font-size: 10px;
-        text-align: center;
-        width: 100%;
-      }
-    </style>
-    <div>แผนการสอนรายวิชา</div>
-  `,
+headerTemplate: `
+  <div style="
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    width: 100%;
+    text-align: center;
+  ">
+    แผนการสอนรายวิชา
+  </div>
+`,
 
-  footerTemplate: `
-    <style>
-      @font-face {
-        font-family: 'Sarabun';
-        src: url(data:font/truetype;base64,${fontBase64}) format('truetype');
-      }
-      body {
-        font-family: 'Sarabun';
-        font-size: 10px;
-        text-align: right;
-        width: 100%;
-        padding-right: 10px;
-      }
-    </style>
-    <div>
-      หน้า <span class="pageNumber"></span> / <span class="totalPages"></span>
-    </div>
-  `,
+footerTemplate: `
+  <div style="
+    font-family: Arial, sans-serif;
+    font-size: 10px;
+    width: 100%;
+    text-align: right;
+    padding-right: 10px;
+  ">
+    หน้า <span class="pageNumber"></span> / <span class="totalPages"></span>
+  </div>
+`,
 
   margin: {
     top: '80px',

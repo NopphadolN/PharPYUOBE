@@ -22,7 +22,9 @@ const generatePlanPDF = async (data, res) => {
 
   html = html.replace('{{content}}', content);
 
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+  args: ['--no-sandbox', '--disable-setuid-sandbox']
+});
   const page = await browser.newPage();
 
   await page.setContent(html, { waitUntil: 'load' });

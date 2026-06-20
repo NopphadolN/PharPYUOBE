@@ -50,7 +50,7 @@ exports.login = async (req, res) => {
   try {
 
   const result = await pool.query(
-    'SELECT * FROM users WHERE username=$1',
+    'SELECT id, password, role, name_th, must_change_password FROM users WHERE username=$1',
     [username]
     );
 

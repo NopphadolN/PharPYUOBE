@@ -22,7 +22,7 @@ exports.changePasswordFirstTime = async (req, res) => {
       });
     }
 
-    const hashed = await bcrypt.hash(newPassword, 10);
+    const hashed = await bcrypt.hash(newPassword, 8);
     await pool.query(
       `UPDATE users 
        SET password=$1, must_change_password=false

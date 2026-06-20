@@ -10,7 +10,6 @@ const { renderSection1 } = require('../templates/sections/section1');
 const { renderSection2 } = require('../templates/sections/section2');
 const { renderSection3 } = require('../templates/sections/section3');
 
-let browser;
 const generatePlanPDF = async (data, res) => {
   try {
     // ✅ โหลด template HTML
@@ -18,29 +17,29 @@ const generatePlanPDF = async (data, res) => {
     let html = fs.readFileSync(templatePath, 'utf8');
 
     // ✅ รวม content
-    const content = `
-      ${renderHeader(data)}
-      ${renderSection1(data)}
-      ${renderSection2(data)}
-      ${renderSection3(data)}
-    `;
-    html = html.replace('{{content}}', content);
+const content = `
+  ${renderHeader(data)}
+  ${renderSection1(data)}
+  ${renderSection2(data)}
+  ${renderSection3(data)}
+`;
+
+html = html.replace('{{content}}', content);
 
     // ✅ launch browser (Render compatible)
-    if (!browser) {
-      browser = await puppeteer.launch({
-        args: chromium.args,
-        executablePath: await chromium.executablePath(),
-        headless: true,
-      });
-    }
- 
+    const browser = await puppeteer.launch({
+      args: chromium.args,
+      executablePath: await chromium.executablePath(),
+      headless: true,
+    });
+
     // ✅ create page
     const page = await browser.newPage();
-    await page.setCacheEnabled(true);
 
     // ✅ ใส่ HTML ลงไป
-    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+
+    await page.evaluateHandle('document.fonts.ready');
 
     // ✅ generate PDF
 const buffer = await page.pdf({
@@ -52,9 +51,9 @@ const buffer = await page.pdf({
     left: '1in',
     right: '1in'
   }
-});   
+});
 
-    await page.close();
+    await browser.close();
 
     // ✅ respond PDF
     res.set({

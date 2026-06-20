@@ -38,14 +38,6 @@ html = html.replace('{{content}}', content);
 
     // ✅ ใส่ HTML ลงไป
     await page.setContent(html, { waitUntil: 'networkidle0' });
-    
-    await page.addStyleTag({
-      content: `
-        .footer:after {
-          content: counter(page);
-        }
-      `
-    });
 
     await page.evaluateHandle('document.fonts.ready');
 

@@ -24,11 +24,6 @@ body {
   line-height: 1.4;
 }
 
-.footer::before {
-  counter-increment: page;
-  content: counter(page);
-}
-
 p {
   margin: 4px 0;
 }
@@ -65,12 +60,8 @@ table, tr, td {
 }
 
 .section { 
+  margin-top: 12px;
   margin-bottom: 16px;
-}
-
-@page {
-  size: A4;
-  margin: 1in;
 }
 
 .section-block {
@@ -86,8 +77,5 @@ thead {
 
 <body>
   {{content}}
-  <div class="footer">   
-    <span class="page"></span> 
-  </div>
 </body>
 </html>

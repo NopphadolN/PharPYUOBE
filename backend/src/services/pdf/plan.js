@@ -52,8 +52,13 @@ html = html.replace('{{content}}', content);
     // ✅ generate PDF
 const buffer = await page.pdf({
   format: 'A4',
-  printBackground: true,
-  preferCSSPageSize: true,
+  printBackground: true, 
+  margin: {
+    top: '1in',
+    bottom: '1in',
+    left: '1in',
+    right: '1in'
+  }
 });
 
     await browser.close();

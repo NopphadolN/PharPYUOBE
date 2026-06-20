@@ -71,7 +71,7 @@ const getInstructorName = (r) => {
   `;
 
   return `
-    <div class="section">
+    <div class="section-block">
       ${renderTable(lecture, totalLecture, '7. เนื้อหากระบวนวิชา (บรรยาย)')}
       ${lab.length > 0
         ? renderTable(lab, totalLab, '(ปฏิบัติการ)')

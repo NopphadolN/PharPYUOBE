@@ -53,7 +53,7 @@ html = html.replace('{{content}}', content);
 const buffer = await page.pdf({
   format: 'A4',
   printBackground: true,
-  preferCSSPageSize: true
+  preferCSSPageSize: true,
 });
 
     await browser.close();

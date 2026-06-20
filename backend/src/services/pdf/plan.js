@@ -40,12 +40,14 @@ html = html.replace('{{content}}', content);
     await page.setContent(html, { waitUntil: 'networkidle0' });
     
     await page.evaluate(() => {
-    const pages = Math.ceil(document.body.scrollHeight / window.innerHeight);
-    const footers = document.querySelectorAll('.footer');
-    footers.forEach((el, i) => {
-    el.innerText = `${i + 1}`;
-    });
-    });
+      const pageHeight = window.innerHeight;
+      const totalHeight = document.body.scrollHeight;
+      const totalPages = Math.ceil(totalHeight / pageHeight);
+      const footers = document.querySelectorAll('.footer');
+  footers.forEach((footer, i) => {
+    footer.innerText = `${i + 1}`;
+  });
+});
 
     await page.evaluateHandle('document.fonts.ready');
 

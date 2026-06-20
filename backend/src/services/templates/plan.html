@@ -4,7 +4,7 @@
   <style>
 .footer {
   position: fixed;
-  bottom: 10px;
+  bottom: 0.5in;
   left: 0;
   width: 100%;
   text-align: center;
@@ -18,9 +18,15 @@
   } 
 
 body {
+  counter-reset: page;
   font-family: 'Sarabun', sans-serif;
   font-size: 18px;
   line-height: 1.4;
+}
+
+.footer::before {
+  counter-increment: page;
+  content: counter(page);
 }
 
 p {
@@ -31,6 +37,12 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
+  page-break-inside: avoid;
+}
+
+tr {
+  page-break-inside: avoid;
+  page-break-after: auto;
 }
 
 th {
@@ -63,10 +75,7 @@ td, th {
 
 <body>
   {{content}}
-  
-  <div class="footer">
-    <span class="pageNumber"></span>
+  <div class="footer">    
   </div>
-
 </body>
 </html>

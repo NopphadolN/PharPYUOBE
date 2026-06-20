@@ -56,8 +56,8 @@ const buffer = await page.pdf({
   format: 'A4',
   printBackground: true,
   margin: {
-    top: '20px',
-    bottom: '20px',
+    top: '1in',
+    bottom: '1in',
     left: '1in',
     right: '1in'
   }

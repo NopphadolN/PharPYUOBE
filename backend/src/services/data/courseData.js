@@ -28,7 +28,7 @@ if (typeof guestTeachers === 'string') {
   `, [instanceId]);
 
   const instructors = await pool.query(`
-    SELECT u.id AS user_id, u.name_th
+    SELECT u.id, u.name_th
     FROM course_instructors ci
     JOIN users u ON ci.user_id = u.id
     WHERE ci.course_instance_id = $1

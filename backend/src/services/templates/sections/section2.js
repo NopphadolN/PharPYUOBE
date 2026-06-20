@@ -71,7 +71,9 @@ const getInstructorName = (r) => {
   `;
 
   return `
-   <p><b>7. เนื้อหากระบวนวิชา</b></p>
+  <div class="heading">
+  <p><b>7. เนื้อหากระบวนวิชา</b></p>
+  </div>
     <div>
       ${renderTable(lecture, totalLecture, '(บรรยาย)')}
       ${lab.length > 0

@@ -16,7 +16,7 @@ const renderSection1 = (data) => {
       </div>
     </div>
 
-    <div style="text-indent: 110px;">${course.code_en} 
+    <div style="text-indent: 100px;">${course.code_en} 
       ${course.name_en}</div>
 
     <p><b>2. เงื่อนไขที่ต้องผ่านก่อน:</b> ${course.prerequisite || '-'}</p>
@@ -28,7 +28,7 @@ const renderSection1 = (data) => {
 
     <p><b>5. อาจารย์ผู้สอน:</b></p>
     <p style="margin-left: 40px;"><b>5.1 อาจารย์ผู้รับผิดชอบ</b>
-    <span style="margin-left:20px;">
+    <span style="margin-left:5px;">
     ${instructors.find(i => i.id === owner_id)?.name_th || '-'}
     </span></p>
     <p style="margin-left: 120px;"><b>ประเภท</b>  อาจารย์ประจำ</p>
@@ -46,8 +46,9 @@ const renderSection1 = (data) => {
       `
     : ''
     }
-
+    <div class="heading">
     <p><b>6. ผลลัพธ์การเรียนรู้</b></p>
+    </div>
     <p style="margin-left: 40px;">
     เมื่อสิ้นสุดการเรียนการสอนแล้ว นักศึกษาที่สำเร็จการศึกษาในรายวิชา สามารถ<p>
     ${clos.map((c, i) => `

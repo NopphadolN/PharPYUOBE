@@ -99,7 +99,9 @@ const formatContentRange = (ids) => {
 };
   return `
     <div class="section">
+      <div class="heading">
       <p style="margin-top: 20px;"><b>8. รายชื่อหนังสือประกอบการสอน</b></p>
+      </div>
       <div style="text-indent: 40px;">
       ${(Array.isArray(books) && books.length
   ? [...books].sort((a, b) => a.localeCompare(b, 'th'))
@@ -107,8 +109,9 @@ const formatContentRange = (ids) => {
   <div>${i + 1}. ${b}</div>
   `).join('')}
       </div>
-
+      <div class="heading">  
       <p><b>9. สัดส่วนการให้คะแนน</b></p>
+      </div>
 <table>
   <tr>
     <th>การประเมิน</th>
@@ -142,8 +145,9 @@ const formatContentRange = (ids) => {
     <td></td>
   </tr>
 </table>
-
+      <div class="heading">
       <p style="margin-top: 20px;"><b>10. เกณฑ์การประเมินผล</b></p>
+      </div>
       <div style="text-indent: 40px; justify-content:space-between;">
       <p>• ในกรณีที่ไม่สามารถมาเข้าชั้นเรียน นักศึกษาต้องแจ้งให้อาจารย์ประจำวิชาทราบ 
       <b>โดยมีใบรับรองแพทย์ หรือหนังสือยืนยันจากผู้ปกครองทุกครั้งที่ขาดเรียน หากไม่ปฏิบัติตาม 
@@ -179,8 +183,9 @@ ${sortedGrading.map(g => {
     </div>
   `;
 }).join('')}
-
+      <div class="heading">
       <p><b>แนวทางการอุทธรณ์ของนักศึกษา/ผู้เรียน Appeal procedure</b></p>
+      </div>
       <p style="text-indent: 40px;" justify-content:space-between;>
       นักศึกษาสามารถทำเรื่องอุทธรณ์ผลการเรียนโดย Download แบบคำร้อง (ใช้คำร้องทั่วไป) ได้ที่ระบบ
 e-registra และยื่นคำร้องได้ที่สำนักงานฝ่ายวิชาการและวิจัยภายใน 10 วันทำการ หลังจากประกาศผลการ

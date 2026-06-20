@@ -21,9 +21,15 @@ p {
 
 table {
   width: 100%;
+  font-size: 13px;
   border-collapse: collapse;
   margin-top: 8px;
   page-break-inside: auto;
+  text-align: top;
+}
+
+.heading + table {
+  page-break-before: avoid;
 }
 
 tr {
@@ -44,6 +50,14 @@ td, th {
   text-align: center;
   font-size: 15px;
   font-weight: bold;
+}
+
+.heading {
+  page-break-after: avoid;      /* ✅ ห้ามทิ้งหัวข้อไว้ท้ายหน้า */
+}
+
+.heading + * {
+  page-break-inside: avoid;     /* ✅ ตัวถัดจากหัวข้อ ต้องไปด้วยกัน */
 }
 
 .section { 

@@ -1,6 +1,6 @@
 const renderSection1 = (data) => {
 
-  const { course, clos, instructors, guestTeachers } = data;
+  const { course, clos, instructors, guestTeachers, user_id, owner_id } = data;
 
   return `
   <div class="section">
@@ -29,7 +29,7 @@ const renderSection1 = (data) => {
     <p><b>5. อาจารย์ผู้สอน:</b></p>
     <p style="margin-left: 40px;"><b>5.1 อาจารย์ผู้รับผิดชอบ</b>
     <span style="margin-left:20px;">
-    ${instructors.find(instructor => instructor.user_id === owner_id)?.name_th || '-'}
+    ${instructors.find(instructors => instructors.user_id === owner_id)?.name_th || '-'}
     </span></p>
     <p style="margin-left: 120px;"><b>ประเภท</b>  อาจารย์ประจำ</p>
     

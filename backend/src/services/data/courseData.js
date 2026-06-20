@@ -28,7 +28,7 @@ if (typeof guestTeachers === 'string') {
   `, [instanceId]);
 
   const instructors = await pool.query(`
-    SELECT u.id, u.name_th
+    SELECT u.id AS user_id, u.name_th
     FROM course_instructors ci
     JOIN users u ON ci.user_id = u.id
     WHERE ci.course_instance_id = $1
@@ -83,14 +83,15 @@ if (typeof grading === 'string') {
 }
 
   return {
-  course: course.rows[0],
+  course: courseData,
   clos: clos.rows,
   contents,
   instructors: instructors.rows,
   books,
   grading,
   evaluations,
-  guestTeachers
+  guestTeachers,
+  owner_id: courseData.owner_id
   };
 
 };

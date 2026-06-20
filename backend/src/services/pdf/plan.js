@@ -39,15 +39,13 @@ html = html.replace('{{content}}', content);
     // ✅ ใส่ HTML ลงไป
     await page.setContent(html, { waitUntil: 'networkidle0' });
     
-    await page.evaluate(() => {
-      const pageHeight = window.innerHeight;
-      const totalHeight = document.body.scrollHeight;
-      const totalPages = Math.ceil(totalHeight / pageHeight);
-      const footers = document.querySelectorAll('.footer');
-  footers.forEach((footer, i) => {
-    footer.innerText = `${i + 1}`;
-  });
-});
+    await page.addStyleTag({
+      content: `
+        .footer:after {
+          content: counter(page);
+        }
+      `
+    });
 
     await page.evaluateHandle('document.fonts.ready');
 
@@ -55,12 +53,7 @@ html = html.replace('{{content}}', content);
 const buffer = await page.pdf({
   format: 'A4',
   printBackground: true,
-  margin: {
-    top: '1in',
-    bottom: '1in',
-    left: '1in',
-    right: '1in'
-  }
+  preferCSSPageSize: true
 });
 
     await browser.close();

@@ -89,6 +89,7 @@ if (typeof grading === 'string') {
   instructors: instructors.rows,
   books,
   grading,
+  note,
   evaluations,
   guestTeachers,
   owner_id: courseData.owner_id

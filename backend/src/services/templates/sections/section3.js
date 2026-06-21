@@ -1,6 +1,6 @@
 const renderSection3 = (data) => {
 
-  let { books, evaluations, grading, contents, clos } = data;
+  let { books, evaluations, grading, contents = [], clos = [], note } = data;
 
   // ✅ parse JSON
   if (typeof books === 'string') {
@@ -183,10 +183,11 @@ ${sortedGrading.map(g => {
     </div>
   `;
 }).join('')}
+${note ? `<div style="text-indent: 40px; margin-top: 10px;">${note}</div>` : ''}
       <div class="heading">
       <p><b>แนวทางการอุทธรณ์ของนักศึกษา/ผู้เรียน Appeal procedure</b></p>
       </div>
-      <p style="text-indent: 40px;" justify-content:space-between;>
+      <p style="text-indent: 40px; text-align: justify;">
       นักศึกษาสามารถทำเรื่องอุทธรณ์ผลการเรียนโดย Download แบบคำร้อง (ใช้คำร้องทั่วไป) ได้ที่ระบบ
 e-registra และยื่นคำร้องได้ที่สำนักงานฝ่ายวิชาการและวิจัยภายใน 10 วันทำการ หลังจากประกาศผลการ
 เรียนในระบบ e-registra</p>

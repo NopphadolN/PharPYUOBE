@@ -124,7 +124,7 @@ const formatContentRange = (ids) => {
   </tr>
 
   ${evalList.map(e => `
-    <tr style="text-align:top">
+    <tr style="vertical-align:top">
       <td>${e.name || '-'}</td>
       <td style="text-align:center">${getCLOCodes(e) || '-'}</td>
       <td style="text-align:center">${e.total ?? '-'}</td>

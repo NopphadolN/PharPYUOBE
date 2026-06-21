@@ -57,7 +57,7 @@ const buffer = await page.pdf({
     await page.close();
 
     // ✅ respond PDF
-const fileName = `${data.code_en}_plan.pdf`;    
+const fileName = `${data.course?.code_en || 'course'}_plan.pdf`;    
     res.set({
       'Content-Type': 'application/pdf',
       'Content-Length': buffer.length,

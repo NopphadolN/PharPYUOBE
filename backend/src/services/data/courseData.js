@@ -81,6 +81,7 @@ let grading = courseData.grading;
 if (typeof grading === 'string') {
   try { grading = JSON.parse(grading); } catch { grading = []; }
 }
+const note = courseData.note || '';
 
   return {
   course: courseData,

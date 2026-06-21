@@ -371,14 +371,14 @@ router.get('/print-plan/:id', async (req, res) => {
   }
 });
 
-router.get('/print-mko3/:id', async (req, res) => {
+router.get('/print-tqf3/:id', async (req, res) => {
   const data = await getCourseData(req.params.id);
-  await generateMKO3PDF(data, res);
+  await generateTQF3(data, res);
 });
 
-router.get('/print-mko5/:id', async (req, res) => {
+router.get('/print-tqf5/:id', async (req, res) => {
   const data = await getCourseData(req.params.id);
-  await generateMKO3PDF(data, res);
+  await generateTQF5(data, res);
 });
 
 /* =============================

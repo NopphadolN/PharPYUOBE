@@ -11,9 +11,8 @@ const { renderMapping } = require('./templates/sections/section4_mapping');
 const generateTQF3 = async (req, res) => {
   try {
     console.log("✅ START generateTQF3");
-
-    const data = req.data;
-    const { subPlos, cloMappings } = req.body;
+    const instanceId = req.params.id;
+    const data = await getCourseData(instanceId);
 
     console.log("✅ Data:", !!data);
     console.log("✅ subPlos:", subPlos?.length);
@@ -30,7 +29,7 @@ const generateTQF3 = async (req, res) => {
     // ✅ render sections
     const s1 = renderSection1(data);
     const s2 = renderSection2(data);
-    const s3 = renderMapping({ ...data, subPlos, cloMappings });
+    const s3 = renderMapping(data);
 
     console.log("✅ Section1 length:", s1?.length);
     console.log("✅ Section2 length:", s2?.length);

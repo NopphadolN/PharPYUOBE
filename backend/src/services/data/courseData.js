@@ -84,6 +84,10 @@ if (typeof grading === 'string') {
 const note = courseData.note || '';
 const revision_note = courseData.revision_note || '';
 
+const subPlos = await getSubPlos();
+const cloMappings = await getCloMappings(instanceId);
+
+
   return {
   course: courseData,
   clos: clos.rows,
@@ -95,9 +99,42 @@ const revision_note = courseData.revision_note || '';
   revision_note,
   evaluations,
   guestTeachers,
-  owner_id: courseData.owner_id
+  owner_id: courseData.owner_id, 
+  subPlos,
+  cloMappings
   };
 
+};
+// ✅ ดึง SubPLO
+const getSubPlos = async () => {
+  const res = await pool.query(`
+    SELECT id, code, plo_id
+    FROM sub_plos
+    ORDER BY code
+  `);
+  return res.rows;
+};
+
+// ✅ ดึง mapping
+const getCloMappings = async (instanceId) => {
+  const res = await pool.query(`
+    SELECT clo_id, sub_plo_id
+    FROM clo_subplo_mapping
+    WHERE course_instance_id = $1
+  `, [instanceId]);
+  const map = [];
+  res.rows.forEach(r => {
+    const found = map.find(m => m.cloId == r.clo_id);
+    if (found) {
+      found.subPloIds.push(String(r.sub_plo_id));
+    } else {
+      map.push({
+        cloId: r.clo_id,
+        subPloIds: [String(r.sub_plo_id)]
+      });
+    }
+  });
+  return map;
 };
 
 module.exports = { getCourseData };

@@ -1,4 +1,7 @@
-const renderMapping = ({ clos, subPlos, cloMappings }) => {
+const renderMapping = (data) => {
+  const clos = data.clos || [];
+  const subPlos = data.subPlos || [];
+  const cloMappings = data.cloMappings || [];
 
   return `
   <div class="section page-break">

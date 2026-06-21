@@ -18,6 +18,7 @@ export default function CourseBook() {
   const [books, setBooks] = useState([]);
   const [newBook, setNewBook] = useState('');
   const [note, setNote] = useState('');
+  const [revisionNote, setRevisionNote] = useState('');
   const [grading, setGrading] = useState([]);
   const [currentGrade, setCurrentGrade] = useState({
     min: '',
@@ -44,7 +45,8 @@ useEffect(() => {
         setBooks(res.data.books || []);
         setGrading(res.data.grading || []);
         setOwner(res.data.owner);
-        setNote(res.data.note || ''); 
+        setNote(res.data.note || '');
+        setRevisionNote(res.data.revision_note || ''); 
       }
     } catch (err) {
       console.error(err);
@@ -113,7 +115,8 @@ await api.post('/instructor/instance/book', {
   course_instance_id: instanceId,
   books,
   grading,
-  note
+  note,
+  revision_note: revisionNote
 });
   alert('✅ บันทึกแล้ว');
   
@@ -125,6 +128,7 @@ const data = res.data;
 setBooks(data.books || []);
 setGrading(data.grading || []);
 setNote(data.note || '');
+setRevisionNote(data.revision_note || '');
 }
 
   /* =========================
@@ -311,6 +315,20 @@ setNote(data.note || '');
   />
 </Card>
 
+{/* ================= REVISION NOTE ================= */}
+<Card>
+  <h3 className="font-semibold mb-3">
+    📌 บันทึกการปรับแก้ไขรายวิชาจาก มคอ.5
+  </h3>
+
+  <textarea
+    disabled={!isOwner}
+    value={revisionNote}
+    onChange={(e) => setRevisionNote(e.target.value)}
+    placeholder="พิมพ์บันทึกการปรับแก้ไข..."
+    className="w-full min-h-[120px] border rounded-lg p-3 focus:outline-none focus:ring"
+  />
+</Card>
 
         <hr />
 <div className="flex gap-3">

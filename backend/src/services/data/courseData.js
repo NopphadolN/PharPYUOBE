@@ -82,6 +82,7 @@ if (typeof grading === 'string') {
   try { grading = JSON.parse(grading); } catch { grading = []; }
 }
 const note = courseData.note || '';
+const revision_note = courseData.revision_note || '';
 
   return {
   course: courseData,
@@ -91,6 +92,7 @@ const note = courseData.note || '';
   books,
   grading,
   note,
+  revision_note,
   evaluations,
   guestTeachers,
   owner_id: courseData.owner_id

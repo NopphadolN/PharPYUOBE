@@ -152,8 +152,14 @@ useEffect(() => {
       // ✅ CLO
       const cloRes = await api.get('/instructor/clos', {
         params: { course_instance_id: data.id }
-      });
-      setClos(cloRes.data);
+      });      
+      setClos(
+        cloRes.data.map(c => ({
+        ...c,
+        id: String(c.id)   // ✅ convert เป็น string
+      }))
+      );
+
     } catch (err) {
       console.error("LOAD ERROR:", err);
     }

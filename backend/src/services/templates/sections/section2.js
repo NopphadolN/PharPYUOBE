@@ -52,7 +52,7 @@ const getInstructorName = (r) => {
 
       <tbody>
         ${rows.map(r => `
-          <tr style="text-align:top">
+          <tr style="vertical-align:top">
             <td>${formatDate(r.date)}</td>
             <td style="text-align:center">${r.order}</td>
             <td>${r.topic}</td>

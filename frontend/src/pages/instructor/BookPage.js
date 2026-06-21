@@ -17,7 +17,7 @@ export default function CourseBook() {
 
   const [books, setBooks] = useState([]);
   const [newBook, setNewBook] = useState('');
-
+  const [note, setNote] = useState('');
   const [grading, setGrading] = useState([]);
   const [currentGrade, setCurrentGrade] = useState({
     min: '',
@@ -44,6 +44,7 @@ useEffect(() => {
         setBooks(res.data.books || []);
         setGrading(res.data.grading || []);
         setOwner(res.data.owner);
+        setNote(res.data.note || ''); 
       }
     } catch (err) {
       console.error(err);
@@ -104,13 +105,15 @@ const deleteGrade = (target) => {
     console.log("SAVE BOOK:", {
   course_instance_id: instanceId,
   books,
-  grading
+  grading,
+  note
 });
 
 await api.post('/instructor/instance/book', {
   course_instance_id: instanceId,
   books,
-  grading
+  grading,
+  note
 });
   alert('✅ บันทึกแล้ว');
   
@@ -121,6 +124,7 @@ const res = await api.get('/instructor/instance', {
 const data = res.data;
 setBooks(data.books || []);
 setGrading(data.grading || []);
+setNote(data.note || '');
 }
 
   /* =========================
@@ -292,6 +296,21 @@ setGrading(data.grading || []);
   </table>
 </div>
 </Card>
+
+{/* ================= NOTE ================= */}
+<Card>
+  <h3 className="font-semibold mb-3">
+    หมายเหตุ / การแก้ไขกรณีไม่ผ่าน CLO
+  </h3>
+  <textarea
+    disabled={!isOwner}
+    value={note}
+    onChange={(e) => setNote(e.target.value)}
+    placeholder="พิมพ์ข้อมูลเพิ่มเติม..."
+    className="w-full min-h-[120px] border rounded-lg p-3 focus:outline-none focus:ring"
+  />
+</Card>
+
 
         <hr />
 <div className="flex gap-3">

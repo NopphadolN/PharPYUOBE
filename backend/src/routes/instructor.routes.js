@@ -106,7 +106,7 @@ router.get('/evaluations', verifyToken, controller.getEvaluations);
    POST: Save Books + Grading
 ============================= */
 router.post('/instance/book', verifyToken, checkOwner, async (req, res) => {
-  const { course_instance_id, books, grading } = req.body;
+  const { course_instance_id, books, grading, note } = req.body;
   try {
     if (!course_instance_id) {
       return res.status(400).json({ error: 'course_instance_id required' });
@@ -114,11 +114,13 @@ router.post('/instance/book', verifyToken, checkOwner, async (req, res) => {
     await pool.query(`
       UPDATE course_instances
       SET books = $1,
-          grading = $2
-      WHERE id = $3
+          grading = $2,          
+          note = $3
+      WHERE id = $4
     `, [
       JSON.stringify(books || []),
       JSON.stringify(grading || []),
+      note || '',
       course_instance_id
     ]);
     return res.json({ ok: true });
@@ -449,8 +451,8 @@ const safeJSON = (data) => {
 
       const insert = await pool.query(`
         INSERT INTO course_instances
-        (course_id, year, semester, owner_id, prerequisite, course_type, guest_teachers, books, grading)
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+        (course_id, year, semester, owner_id, prerequisite, course_type, guest_teachers, books, grading, note)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
         RETURNING id
       `, [
         course_id,
@@ -459,9 +461,10 @@ const safeJSON = (data) => {
         req.user.id,
         oldInstance.prerequisite,
         oldInstance.course_type,
-JSON.stringify(safeJSON(oldInstance.guest_teachers)),
-JSON.stringify(safeJSON(oldInstance.books)),
-JSON.stringify(safeJSON(oldInstance.grading))
+        JSON.stringify(safeJSON(oldInstance.guest_teachers)),
+        JSON.stringify(safeJSON(oldInstance.books)),
+        JSON.stringify(safeJSON(oldInstance.grading)),
+        oldInstance.note || ''
       ]);
 
       newId = insert.rows[0].id;

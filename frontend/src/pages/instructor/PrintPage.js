@@ -43,11 +43,11 @@ const loadCourses = async () => {
 if (docType === 'plan') {
   url = `https://pharpyuobe.onrender.com/api/instructor/print-plan/${id}`;
 }
-else if (docType === 'mko3') {
-  url = `https://pharpyuobe.onrender.com/api/instructor/print-mko3/${id}`;
+else if (docType === 'tqf3') {
+  url = `https://pharpyuobe.onrender.com/api/instructor/print-tqf3/${id}`;
 }
-else if (docType === 'mko5') {
-  url = `https://pharpyuobe.onrender.com/api/instructor/print-mko5/${id}`;
+else if (docType === 'tqf5') {
+  url = `https://pharpyuobe.onrender.com/api/instructor/print-tqf5/${id}`;
 }
     window.open(url, '_blank');
   };

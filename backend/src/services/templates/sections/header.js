@@ -11,7 +11,7 @@ const renderHeader = (data) => {
 
   return `
     <div style="margin-bottom:30px;" class="header">
-      <p><strong>ประมวลรายวิชา หลักสูตรเภสัชศาสตร์บัณฑิต</strong></p>
+      <div><b>ประมวลรายวิชา หลักสูตรเภสัชศาสตร์บัณฑิต</b></div>
       <div><b>สาขาการบริบาลทางเภสัชกรรม</b></div>
       <div><b>คณะเภสัชศาสตร์ มหาวิทยาลัยพายัพ</b></div>
       <div><b>ประจำภาคการศึกษาที่ ${semester} ปีการศึกษา ${year}</b></div>

@@ -10,35 +10,68 @@ const { renderMapping } = require('./templates/sections/section4_mapping');
 
 const generateTQF3 = async (req, res) => {
   try {
+    console.log("✅ START generateTQF3");
 
-    const data = req.data; 
-    const { subPlos, cloMappings } = req.body; // ✅ ต้องส่งมาจาก frontend
+    const data = req.data;
+    const { subPlos, cloMappings } = req.body;
 
-    const htmlTemplate = fs.readFileSync(
-      './templates/tqf3.html',
-      'utf8'
-    );
+    console.log("✅ Data:", !!data);
+    console.log("✅ subPlos:", subPlos?.length);
+    console.log("✅ cloMappings:", cloMappings?.length);
+
+    // ✅ อ่าน template
+    const templatePath = './templates/tqf3.html';
+    console.log("✅ Template path:", templatePath);
+
+    const htmlTemplate = fs.readFileSync(templatePath, 'utf8');
+
+    console.log("✅ Template length:", htmlTemplate.length);
+
+    // ✅ render sections
+    const s1 = renderSection1(data);
+    const s2 = renderSection2(data);
+    const s3 = renderMapping({ ...data, subPlos, cloMappings });
+
+    console.log("✅ Section1 length:", s1?.length);
+    console.log("✅ Section2 length:", s2?.length);
+    console.log("✅ Mapping length:", s3?.length);
 
     const content = `
-      ${renderSection1(data)}
-      ${renderSection2(data)}
-      ${renderMapping({ ...data, subPlos, cloMappings })}
+      ${s1}
+      ${s2}
+      ${s3}
     `;
 
-    const finalHtml = htmlTemplate.replace('{{content}}', content);
+    console.log("✅ Content length:", content.length);
 
+    // ✅ FIX replace แบบกันช่องว่าง
+    const finalHtml = htmlTemplate.replace(/{{\s*content\s*}}/, content || '<h1>NO CONTENT</h1>');
+
+    console.log("✅ Final HTML length:", finalHtml.length);
+
+    // ✅ dump HTML สำหรับ debug
+    fs.writeFileSync('debug.html', finalHtml);
+    console.log("✅ debug.html written");
+
+    // ✅ launch browser
     const browser = await puppeteer.launch({
       args: chromium.args,
       executablePath: await chromium.executablePath(),
       headless: true
     });
 
+    console.log("✅ Browser launched");
+
     const page = await browser.newPage();
 
+    // ✅ load html
     await page.setContent(finalHtml, {
       waitUntil: 'networkidle0'
     });
 
+    console.log("✅ HTML loaded in page");
+
+    // ✅ generate pdf
     const pdf = await page.pdf({
       format: 'A4',
       printBackground: true,
@@ -50,13 +83,16 @@ const generateTQF3 = async (req, res) => {
       }
     });
 
+    console.log("✅ PDF generated, size:", pdf.length);
+
     await browser.close();
 
     res.setHeader('Content-Type', 'application/pdf');
     res.send(pdf);
 
+    console.log("✅ DONE");
   } catch (err) {
-    console.error(err);
+    console.error("❌ ERROR:", err);
     res.status(500).send('PDF error');
   }
 };

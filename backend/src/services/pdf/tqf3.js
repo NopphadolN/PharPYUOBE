@@ -47,8 +47,8 @@ const buffer = await page.pdf({
   margin: {
     top: '1in',
     bottom: '1in',
-    left: '0.7in',
-    right: '0.7in'
+    left: '0.8in',
+    right: '0.8in'
   }
 });   
 
@@ -58,7 +58,7 @@ const buffer = await page.pdf({
 const code = data.course?.code_en || 'course';
 const year = data.course?.year || 'unknown';
 const semester = data.course?.semester || 'X';
-const fileName = `${code}_plan_${year}_T${semester}.pdf`;   
+const fileName = `${code}_tqf3_${year}_T${semester}.pdf`;   
     res.set({
       'Content-Type': 'application/pdf',
       'Content-Length': buffer.length,

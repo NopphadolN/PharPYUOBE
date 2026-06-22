@@ -2,9 +2,9 @@ const renderSection1 = (data) => {
   const c = data.course || {};
   const { instructors, guestTeachers, user_id, owner_id } = data;
   return `
-    <div style="border: 3px solid #000000; padding: 3px; margin: 20px 0;">
-      <div style="border: 1px solid #000000; padding: 10px 0; text-align: center;">
-        <h1 style="margin: 0; font-size: 22px;">รายละเอียดของรายวิชา</h1>
+    <div style="border: 1px solid #000000; padding: 3px; margin: 20px 0;">
+      <div style="border: 3px solid #000000; padding: 10px 0; text-align: center;">
+        <h1 style="margin: 0; font-size: 24px;">รายละเอียดของรายวิชา</h1>
       </div>
     </div>
     <p><b>ชื่อสถาบันอุดมศึกษา</b>
@@ -12,9 +12,9 @@ const renderSection1 = (data) => {
     <p><b>วิทยาเขต/คณะ/ภาควิชา/สาขาวิชา</b>
     <span style="margin-left:10px;">คณะเภสัชศาสตร์</span></p>
     
-    <div style="border: 3px solid #000000; padding: 3px; margin: 20px 0;">
-      <div style="border: 1px solid #000000; padding: 10px 0; text-align: center;">
-        <h2 style="margin: 0; font-size: 20px;">หมวดที่ 1 ข้อมูลทั่วไป</h2>
+    <div style="border: 1px solid #000000; padding: 3px; margin: 20px 0;">
+      <div style="border: 3px solid #000000; padding: 10px 0; text-align: center;">
+        <h2 style="margin: 0; font-size: 22px;">หมวดที่ 1 ข้อมูลทั่วไป</h2>
       </div>
     </div>
     <p><b>1. รหัสและชื่อรายวิชา</b></p>
@@ -28,7 +28,7 @@ const renderSection1 = (data) => {
         <p style="margin-left: 80px;">ชื่อหลักสูตร
         <span style="margin-left:80px;">เภสัชศาสตรบัณฑิต สาขาวิชาการบริบาลทางเภสัชกรรม (หลักสูตรปรับปรุง พ.ศ.2568)</span></p>
         <p style="margin-left: 80px;">ประเภทของรายวิชา
-        <span style="margin-left:40px;">${c.course_type || '-'}</span></p>
+        <span style="margin-left:30px;">${c.course_type || '-'}</span></p>
 
     <p><b>4. อาจารย์ผู้รับผิดชอบรายวิชาและอาจารย์ผู้สอน</b></p>
         <p style="margin-left: 80px;">อาจารย์ผู้รับผิดชอบรายวิชา
@@ -38,11 +38,11 @@ const renderSection1 = (data) => {
         <p style="margin-left: 80px;">อาจารย์ผู้สอน</p>
             <p style="margin-left: 120px;">ภาคบรรยาย</p>    
             ${instructors.map(i => `
-            <div style="text-indent: 100px;">- ${i.name_th}</div>`).join('')}
+            <div style="text-indent: 200px;">${i.name_th}</div>`).join('')}
     ${(Array.isArray(guestTeachers) && guestTeachers.length > 0)
     ? `
     ${guestTeachers.map(g => `
-      <div style="text-indent: 100px;">- ${g}</div>`).join('')}
+      <div style="text-indent: 200px;">${g}</div>`).join('')}
       `
     : ''
     }

@@ -5,24 +5,24 @@ const fontBase64 =
 const fs = require('fs');
 const path = require('path');
 
-
-const { renderSection1 } = require('../templates/sections/section1_general');
-const { renderSection2 } = require('../templates/sections/section2_clo');
-
+const { renderHeader } = require('../templates/sections/header');
+const { renderSection1 } = require('../templates/sections/section1');
+const { renderSection2 } = require('../templates/sections/section2');
+const { renderSection3 } = require('../templates/sections/section3');
 
 let browser;
 const generateTQF3 = async (data, res) => {
   try {
     // ✅ โหลด template HTML
-    const templatePath = path.join(__dirname, '../templates/tqf3.html');
+    const templatePath = path.join(__dirname, '../templates/plan.html');
     let html = fs.readFileSync(templatePath, 'utf8');
 
     // ✅ รวม content
     const content = `
-  
+      ${renderHeader(data)}
       ${renderSection1(data)}
       ${renderSection2(data)}
-      
+      ${renderSection3(data)}
     `;
     html = html.replace('{{content}}', content);
 

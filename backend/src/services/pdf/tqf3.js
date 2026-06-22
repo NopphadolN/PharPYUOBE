@@ -5,9 +5,9 @@ const fontBase64 =
 const fs = require('fs');
 const path = require('path');
 
-const { renderSection1 } = require('./templates/sections/section1_general');
-const { renderSection2 } = require('./templates/sections/section2_clo');
-const { renderMapping } = require('./templates/sections/section4_mapping');
+const { renderSection1 } = require('../templates/sections/section1_general');
+const { renderSection2 } = require('../templates/sections/section2_clo');
+const { renderMapping } = require('../templates/sections/section4_mapping');
 
 let browser;
 const generateTQF3 = async (data, res) => {

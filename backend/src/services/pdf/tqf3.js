@@ -14,7 +14,7 @@ let browser;
 const generateTQF3 = async (data, res) => {
   try {
     // ✅ โหลด template HTML
-    const templatePath = path.join(__dirname, '../templates/plan.html');
+    const templatePath = path.join(__dirname, '../templates/tqf3.html');
     let html = fs.readFileSync(templatePath, 'utf8');
 
     // ✅ รวม content

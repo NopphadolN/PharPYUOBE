@@ -7,16 +7,10 @@ const path = require('path');
 
 const { renderSection1 } = require('./templates/sections/section1_general');
 const { renderSection2 } = require('./templates/sections/section2_clo');
-const { renderMapping } = require('./templates/sections/section4_mapping');
 
 let browser;
 const generateTQF3 = async (data, res) => {
   try {
-    console.log("✅ START generateTQF3");
-    console.log("✅ Data:", !!data);
-    console.log("✅ subPlos:", subPlos?.length);
-    console.log("✅ cloMappings:", cloMappings?.length);
-
     // ✅ อ่าน template
     const templatePath = path.join(__dirname, '../templates/tqf3.html');
     let html = fs.readFileSync(templatePath, 'utf8');
@@ -24,19 +18,14 @@ const generateTQF3 = async (data, res) => {
     // ✅ render sections
     const s1 = renderSection1(data);
     const s2 = renderSection2(data);
-    const s3 = renderMapping(data);
 
     console.log("✅ Section1 length:", s1?.length);
     console.log("✅ Section2 length:", s2?.length);
-    console.log("✅ Mapping length:", s3?.length);
 
     const content = `
       ${s1}
       ${s2}
-      ${s3}
     `;
-
-    console.log("✅ Content length:", content.length);
 
     // ✅ FIX replace แบบกันช่องว่าง
     html = html.replace('{{content}}', content);

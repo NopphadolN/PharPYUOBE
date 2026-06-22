@@ -118,9 +118,10 @@ const getSubPlos = async () => {
 // ✅ ดึง mapping
 const getCloMappings = async (instanceId) => {
   const res = await pool.query(`
-    SELECT clo_id, sub_plo_id
-    FROM clo_subplo_mapping
-    WHERE course_instance_id = $1
+    SELECT m.clo_id, m.sub_plo_id
+    FROM clo_subplo_mapping m
+    JOIN clos c ON m.clo_id = c.id
+    WHERE c.course_instance_id = $1
   `, [instanceId]);
   const map = [];
   res.rows.forEach(r => {

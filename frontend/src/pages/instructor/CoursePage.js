@@ -521,7 +521,7 @@ if (loadingCourses) {
     <div className="col-span-2">
       <Input
         disabled={!isOwner}
-        placeholder="CLO Code"
+        placeholder="CLO Code เช่น CLO1"
         value={currentClo.code}
         onChange={e =>
           setCurrentClo({ ...currentClo, code: e.target.value })
@@ -530,7 +530,7 @@ if (loadingCourses) {
     </div>
     <div className="col-span-10">
       <Input
-        placeholder="คำอธิบาย"
+        placeholder="ระบุคำอธิบาย (เลข Sub PLO ที่เกี่ยวข้อง) (อักษร KSEC ที่เกี่ยวข้อง)"
         value={currentClo.description}
         onChange={e =>
           setCurrentClo({ ...currentClo, description: e.target.value })

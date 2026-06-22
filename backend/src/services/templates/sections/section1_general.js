@@ -1,20 +1,53 @@
 const renderSection1 = (data) => {
-  const { course, instructors } = data;
+  const c = data.course || {};
 
   return `
-  <div class="section">
-    <h2>หมวดที่ 1 ข้อมูลทั่วไป</h2>
+    <div style="border: 3px solid #000000; padding: 3px; margin: 20px 0;">
+      <div style="border: 1px solid #000000; padding: 10px 0; text-align: center;">
+        <h1 style="margin: 0; font-size: 18px;">รายละเอียดของรายวิชา</h1>
+      </div>
+    </div>
+    <p><b>ชื่อสถาบันอุดมศึกษา</b>    มหาวิทยาลัยพายัพ</p>
+    <p><b>วิทยาเขต/คณะ/ภาควิชา/สาขาวิชา</b>    คณะเภสัชศาสตร์</p>
+    
+    <div style="border: 3px solid #000000; padding: 3px; margin: 20px 0;">
+      <div style="border: 1px solid #000000; padding: 10px 0; text-align: center;">
+        <h2 style="margin: 0; font-size: 16px;">หมวดที่ 1 ข้อมูลทั่วไป</h2>
+      </div>
+    </div>
+    <p><b>1. รหัสและชื่อรายวิชา</b></p>
+        <p style="margin-left: 80px;">${c.code_th || '-'} ${c.name_th || '-'}</p>
+        <p style="margin-left: 80px;">${c.code_en || '-'} ${c.name_en || '-'}</p>
 
-    <p><strong>รหัส:</strong> ${course.code_th}</p>
-    <p><strong>ชื่อวิชา:</strong> ${course.name_th}</p>
-    <p><strong>หน่วยกิต:</strong> ${course.credits}</p>
+    <p><b>2. จำนวนหน่วยกิต</b></p> 
+        <p style="margin-left: 80px;">${c.credit || '-'} หน่วยกิต (${c.credit_format || '-'})</p>
 
-    <p><strong>อาจารย์:</strong></p>
-    <ul>
-      ${instructors.map(i => `<li>${i.name_th}</li>`).join('')}
-    </ul>
-  </div>
+    <p><b>3. หลักสูตรและประเภท:</b></p>
+        <p style="margin-left: 80px;">ชื่อหลักสูตร     เภสัชศาสตรบัณฑิต สาขาวิชาการบริบาลทางเภสัชกรรม (หลักสูตรปรับปรุง พ.ศ.2568)</p>
+        <p style="margin-left: 80px;">ประเภทของรายวิชา  ${c.course_type || '-'}</p>
+
+    <p><b>4. อาจารย์ผู้รับผิดชอบรายวิชาและอาจารย์ผู้สอน</b></p>
+        <p style="margin-left: 80px;">อาจารย์ผู้รับผิดชอบรายวิชา</p>
+        <span style="margin-left:5px;">
+    ${c.instructors.find(i => i.id === c.owner_id)?.name_th || '-'}
+    </span></p>
+        <p style="margin-left: 80px;">อาจารย์ผู้สอน</p>
+            <p style="margin-left: 120px;">ภาคบรรยาย    ${c.instructors || '-'}</p>
+            <p style="margin-left: 120px;">ภาคปฏิบัติ</p>
+    <p><b>5. ภาคการศึกษา / ชั้นปีที่เรียน</b> 
+        <p style="margin-left: 80px;">ภาคการศึกษาที่ ${c.semester || '-'} ปีการศึกษา ${c.year || '-'}</p>
+        <p style="margin-left: 80px;"><b>ชั้นปีที่........</p>
+
+    <p><b>6. รายวิชาที่ต้องเรียนมาก่อน (Pre-requisite) (ถ้ามี)</b> </p> 
+        <p style="margin-left: 80px;">${c.prerequisite || '-'}</p>
+    <p><b>7. รายวิชาที่ต้องเรียนพร้อมกัน (Co-requisites) (ถ้ามี)</b></p>
+        <p style="margin-left: 80px;"> - </p>
+    <p><b>8. สถานที่เรียน</b></p>
+        <p style="margin-left: 80px;">คณะเภสัชศาสตร์ มหาวิทยาลัยพายัพ</p>
+    <p><b>9. วันที่จัดทำหรือปรับปรุงรายละเอียดของรายวิชาครั้งล่าสุด</b></p>
+        <p style="margin-left: 80px;"> - </p>
   `;
+
 };
 
 module.exports = { renderSection1 };

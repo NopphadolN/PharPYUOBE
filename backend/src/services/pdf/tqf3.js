@@ -5,95 +5,71 @@ const fontBase64 =
 const fs = require('fs');
 const path = require('path');
 
-const { getCourseData } = require(
-  path.join(__dirname, 'data/courseData')
-);
-const { getSubPlos, getCloMappings } = require(
-  path.join(__dirname, 'data/mappingData')
-);
-
 const { renderSection1 } = require('./templates/sections/section1_general');
 const { renderSection2 } = require('./templates/sections/section2_clo');
 const { renderMapping } = require('./templates/sections/section4_mapping');
 
-const generateTQF3 = async (req, res) => {
+let browser;
+const generateTQF3 = async (data, res) => {
   try {
-    console.log("✅ START TQF3");
+    // ✅ โหลด template HTML
+    const templatePath = path.join(__dirname, '../templates/tqf3.html');
+    let html = fs.readFileSync(templatePath, 'utf8');
 
-    const instanceId = req.params.id;
-
-    // ✅ โหลด data หลัก
-    const data = await getCourseData(instanceId);
-
-    console.log("✅ course loaded:", data.course.code_en);
-
-    // ✅ โหลด SubPLO + Mapping
-    const subPlos = await getSubPlos();
-    const cloMappings = await getCloMappings(instanceId);
-
-    console.log("✅ subPlos:", subPlos.length);
-    console.log("✅ mappings:", cloMappings.length);
-
-    // ✅ โหลด HTML template
-    const htmlTemplate = fs.readFileSync(
-      './templates/tqf3.html',
-      'utf8'
-    );
-
-    // ✅ render
+    // ✅ รวม content
     const content = `
       ${renderSection1(data)}
       ${renderSection2(data)}
-      ${renderMapping({
-        ...data,
-        subPlos,
-        cloMappings
-      })}
+      ${renderMapping(data)}
     `;
+    html = html.replace('{{content}}', content);
 
-    // ✅ replace
-    const finalHtml = htmlTemplate.replace(
-      /{{\s*content\s*}}/,
-      content || '<h1>NO CONTENT</h1>'
-    );
-
-    // ✅ debug file
-    fs.writeFileSync('debug.html', finalHtml);
-
-    // ✅ puppeteer
-    const browser = await puppeteer.launch({
-      args: chromium.args,
-      executablePath: await chromium.executablePath(),
-      headless: true
-    });
-
+    // ✅ launch browser (Render compatible)
+    if (!browser) {
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        executablePath: await chromium.executablePath(),
+        headless: true,
+      });
+    }
+ 
+    // ✅ create page
     const page = await browser.newPage();
+    await page.setCacheEnabled(true);
 
-    await page.setContent(finalHtml, {
-      waitUntil: 'networkidle0'
-    });
+    // ✅ ใส่ HTML ลงไป
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
 
-    const pdf = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: {
-        top: '1cm',
-        bottom: '1cm',
-        left: '1.5cm',
-        right: '1.5cm'
-      }
-    });
-
-    await browser.close();
-
-    res.setHeader('Content-Type', 'application/pdf');
-    res.send(pdf);
-
-    console.log("✅ DONE");
+    // ✅ generate PDF
+const buffer = await page.pdf({
+  format: 'A4',
+  printBackground: true, 
+  margin: {
+    top: '1in',
+    bottom: '1in',
+    left: '1in',
+    right: '1in'
   }
-  catch (err) {
-    console.error("❌ ERROR:", err);
-    res.status(500).send('PDF error');
+});   
+
+    await page.close();
+
+    // ✅ respond PDF
+const code = data.course?.code_en || 'course';
+const year = data.course?.year || 'unknown';
+const semester = data.course?.semester || 'X';
+const fileName = `${code}_plan_${year}_T${semester}.pdf`;   
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Length': buffer.length,
+      'Content-Disposition': `inline; filename="${fileName}"`
+    });
+
+    res.send(buffer);
+
+  } catch (err) {
+    console.error('PDF ERROR:', err);
+    res.status(500).send('PDF generation failed');
   }
 };
 

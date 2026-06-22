@@ -5,32 +5,28 @@ const fontBase64 =
 const fs = require('fs');
 const path = require('path');
 
-const { renderSection1 } = require('./templates/sections/section1_general');
-const { renderSection2 } = require('./templates/sections/section2_clo');
+
+const { renderSection1 } = require('../templates/sections/section1_general');
+const { renderSection2 } = require('../templates/sections/section2_clo');
+
 
 let browser;
 const generateTQF3 = async (data, res) => {
   try {
-    // ✅ อ่าน template
+    // ✅ โหลด template HTML
     const templatePath = path.join(__dirname, '../templates/tqf3.html');
     let html = fs.readFileSync(templatePath, 'utf8');
 
-    // ✅ render sections
-    const s1 = renderSection1(data);
-    const s2 = renderSection2(data);
-
-    console.log("✅ Section1 length:", s1?.length);
-    console.log("✅ Section2 length:", s2?.length);
-
+    // ✅ รวม content
     const content = `
-      ${s1}
-      ${s2}
+  
+      ${renderSection1(data)}
+      ${renderSection2(data)}
+      
     `;
-
-    // ✅ FIX replace แบบกันช่องว่าง
     html = html.replace('{{content}}', content);
 
-    // ✅ launch browser
+    // ✅ launch browser (Render compatible)
     if (!browser) {
       browser = await puppeteer.launch({
         args: chromium.args,
@@ -38,36 +34,44 @@ const generateTQF3 = async (data, res) => {
         headless: true,
       });
     }
-
+ 
+    // ✅ create page
     const page = await browser.newPage();
     await page.setCacheEnabled(true);
 
-    // ✅ load html
+    // ✅ ใส่ HTML ลงไป
     await page.setContent(html, { waitUntil: 'domcontentloaded' });
 
-    // ✅ generate pdf
-    const pdf = await page.pdf({
-      format: 'A4',
-      printBackground: true,
-      margin: {
-        top: '1cm',
-        bottom: '1cm',
-        left: '1.5cm',
-        right: '1.5cm'
-      }
-    });
-
-    console.log("✅ PDF generated, size:", pdf.length);
+    // ✅ generate PDF
+const buffer = await page.pdf({
+  format: 'A4',
+  printBackground: true, 
+  margin: {
+    top: '1in',
+    bottom: '1in',
+    left: '1in',
+    right: '1in'
+  }
+});   
 
     await page.close();
 
-    res.setHeader('Content-Type', 'application/pdf');
-    res.send(pdf);
+    // ✅ respond PDF
+const code = data.course?.code_en || 'course';
+const year = data.course?.year || 'unknown';
+const semester = data.course?.semester || 'X';
+const fileName = `${code}_plan_${year}_T${semester}.pdf`;   
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Length': buffer.length,
+      'Content-Disposition': `inline; filename="${fileName}"`
+    });
 
-    console.log("✅ DONE");
+    res.send(buffer);
+
   } catch (err) {
-    console.error("❌ ERROR:", err);
-    res.status(500).send('PDF error');
+    console.error('PDF ERROR:', err);
+    res.status(500).send('PDF generation failed');
   }
 };
 

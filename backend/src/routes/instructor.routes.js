@@ -357,8 +357,10 @@ router.get('/ylo-results', async (req, res) => {
   res.json(result.rows);
 });
 
-// printแผนการสอน
+// printแผนการสอน //
 const { generatePlanPDF } = require('../services/pdf/plan');
+const { generateTQF3 } = require('../services/pdf/tqf3');
+const { generateTQF5 } = require('../services/pdf/tqf5');
 const { getCourseData } = require('../services/data/courseData');
 
 router.get('/print-plan/:id', async (req, res) => {

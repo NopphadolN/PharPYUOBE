@@ -5,8 +5,7 @@ const renderMapping = (data) => {
 
   return `
   <div class="section page-break">
-    <h2>Mapping CLO – SubPLO</h2>
-
+    <h1>Mapping CLO – SubPLO</h1>
     <table>
       <thead>
         <tr>
@@ -14,12 +13,9 @@ const renderMapping = (data) => {
           ${subPlos.map(sp => `<th>${sp.code}</th>`).join('')}
         </tr>
       </thead>
-
       <tbody>
         ${clos.map(clo => {
-
           const map = cloMappings.find(m => m.cloId == clo.id);
-
           return `
           <tr>
             <td>${clo.code}</td>
@@ -29,7 +25,6 @@ const renderMapping = (data) => {
                 map?.subPloIds?.includes(String(sp.id));
               return `<td>${checked ? '✓' : ''}</td>`;
             }).join('')}
-
           </tr>
           `;
         }).join('')}

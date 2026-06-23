@@ -7,6 +7,7 @@ const path = require('path');
 
 const { renderSection1 } = require('../templates/sections/section1_general');
 const { renderSection2 } = require('../templates/sections/section2_clo');
+const { renderSection3 } = require('../templates/sections/section3_plo_matrix');
 const { renderMapping } = require('../templates/sections/section4_mapping');
 
 let browser;
@@ -20,6 +21,7 @@ const generateTQF3 = async (data, res) => {
     const content = `
       ${renderSection1(data)}
       ${renderSection2(data)}
+      ${renderSection3(data)}
       ${renderMapping(data)}
     `;
     html = html.replace('{{content}}', content);
@@ -47,7 +49,7 @@ const buffer = await page.pdf({
   margin: {
     top: '1in',
     bottom: '1in',
-    left: '0.8in',
+    left: '0.9in',
     right: '0.8in'
   }
 });   

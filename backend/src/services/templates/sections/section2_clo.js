@@ -5,7 +5,6 @@ const calculateHours = (creditFormat = "0-0-0") => {
     .replace(/\s/g, '')
     .split('-')
     .map(Number);
-
   return {
     lecture: (lec || 0) * 15,
     lab: (lab || 0) * 15,
@@ -32,15 +31,13 @@ const renderSection2 = (data) => {
     <p>เมื่อสิ้นสุดการเรียนการสอนแล้ว นักศึกษาที่สำเร็จการศึกษาในรายวิชา สามารถ (CLOs)</p>
     ${clos.length > 0
       ? clos.map((c, i) => `
-        <p style="margin-left:80px;">
+        <p style="text-indent:80px;">
           ${i + 1}. ${c.description || '-'}
         </p>
       `).join('')
       : `<p style="margin-left:80px;">-</p>`
     }
-  </div>
 
-  <div class="section">
     <div style="border: 2px solid #000; padding: 3px; margin: 20px 0;">
       <div style="border: 5px solid #000; padding: 10px 0; text-align: center;">
         <h2 style="margin: 0; font-size: 24px;">
@@ -49,13 +46,14 @@ const renderSection2 = (data) => {
       </div>
     </div>
     <p><strong>1. คำอธิบายรายวิชา</strong></p>
-    <p style="margin-left:80px; text-align: justify;">
+    <p style="text-indent:80px; text-align: justify;">
       ${c.description || '-'}
     </p>
 
     <!-- ✅ ตารางชั่วโมง -->
     <p><strong>2. จำนวนชั่วโมงที่ใช้ต่อภาคการศึกษา</strong></p>
-    <table style="width:100%; border-collapse: collapse; margin-top:10px;">
+    <table style="width:100%; border-collapse: collapse; margin-top:10px; 
+    font-size: 18px; text-align: center;">
       <tr>
         <td style="border:1px solid #000; padding:6px;">
           <b>บรรยาย</b>
@@ -75,7 +73,7 @@ const renderSection2 = (data) => {
           ${hours.lecture} ชั่วโมง/ภาคการศึกษา
         </td>
         <td style="border:1px solid #000; padding:6px;">
-          ตามความต้องการของนักศึกษา
+          ตามความต้องการของนักศึกษารายบุคคลและกลุ่มผู้เรียน
         </td>
         <td style="border:1px solid #000; padding:6px;">
           ${hours.lab} ชั่วโมง/ภาคการศึกษา

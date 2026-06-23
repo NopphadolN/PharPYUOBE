@@ -26,7 +26,7 @@ const renderSection1 = (data) => {
 
     <p><strong>3. หลักสูตรและประเภทของรายวิชา</strong></p>
         <p style="margin-left: 80px;">ชื่อหลักสูตร
-        <span style="margin-left:40px;">เภสัชศาสตรบัณฑิต สาขาวิชาการบริบาลทางเภสัชกรรม (หลักสูตรปรับปรุง พ.ศ.2568)</span></p>
+        <span style="text-indent:40px;">เภสัชศาสตรบัณฑิต สาขาวิชาการบริบาลทางเภสัชกรรม (หลักสูตรปรับปรุง พ.ศ.2568)</span></p>
         <p style="margin-left: 80px;">ประเภทของรายวิชา
         <span style="margin-left:20px;">${c.course_type || '-'}</span></p>
 
@@ -42,7 +42,7 @@ const renderSection1 = (data) => {
     ${(Array.isArray(guestTeachers) && guestTeachers.length > 0)
     ? `
     ${guestTeachers.map(g => `
-      <div style="text-indent: 200px;">${g}</div>`).join('')}
+      <div style="margin-left: 200px;">${g}</div>`).join('')}
       `
     : ''
     }

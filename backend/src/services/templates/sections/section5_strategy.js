@@ -69,7 +69,7 @@ const renderSection5 = (data) => {
 const contents = courseContents.filter(c =>
   normalizeIds(c.clo_ids).includes(String(clo.id))
 );
-
+console.log("MATCH CONTENT:", contents.map(c => c.id));
         const contentIds = contents.map(c => String(c.id));
 
         // ✅ 2. teaching strategy
@@ -85,8 +85,8 @@ const contents = courseContents.filter(c =>
 
         // ✅ 3. indicator
 const indicators = cloIndicators.filter(i =>
-  i.clo_id === clo.id &&
-  i.course_instance_id === data.courseInstanceId
+  String(i.clo_id) === String(clo.id) &&
+  (!data.courseInstanceId || i.course_instance_id == data.courseInstanceId)
 );
         const indicatorText = indicators.length > 0
           ? indicators.map(i =>
@@ -113,6 +113,26 @@ const evals = courseEvaluations.filter(e => {
           ? uniqueEvalNames.map(n => `- ${n}`).join('<br>')
           : '-';
 
+
+console.log("normalized clo_ids:",
+  courseContents.map(c => normalizeIds(c.clo_ids))
+);
+
+console.log("==== DEBUG SECTION 5 ====");
+
+clos.forEach(clo => {
+  const contents = courseContents.filter(c =>
+    normalizeIds(c.clo_ids).includes(String(clo.id))
+  );
+
+  const indicators = cloIndicators.filter(i =>
+    String(i.clo_id) === String(clo.id)
+  );
+
+  console.log("CLO:", clo.id);
+  console.log(" → contents:", contents.length);
+  console.log(" → indicators:", indicators.length);
+});
         return `
           <tr>
 

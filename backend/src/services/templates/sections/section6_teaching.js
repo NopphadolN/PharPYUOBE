@@ -1,54 +1,100 @@
-// ✅ helper: convert clo_ids → CLO1, CLO2
-const normalizeIds = (val) => {
-  if (!val) return [];
-
-  // ✅ already array
-  if (Array.isArray(val)) {
-    return val.map(v => String(v).trim());
-  }
-
-  // ✅ string JSON
-  try {
-    const parsed = JSON.parse(val);
-    if (Array.isArray(parsed)) {
-      return parsed.map(v => String(v).trim());
-    }
-  } catch (e) {}
-
-  return [];
-};
-
-
-const formatClos = (cloIds, clos) => {
-  const ids = normalizeIds(cloIds);
-
-  return ids.map(id => {
-    const index = clos.findIndex(c => String(c.id) === id);
-    return index >= 0 ? `CLO${index + 1}` : null;
-  }).filter(Boolean).join(', ') || '-';
-};
-
-
-// ✅ helper: activity mapping
-const getActivity = (type) => {
-  if (type === 'lecture') return 'บรรยาย';
-  if (type === 'lab') return 'ปฏิบัติการ';
-  return '-';
-};
-
-
 const renderSection6 = (data) => {
 
-  const {
-    clos = [],
-    courseContents = [],
-    instructors = []
-  } = data;
+  const { courseContents = [], clos = [], instructors = [], guestTeachers = [] } = data;
 
-  // ✅ sort ตาม week/order
-  const sortedContents = [...courseContents].sort(
-    (a, b) => (a.order || 0) - (b.order || 0)
+  // ✅ sort ตามวันที่
+  const sorted = [...courseContents].sort(
+    (a, b) => new Date(a.date) - new Date(b.date)
   );
+
+  // ✅ base date (ใช้ตัวแรก)
+  const baseDate = sorted.length > 0 ? new Date(sorted[0].date) : null;
+
+  // ✅ format วันที่
+  const formatDate = (d) => {
+    const date = new Date(d);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear() + 543;
+    return `${day}/${month}/${year}`;
+  };
+
+  // ✅ short name
+  const shortName = (name) => {
+    if (!name) return '-';
+    return name.trim().split(/\s+/)[0];
+  };
+
+  // ✅ หา instructor name
+  const getInstructorName = (c) => {
+
+    // faculty
+    if (c.guest_teacher_name === 'faculty') {
+      return 'คณาจารย์';
+    }
+
+    // guest teacher
+    if (c.guest_teacher_name) {
+      return shortName(c.guest_teacher_name);
+    }
+
+    // instructor
+    const found = instructors.find(i => i.id == c.instructor_id);
+    return found ? shortName(found.name_th) : '-';
+  };
+
+  // ✅ week จาก date
+  const getWeek = (date) => {
+    if (!baseDate) return '-';
+
+    const diff = new Date(date) - baseDate;
+    const week = Math.floor(diff / (1000 * 60 * 60 * 24 * 7)) + 1;
+
+    return week;
+  };
+
+  // ✅ CLO mapping
+  const normalizeIds = (val) => {
+    if (!val) return [];
+    if (Array.isArray(val)) return val.map(v => String(v));
+    try {
+      const parsed = JSON.parse(val);
+      return Array.isArray(parsed) ? parsed.map(v => String(v)) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const formatClos = (cloIds) => {
+    const ids = normalizeIds(cloIds);
+
+    return ids.map(id => {
+      const index = clos.findIndex(c => String(c.id) === id);
+      return index >= 0 ? `CLO${index + 1}` : null;
+    }).filter(Boolean).join(', ') || '-';
+  };
+
+  // ✅ LLO
+  const getLLO = (c) => {
+    if (!c.topic) return '-';
+
+    if (c.type === 'lecture') {
+      return `อธิบาย ระบุ หรือเลือก ${c.topic}`;
+    }
+
+    if (c.type === 'lab') {
+      return `ปฏิบัติ ${c.topic}`;
+    }
+
+    return c.topic;
+  };
+
+  // ✅ activity
+  const getActivity = (c) => {
+    if (c.type === 'lecture') return '- บรรยาย';
+    if (c.type === 'lab') return '- ปฏิบัติการ';
+    return '-';
+  };
 
   return `
   <div class="section page-break">
@@ -68,75 +114,52 @@ const renderSection6 = (data) => {
       <thead>
         <tr>
           <th style="border:1px solid #000;">CLOs</th>
-          <th style="border:1px solid #000;">สัปดาห์ที่</th>
+          <th style="border:1px solid #000;">สัปดาห์</th>
           <th style="border:1px solid #000;">หัวข้อ/รายละเอียด</th>
           <th style="border:1px solid #000;">LLOs</th>
           <th style="border:1px solid #000;">จำนวนชั่วโมง</th>
-          <th style="border:1px solid #000;">กิจกรรมการเรียนการสอน</th>
+          <th style="border:1px solid #000;">กิจกรรม</th>
           <th style="border:1px solid #000;">อาจารย์ผู้สอน</th>
         </tr>
       </thead>
 
       <tbody>
 
-        ${sortedContents.map((c, index) => {
+        ${sorted.map(c => `
 
-          // ✅ CLO mapping
-          const cloText = formatClos(c.clo_ids, clos);
-
-          // ✅ week
-          const week = c.order || (index + 1);
-
-          // ✅ topic
-          const topic = c.topic || '-';
-
-          // ✅ LLO (fallback ใช้ topic)
-          const llo = topic || '-';
-
-          // ✅ hours
-          const hours = c.hours || '-';
-
-          // ✅ activity
-          const activity = getActivity(c.type);
-
-          // ✅ instructor
-          const instructor =
-            instructors.find(i => i.id == c.instructor_id)?.name_th || '-';
-
-          return `
-          <tr>
+          <tr style="vertical-align:top">
 
             <td style="border:1px solid #000;">
-              ${cloText}
+              ${formatClos(c.clo_ids)}
             </td>
 
             <td style="border:1px solid #000; text-align:center;">
-              ${week}
+              ${getWeek(c.date)}
             </td>
 
             <td style="border:1px solid #000;">
-              ${topic}
+              ${c.topic || '-'}
             </td>
 
             <td style="border:1px solid #000;">
-              ${llo}
+              ${getLLO(c)}
             </td>
 
             <td style="border:1px solid #000; text-align:center;">
-              ${hours}
+              ${c.hours || '-'}
             </td>
 
             <td style="border:1px solid #000;">
-              - ${activity}
+              ${getActivity(c)}
             </td>
 
-            <td style="border:1px solid #000;">
-              ${instructor}
+            <td style="border:1px solid #000; text-align:center;">
+              ${getInstructorName(c)}
             </td>
 
           </tr>
-          `;
-        }).join('')}
+
+        `).join('')}
 
       </tbody>
 

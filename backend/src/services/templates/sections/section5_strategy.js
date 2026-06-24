@@ -1,9 +1,15 @@
 // ✅ helper: ตรวจว่า JSON array มี id ไหม
-const containsId = (arr, id) => {
-  if (!Array.isArray(arr)) return false;
-  return arr.map(String).includes(String(id));
+const parseJSON = (val) => {
+  if (Array.isArray(val)) return val;
+  try {
+    return JSON.parse(val);
+  } catch {
+    return [];
+  }
 };
-
+const containsId = (arr, id) => {
+  return parseJSON(arr).map(String).includes(String(id));
+};
 
 const renderSection5 = (data) => {
 
@@ -41,9 +47,9 @@ const renderSection5 = (data) => {
       ${clos.map((clo, index) => {
 
         // ✅ 1. content ของ CLO
-        const contents = courseContents.filter(c =>
-          containsId(c.clo_ids, clo.id)
-        );
+const contents = courseContents.filter(c =>
+  parseJSON(c.clo_ids).map(String).includes(String(clo.id))
+);
 
         const contentIds = contents.map(c => String(c.id));
 
@@ -68,16 +74,16 @@ const renderSection5 = (data) => {
           : '-';
 
         // ✅ ✅ ✅ 4. evaluation per CLO (🔥 สำคัญ)
-        const evals = courseEvaluations.filter(e => {
+const evals = courseEvaluations.filter(e => {
 
-          const lectureIds = e.content_ids_lecture || [];
-          const labIds = e.content_ids_lab || [];
+  const lectureIds = parseJSON(e.content_ids_lecture);
+  const labIds = parseJSON(e.content_ids_lab);
 
-          return contentIds.some(id =>
-            containsId(lectureIds, id) ||
-            containsId(labIds, id)
-          );
-        });
+  return contents.some(c =>
+    lectureIds.map(String).includes(String(c.id)) ||
+    labIds.map(String).includes(String(c.id))
+  );
+});
 
         // ✅ remove duplicate name
         const uniqueEvalNames = [...new Set(evals.map(e => e.name))];
@@ -90,8 +96,7 @@ const renderSection5 = (data) => {
           <tr>
 
             <td style="border:1px solid #000; vertical-align:top;">
-              <b>CLO ${index + 1}:</b><br>
-              ${clo.description || '-'}
+              CLO ${index + 1}:${clo.description || '-'}
             </td>
 
             <td style="border:1px solid #000; vertical-align:top;">

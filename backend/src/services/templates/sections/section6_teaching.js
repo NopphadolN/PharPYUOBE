@@ -1,87 +1,129 @@
-const renderSection2 = (data) => {
+// ✅ helper: convert clo_ids → CLO1, CLO2
+const formatClos = (cloIds = [], clos = []) => {
+  if (!Array.isArray(cloIds)) return '-';
 
-  const lecture = data.contents
-    .filter(c => c.type === 'lecture')
-    .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0))
-  const lab = data.contents
-    .filter(c => c.type === 'lab')
-    .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0))
-  const totalLecture = lecture.reduce((s, r) => s + Number(r.hours), 0);
-  const totalLab = lab.reduce((s, r) => s + Number(r.hours), 0);
-
-  const formatDate = (d) => {
-    const date = new Date(d);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear() + 543;
-    return `${day}/${month}/${year}`;
-  };
-const shortName = (name) => {
-  if (!name) return '-';
-  return name.trim().split(/\s+/)[0];
+  return cloIds.map(id => {
+    const index = clos.findIndex(c => String(c.id) === String(id));
+    return index >= 0 ? `CLO${index + 1}` : null;
+  }).filter(Boolean).join(', ') || '-';
 };
 
-const getInstructorName = (r) => { 
-  // ✅ FIX: faculty → คณาจารย์
-  if (r.guest_teacher_name === 'faculty') {
-    return 'คณาจารย์';
-  } 
-  // ✅ อ. พิเศษ
-  if (r.guest_teacher_name) {
-    return shortName(r.guest_teacher_name);
-  }
-  // ✅ อ. ประจำ
-  const found = data.instructors.find(
-    i => i.id == r.instructor_id
+
+// ✅ helper: activity mapping
+const getActivity = (type) => {
+  if (type === 'lecture') return 'บรรยาย';
+  if (type === 'lab') return 'ปฏิบัติการ';
+  return '-';
+};
+
+
+const renderSection6 = (data) => {
+
+  const {
+    clos = [],
+    courseContents = [],
+    instructors = []
+  } = data;
+
+  // ✅ sort ตาม week/order
+  const sortedContents = [...courseContents].sort(
+    (a, b) => (a.order || 0) - (b.order || 0)
   );
-  return found ? shortName(found.name_th) : '-';
-};
 
-  const renderTable = (rows, total, title) => `
-    <p><b>${title}</b></p>
-    <table>
+  return `
+  <div class="section page-break">
+
+    <div style="border: 1px solid #000; padding: 3px; margin: 20px 0;">
+      <div style="border: 4px solid #000; padding: 8px 0; text-align: center;">
+        <h2 style="margin: 0; font-size: 16px;">
+          หมวดที่ 5 แผนการสอนและการประเมินผล
+        </h2>
+      </div>
+    </div>
+
+    <p><strong>1. แผนการสอน</strong></p>
+
+    <table style="width:100%; border-collapse: collapse; font-size:14px;">
+
       <thead>
         <tr>
-          <th>วันที่</th>
-          <th>หัวข้อ</th>
-          <th>เนื้อหา</th>
-          <th>จำนวนชั่วโมง</th>
-          <th>อาจารย์</th>
+          <th style="border:1px solid #000;">CLOs</th>
+          <th style="border:1px solid #000;">สัปดาห์ที่</th>
+          <th style="border:1px solid #000;">หัวข้อ/รายละเอียด</th>
+          <th style="border:1px solid #000;">LLOs</th>
+          <th style="border:1px solid #000;">จำนวนชั่วโมง</th>
+          <th style="border:1px solid #000;">กิจกรรมการเรียนการสอน</th>
+          <th style="border:1px solid #000;">อาจารย์ผู้สอน</th>
         </tr>
       </thead>
 
       <tbody>
-        ${rows.map(r => `
-          <tr style="vertical-align:top">
-            <td>${formatDate(r.date)}</td>
-            <td style="text-align:center">${r.order}</td>
-            <td>${r.topic}</td>
-            <td style="text-align:center">${r.hours}</td>
-            <td style="text-align:center">${getInstructorName(r)}</td>
+
+        ${sortedContents.map((c, index) => {
+
+          // ✅ CLO mapping
+          const cloText = formatClos(c.clo_ids, clos);
+
+          // ✅ week
+          const week = c.order || (index + 1);
+
+          // ✅ topic
+          const topic = c.topic || '-';
+
+          // ✅ LLO (fallback ใช้ topic)
+          const llo = topic || '-';
+
+          // ✅ hours
+          const hours = c.hours || '-';
+
+          // ✅ activity
+          const activity = getActivity(c.type);
+
+          // ✅ instructor
+          const instructor =
+            instructors.find(i => i.id == c.instructor_id)?.name_th || '-';
+
+          return `
+          <tr>
+
+            <td style="border:1px solid #000;">
+              ${cloText}
+            </td>
+
+            <td style="border:1px solid #000; text-align:center;">
+              ${week}
+            </td>
+
+            <td style="border:1px solid #000;">
+              ${topic}
+            </td>
+
+            <td style="border:1px solid #000;">
+              ${llo}
+            </td>
+
+            <td style="border:1px solid #000; text-align:center;">
+              ${hours}
+            </td>
+
+            <td style="border:1px solid #000;">
+              - ${activity}
+            </td>
+
+            <td style="border:1px solid #000;">
+              ${instructor}
+            </td>
+
           </tr>
-        `).join('')}
+          `;
+        }).join('')}
 
-        <tr style="text-align:center">
-          <td colspan="3"><b>รวมชั่วโมง</b></td>
-          <td><b>${total}</b></td>
-          <td></td>
-        </tr>
       </tbody>
-    </table>
-  `;
 
-  return `
-  <div class="section page-break">
-  <h2>หมวดที่ 6 แผนการสอน</h2>
+    </table>
+
   </div>
-    <div>
-      ${renderTable(lecture, totalLecture, '(บรรยาย)')}
-      ${lab.length > 0
-        ? renderTable(lab, totalLab, '(ปฏิบัติการ)')
-        : ''
-      }
-    </div>
   `;
 };
 
-module.exports = { renderSection2 };
+module.exports = { renderSection6 };

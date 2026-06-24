@@ -10,6 +10,8 @@ const { renderSection2 } = require('../templates/sections/section2_clo');
 const { renderSection3 } = require('../templates/sections/section3_plo_matrix');
 const { renderSection4 } = require('../templates/sections/section4_mapping');
 const { renderSection5 } = require('../templates/sections/section5_strategy');
+const { renderSection6 } = require('../templates/sections/section6_teaching');
+
 
 let browser;
 const generateTQF3 = async (data, res) => {
@@ -25,6 +27,7 @@ const generateTQF3 = async (data, res) => {
       ${renderSection3(data)}
       ${renderSection4(data)}
       ${renderSection5(data)}
+      ${renderSection6(data)}
     `;
     html = html.replace('{{content}}', content);
 

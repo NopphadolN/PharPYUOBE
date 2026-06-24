@@ -11,6 +11,25 @@ const containsId = (arr, id) => {
   return parseJSON(arr).map(String).includes(String(id));
 };
 
+const normalizeIds = (val) => {
+  if (!val) return [];
+
+  // ✅ already array
+  if (Array.isArray(val)) {
+    return val.map(v => String(v).trim());
+  }
+
+  // ✅ string JSON
+  try {
+    const parsed = JSON.parse(val);
+    if (Array.isArray(parsed)) {
+      return parsed.map(v => String(v).trim());
+    }
+  } catch (e) {}
+
+  return [];
+};
+
 const renderSection5 = (data) => {
 
   const {
@@ -48,7 +67,7 @@ const renderSection5 = (data) => {
 
         // ✅ 1. content ของ CLO
 const contents = courseContents.filter(c =>
-  parseJSON(c.clo_ids).map(String).includes(String(clo.id))
+  normalizeIds(c.clo_ids).includes(String(clo.id))
 );
 
         const contentIds = contents.map(c => String(c.id));

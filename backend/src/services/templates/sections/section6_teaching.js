@@ -1,9 +1,29 @@
 // ✅ helper: convert clo_ids → CLO1, CLO2
-const formatClos = (cloIds = [], clos = []) => {
-  if (!Array.isArray(cloIds)) return '-';
+const normalizeIds = (val) => {
+  if (!val) return [];
 
-  return cloIds.map(id => {
-    const index = clos.findIndex(c => String(c.id) === String(id));
+  // ✅ already array
+  if (Array.isArray(val)) {
+    return val.map(v => String(v).trim());
+  }
+
+  // ✅ string JSON
+  try {
+    const parsed = JSON.parse(val);
+    if (Array.isArray(parsed)) {
+      return parsed.map(v => String(v).trim());
+    }
+  } catch (e) {}
+
+  return [];
+};
+
+
+const formatClos = (cloIds, clos) => {
+  const ids = normalizeIds(cloIds);
+
+  return ids.map(id => {
+    const index = clos.findIndex(c => String(c.id) === id);
     return index >= 0 ? `CLO${index + 1}` : null;
   }).filter(Boolean).join(', ') || '-';
 };

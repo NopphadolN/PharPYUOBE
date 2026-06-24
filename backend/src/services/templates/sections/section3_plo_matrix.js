@@ -61,32 +61,32 @@ const renderSection3 = (data) => {
 <thead>
   <tr>
     <!-- คอลัมน์แรก -->
-    <th rowspan="2" style="border:1px solid #000; color:red;">
+    <th rowspan="2" style="border:1px solid #000;">
       ผลลัพธ์การเรียนรู้ระดับหลักสูตร (PLOs)
     </th>
 
     <!-- Generic -->
-    <th rowspan="2" style="border:1px solid #000; color:red;">
+    <th rowspan="2" style="border:1px solid #000;">
       ทักษะทั่วไป<br>(Generic Skill)
     </th>
 
     <!-- Specific -->
-    <th rowspan="2" style="border:1px solid #000; color:red;">
+    <th rowspan="2" style="border:1px solid #000;">
       ทักษะเฉพาะ<br>(Specific Skill)
     </th>
 
     <!-- กลุ่มใหญ่ -->
-    <th colspan="4" style="border:1px solid #000; color:red;">
+    <th colspan="4" style="border:1px solid #000;">
       มาตรฐานด้านผลลัพธ์การเรียนรู้ผู้เรียน 4 ด้าน<br>พ.ศ. 2565
     </th>
   </tr>
 
   <tr>
     <!-- sub columns -->
-    <th style="border:1px solid #000; color:red;">ด้านความรู้</th>
-    <th style="border:1px solid #000; color:red;">ด้านทักษะ</th>
-    <th style="border:1px solid #000; color:red;">ด้านจริยธรรม</th>
-    <th style="border:1px solid #000; color:red;">ด้านลักษณะบุคคล</th>
+    <th style="border:1px solid #000;">ด้านความรู้</th>
+    <th style="border:1px solid #000;">ด้านทักษะ</th>
+    <th style="border:1px solid #000;">ด้านจริยธรรม</th>
+    <th style="border:1px solid #000;">ด้านลักษณะบุคคล</th>
   </tr>
 </thead>
 

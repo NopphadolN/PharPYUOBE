@@ -4,7 +4,7 @@ const renderSection1 = (data) => {
   return `
     <div style="border: 2px solid #000000; padding: 3px; margin: 20px 0;">
       <div style="border: 5px solid #000000; padding: 10px 0; text-align: center;">
-        <h1 style="margin: 0; font-size: 26px;">รายละเอียดของรายวิชา</h1>
+        <h1 style="margin: 0; font-size: 20px;">รายละเอียดของรายวิชา</h1>
       </div>
     </div>
     <p><strong>ชื่อสถาบันอุดมศึกษา</strong>
@@ -14,7 +14,7 @@ const renderSection1 = (data) => {
     
     <div style="border: 2px solid #000000; padding: 3px; margin: 20px 0;">
       <div style="border: 5px solid #000000; padding: 10px 0; text-align: center;">
-        <h2 style="margin: 0; font-size: 24px;">หมวดที่ 1 ข้อมูลทั่วไป</h2>
+        <h2 style="margin: 0; font-size: 18px;">หมวดที่ 1 ข้อมูลทั่วไป</h2>
       </div>
     </div>
     <p><strong>1. รหัสและชื่อรายวิชา</strong></p>

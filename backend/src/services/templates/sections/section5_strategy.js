@@ -84,8 +84,10 @@ const contents = courseContents.filter(c =>
         const teachingHtml = teaching.map(t => `- ${t}`).join('<br>');
 
         // ✅ 3. indicator
-        const indicators = cloIndicators.filter(i => i.clo_id == clo.id);
-
+const indicators = cloIndicators.filter(i =>
+  i.clo_id === clo.id &&
+  i.course_instance_id === data.courseInstanceId
+);
         const indicatorText = indicators.length > 0
           ? indicators.map(i =>
               `- ${i.description} (${i.target}%)`

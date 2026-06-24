@@ -1,6 +1,6 @@
 const renderSection3 = (data) => {
 
-  let { books, evaluations, grading, contents = [], clos = [], note } = data;
+  let { books, evaluations, grading, courseContents = [], clos = [], note } = data;
 
   // ✅ parse JSON
   if (typeof books === 'string') {
@@ -24,7 +24,7 @@ const renderSection3 = (data) => {
     const cloSet = new Set();
 
     ids.forEach(cid => {
-      const content = contents.find(c =>
+      const content = courseContents.find(c =>
   String(c.order) === String(cid) ||   // ✅ เดิม
   String(c.id) === String(cid)         // ✅ FIX ใหม่
 );
@@ -57,7 +57,7 @@ const formatContentRange = (ids) => {
   // ✅ map หา order + กัน id/order ปน
   let numbers = ids
     .map(cid => {
-      const c = contents.find(x =>
+      const c = courseContents.find(x =>
         String(x.order) === String(cid) ||
         String(x.id) === String(cid)
       );

@@ -1,9 +1,9 @@
 const renderSection2 = (data) => {
 
-  const lecture = data.contents
+  const lecture = data.courseContents
     .filter(c => c.type === 'lecture')
     .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0))
-  const lab = data.contents
+  const lab = data.courseContents
     .filter(c => c.type === 'lab')
     .sort((a, b) => (Number(a.order) || 0) - (Number(b.order) || 0))
   const totalLecture = lecture.reduce((s, r) => s + Number(r.hours), 0);

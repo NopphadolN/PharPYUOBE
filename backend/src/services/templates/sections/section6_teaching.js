@@ -63,7 +63,7 @@ const renderSection6 = (data) => {
 
     <p><strong>1. แผนการสอน</strong></p>
 
-    <table style="width:100%; border-collapse: collapse; font-size:14px;">
+    <table style="width:100%; border-collapse: collapse; font-size:12px;">
 
       <thead>
         <tr>

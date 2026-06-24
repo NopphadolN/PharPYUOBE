@@ -1,10 +1,4 @@
-const renderMapping = (data) => {
-  const clos = data.clos || [];
-  const subPlos = data.subPlos || [];
-  const cloMappings = data.cloMappings || [];
-  const header = renderHeader(subPlos);
 const renderHeader = (subPlos = []) => {
-
   // ✅ group subplo ตาม PLO
   const grouped = {};
 
@@ -54,6 +48,12 @@ const renderHeader = (subPlos = []) => {
     </thead>
   `;
 };
+
+const renderMapping = (data) => {
+  const clos = data.clos || [];
+  const subPlos = data.subPlos || [];
+  const cloMappings = data.cloMappings || [];
+  const header = renderHeader(subPlos);
 
   return `
   <div class="section">

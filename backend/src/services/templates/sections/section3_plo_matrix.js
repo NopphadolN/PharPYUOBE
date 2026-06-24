@@ -49,14 +49,14 @@ const renderSection3 = (data) => {
 
   return `
   <div class="section">
-    <div style="border: 2px solid #000; padding: 3px; margin: 20px 0;">
-      <div style="border: 5px solid #000; padding: 10px 0; text-align: center;">
-        <h2 style="margin: 0; font-size: 24px;">
+    <div style="border: 1px solid #000; padding: 3px; margin: 20px 0;">
+      <div style="border: 4px solid #000; padding: 8px 0; text-align: center;">
+        <h2 style="margin: 0; font-size: 16px;">
           หมวดที่ 4 การพัฒนาผลการเรียนรู้ของนักศึกษา
         </h2>
       </div>
     </div>
-    <table style="width:100%; border-collapse: collapse; font-size:16px;">
+    <table style="width:100%; border-collapse: collapse;">
       <!-- HEADER -->
 <thead>
   <tr>

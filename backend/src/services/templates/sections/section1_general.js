@@ -2,9 +2,9 @@ const renderSection1 = (data) => {
   const c = data.course || {};
   const { instructors, guestTeachers, user_id, owner_id } = data;
   return `
-    <div style="border: 2px solid #000000; padding: 3px; margin: 20px 0;">
-      <div style="border: 5px solid #000000; padding: 10px 0; text-align: center;">
-        <h1 style="margin: 0; font-size: 20px;">รายละเอียดของรายวิชา</h1>
+    <div style="border: 1px solid #000000; padding: 3px; margin: 20px 0;">
+      <div style="border: 4px solid #000000; padding: 8px 0; text-align: center;">
+        <h1 style="margin: 0; font-size: 18px;">รายละเอียดของรายวิชา</h1>
       </div>
     </div>
     <p><strong>ชื่อสถาบันอุดมศึกษา</strong>
@@ -12,9 +12,9 @@ const renderSection1 = (data) => {
     <p><strong>วิทยาเขต/คณะ/ภาควิชา/สาขาวิชา</strong>
     <span style="margin-left:10px;">คณะเภสัชศาสตร์</span></p>
     
-    <div style="border: 2px solid #000000; padding: 3px; margin: 20px 0;">
-      <div style="border: 5px solid #000000; padding: 10px 0; text-align: center;">
-        <h2 style="margin: 0; font-size: 18px;">หมวดที่ 1 ข้อมูลทั่วไป</h2>
+    <div style="border: 1px solid #000000; padding: 3px; margin: 20px 0;">
+      <div style="border: 4px solid #000000; padding: 8px 0; text-align: center;">
+        <h2 style="margin: 0; font-size: 16px;">หมวดที่ 1 ข้อมูลทั่วไป</h2>
       </div>
     </div>
     <p><strong>1. รหัสและชื่อรายวิชา</strong></p>

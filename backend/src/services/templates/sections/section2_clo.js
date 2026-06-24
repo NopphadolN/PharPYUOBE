@@ -21,9 +21,9 @@ const renderSection2 = (data) => {
   return ` 
   <!-- ✅ หมวดที่ 2 -->
   <div class="section">
-    <div style="border: 2px solid #000; padding: 3px; margin: 20px 0;">
-      <div style="border: 5px solid #000; padding: 10px 0; text-align: center;">
-        <h2 style="margin: 0; font-size: 24px;">
+    <div style="border: 1px solid #000; padding: 3px; margin: 20px 0;">
+      <div style="border: 4px solid #000; padding: 8px 0; text-align: center;">
+        <h2 style="margin: 0; font-size: 16px;">
           หมวดที่ 2 ผลลัพธ์การเรียนรู้ระดับรายวิชา
         </h2>
       </div>
@@ -38,9 +38,9 @@ const renderSection2 = (data) => {
       : `<p style="text-indent:80px;">-</p>`
     }
 
-    <div style="border: 2px solid #000; padding: 3px; margin: 20px 0;">
-      <div style="border: 5px solid #000; padding: 10px 0; text-align: center;">
-        <h2 style="margin: 0; font-size: 24px;">
+    <div style="border: 1px solid #000; padding: 3px; margin: 20px 0;">
+      <div style="border: 4px solid #000; padding: 8px 0; text-align: center;">
+        <h2 style="margin: 0; font-size: 16px;">
           หมวดที่ 3 ลักษณะและการดำเนินการ
         </h2>
       </div>
@@ -53,7 +53,7 @@ const renderSection2 = (data) => {
     <!-- ✅ ตารางชั่วโมง -->
     <p><strong>2. จำนวนชั่วโมงที่ใช้ต่อภาคการศึกษา</strong></p>
     <table style="width:100%; border-collapse: collapse; margin-top:10px; 
-    font-size: 18px; text-align: center;">
+    font-size: 13px; text-align: center;">
       <tr>
         <td style="border:1px solid #000; padding:6px;">
           <b>บรรยาย</b>

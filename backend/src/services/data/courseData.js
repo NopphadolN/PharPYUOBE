@@ -87,22 +87,28 @@ const revision_note = courseData.revision_note || '';
 const subPlos = await getSubPlos();
 const cloMappings = await getCloMappings(instanceId);
 
+const indicatorRes = await pool.query(`
+  SELECT *
+  FROM clo_indicators
+  WHERE course_instance_id = $1
+`, [instanceId]);
 
-  return {
+return {
   course: courseData,
   clos: clos.rows,
-  contents,
+  courseContents: contents,
+  courseEvaluations: evaluations,
+  cloIndicators: indicatorRes.rows,
   instructors: instructors.rows,
   books,
   grading,
   note,
   revision_note,
-  evaluations,
   guestTeachers,
   owner_id: courseData.owner_id, 
   subPlos,
   cloMappings
-  };
+};
 
 };
 // ✅ ดึง SubPLO

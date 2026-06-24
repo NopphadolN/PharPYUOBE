@@ -56,17 +56,39 @@ const renderSection3 = (data) => {
         </h2>
       </div>
     </div>
-    <table style="width:100%; border-collapse: collapse; font-size:14px;">
+    <table style="width:100%; border-collapse: collapse; font-size:16px;">
       <!-- HEADER -->
-      <tr>
-        <th style="border:1px solid #000;">ผลลัพธ์การเรียนรู้ระดับหลักสูตร (PLOs)</th>
-        <th style="border:1px solid #000;">ทักษะทั่วไป (Generic Skill)</th>
-        <th style="border:1px solid #000;">ทักษะเฉพาะ (Specific Skill)</th>
-        <th style="border:1px solid #000;">ด้านความรู้</th>
-        <th style="border:1px solid #000;">ด้านทักษะ</th>
-        <th style="border:1px solid #000;">ด้านจริยธรรม</th>
-        <th style="border:1px solid #000;">ด้านลักษณะบุคคล</th>
-      </tr>
+<thead>
+  <tr>
+    <!-- คอลัมน์แรก -->
+    <th rowspan="2" style="border:1px solid #000; color:red;">
+      ผลลัพธ์การเรียนรู้ระดับหลักสูตร (PLOs)
+    </th>
+
+    <!-- Generic -->
+    <th rowspan="2" style="border:1px solid #000; color:red;">
+      ทักษะทั่วไป<br>(Generic Skill)
+    </th>
+
+    <!-- Specific -->
+    <th rowspan="2" style="border:1px solid #000; color:red;">
+      ทักษะเฉพาะ<br>(Specific Skill)
+    </th>
+
+    <!-- กลุ่มใหญ่ -->
+    <th colspan="4" style="border:1px solid #000; color:red;">
+      มาตรฐานด้านผลลัพธ์การเรียนรู้ผู้เรียน 4 ด้าน<br>พ.ศ. 2565
+    </th>
+  </tr>
+
+  <tr>
+    <!-- sub columns -->
+    <th style="border:1px solid #000; color:red;">ด้านความรู้</th>
+    <th style="border:1px solid #000; color:red;">ด้านทักษะ</th>
+    <th style="border:1px solid #000; color:red;">ด้านจริยธรรม</th>
+    <th style="border:1px solid #000; color:red;">ด้านลักษณะบุคคล</th>
+  </tr>
+</thead>
 
       <!-- ✅ PLO 1 -->
       ${ploHeaderRow('PLO 1')}

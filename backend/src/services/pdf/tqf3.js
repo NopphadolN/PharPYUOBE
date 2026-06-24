@@ -8,7 +8,8 @@ const path = require('path');
 const { renderSection1 } = require('../templates/sections/section1_general');
 const { renderSection2 } = require('../templates/sections/section2_clo');
 const { renderSection3 } = require('../templates/sections/section3_plo_matrix');
-const { renderMapping } = require('../templates/sections/section4_mapping');
+const { renderSection4 } = require('../templates/sections/section4_mapping');
+const { renderSection5 } = require('../templates/sections/section5_strategy');
 
 let browser;
 const generateTQF3 = async (data, res) => {
@@ -22,7 +23,8 @@ const generateTQF3 = async (data, res) => {
       ${renderSection1(data)}
       ${renderSection2(data)}
       ${renderSection3(data)}
-      ${renderMapping(data)}
+      ${renderSection4(data)}
+      ${renderSection5(data)}
     `;
     html = html.replace('{{content}}', content);
 

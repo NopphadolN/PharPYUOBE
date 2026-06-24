@@ -49,7 +49,7 @@ const renderHeader = (subPlos = []) => {
   `;
 };
 
-const renderMapping = (data) => {
+const renderSection4 = (data) => {
   const clos = data.clos || [];
   const subPlos = data.subPlos || [];
   const cloMappings = data.cloMappings || [];
@@ -98,4 +98,4 @@ const renderMapping = (data) => {
   `;
 };
 
-module.exports = { renderMapping };
+module.exports = { renderSection4 };

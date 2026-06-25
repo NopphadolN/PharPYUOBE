@@ -64,20 +64,41 @@ const renderSection8 = (data) => {
     <!-- ✅ เส้นแบ่ง -->
     <div style="border-top:1px solid #000; margin:15px 0;"></div>
 
-    <!-- ✅ ข้อ 3 -->
-    <div style="margin-top:20px;">
-      <b>3. การปรับปรุงการสอน</b>
-      <table style="width:100%; border-collapse: collapse; margin-top:10px;">
-        <tr>
-          <th style="border:1px solid #000;">ประเด็นที่ทำการปรับปรุง</th>
-        </tr>
-        <tr>
-          <td style="border:1px solid #000; height:70px; vertical-align:top;">
-            ${revision_note || '-'}
-          </td>
-        </tr>
-      </table>
-    </div>
+<!-- ✅ ข้อ 3 -->
+<div style="margin-top:20px;">
+  <b>3. การปรับปรุงการสอน</b>
+  <!-- ✅ checkbox ด้านบน -->
+  <div style="margin-top:10px; margin-left:40px; line-height:1.8;">
+    <div>☐ การประชุม/สัมมนาการจัดการเรียนการสอน</div>
+    <div>☑ การประชุมทีมผู้สอน</div>
+    <div>☐ การวิจัยในและนอกชั้นเรียน</div>
+    <div>☑ ประชุมกรรมการบริหารหลักสูตร</div>
+    <div>☐ อื่นๆ (ระบุ) ..............................................</div>
+  </div>
+  <!-- ✅ ตารางด้านล่าง -->
+  <table style="width:100%; border-collapse: collapse; margin-top:10px;">
+    <tr>
+      <th style="border:1px solid #000; width:50%;">
+        ประเด็นที่ทำการปรับปรุง
+      </th>
+      <th style="border:1px solid #000;">
+        ที่มาของข้อมูลที่นำมาปรับปรุง
+      </th>
+    </tr>
+    <tr>
+      <!-- ✅ revision_note -->
+      <td style="border:1px solid #000; vertical-align:top; padding:5px;">
+        ${revision_note || '-'}
+      </td>
+      <!-- ✅ checkbox ด้านขวา -->
+      <td style="border:1px solid #000; vertical-align:top; padding:10px; line-height:1.8;">
+        <div>☑ รายงานผลการดำเนินการของรายวิชา (มคอ.5)</div>
+        <div>☐ ฝึกงาน/สหกิจศึกษา/แหล่งฝึก</div>
+        <div>☐ ผู้มีส่วนได้ส่วนเสียอื่นๆ</div>
+      </td>
+    </tr>
+  </table>
+</div>
 
     <!-- ✅ เส้นแบ่ง -->
     <div style="border-top:1px solid #000; margin:15px 0;"></div>
@@ -86,9 +107,9 @@ const renderSection8 = (data) => {
       <div>
         <b>4. การทวนสอบมาตรฐานผลสัมฤทธิ์ของนักศึกษา</b>
         <div style="margin-top:10px; margin-left:40px; line-height:1.8;">
-          <div>${box(false)} ประเมินรายละเอียดรายวิชาว่าผลการเรียนรู้ที่กำหนดสอดคล้องกับความรับผิดชอบในหลักสูตร</div>
+          <div>${box(true)} ประเมินรายละเอียดรายวิชาว่าผลการเรียนรู้ที่กำหนดสอดคล้องกับความรับผิดชอบในหลักสูตร</div>
           <div>${box(true)} ประเมินข้อสอบของรายวิชาว่าครอบคลุมผลการเรียนรู้ตามที่กำหนดไว้ในรายละเอียดวิชา</div>
-          <div>${box(false)} คณะกรรมการวิชาการประจำสาขาวิชาพิจารณาความเหมาะสมของข้อสอบให้เป็นไปตามแผนการสอน และมีการประเมินข้อสอบโดยผู้ทรงคุณวุฒิภายนอก</div>
+          <div>${box(true)} คณะกรรมการวิชาการประจำสาขาวิชาพิจารณาความเหมาะสมของข้อสอบให้เป็นไปตามแผนการสอน และมีการประเมินข้อสอบโดยผู้ทรงคุณวุฒิภายนอก</div>
           <div>${box(true)} มีระบบประกันคุณภาพในการดำเนินการทวนสอบมาตรฐานผลการเรียนรู้และรายงานผล</div>
           <div>${box(false)} อื่นๆ (ระบุ) 
             ............................................

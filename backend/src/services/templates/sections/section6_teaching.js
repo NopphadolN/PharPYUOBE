@@ -79,7 +79,7 @@ const renderSection6 = (data) => {
     if (!c.topic) return '-';
 
     if (c.type === 'lecture') {
-      return `อธิบาย ระบุ หรือเลือก ${c.topic}`;
+      return `อธิบาย เลือก หรือระบุ ${c.topic}`;
     }
 
     if (c.type === 'lab') {
@@ -113,12 +113,12 @@ const renderSection6 = (data) => {
 
       <thead>
         <tr>
-          <th style="border:1px solid #000;">CLOs</th>
+          <th style="border:1px solid #000;">ผลลัพธ์การเรียนรู้ที่คาดหวังของรายวิชา CLOs</th>
           <th style="border:1px solid #000;">สัปดาห์</th>
           <th style="border:1px solid #000;">หัวข้อ/รายละเอียด</th>
-          <th style="border:1px solid #000;">LLOs</th>
+          <th style="border:1px solid #000;">วัตถุประสงค์การสอน (เฉพาะบท) LLOs</th>
           <th style="border:1px solid #000;">จำนวนชั่วโมง</th>
-          <th style="border:1px solid #000;">กิจกรรม</th>
+          <th style="border:1px solid #000;">กิจกรรมการเรียนการสอน และสื่อที่ใช้</th>
           <th style="border:1px solid #000;">อาจารย์ผู้สอน</th>
         </tr>
       </thead>
@@ -151,6 +151,7 @@ const renderSection6 = (data) => {
 
             <td style="border:1px solid #000;">
               ${getActivity(c)}
+              <p>- เอกสารประกอบการสอน</p>
             </td>
 
             <td style="border:1px solid #000; text-align:center;">

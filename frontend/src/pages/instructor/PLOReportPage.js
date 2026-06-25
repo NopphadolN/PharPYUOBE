@@ -291,7 +291,7 @@ const barOptions = {
 
 <tbody>
 {filteredStudents.map(st => (
-  <tr key={st.id} className="border-t border text-center px-2 
+  <tr key={st.id} className="border-t border px-2 
   hover:bg-gray-50">
     <td className="px-3 py-2">{st.user_code}</td>
     <td className="px-3 py-2 text-left">{st.name_th}</td>

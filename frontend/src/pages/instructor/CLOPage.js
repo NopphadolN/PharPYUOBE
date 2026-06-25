@@ -539,8 +539,8 @@ console.log("BTN STATE:", {
     <textarea
       disabled={!isOwner}
       rows={4}
-      className="border rounded-lg p-2 w-[200px]"
-      placeholder="วางคะแนนจาก Excel รูปแบบ |รหัส นศ.|คะแนน|"
+      className="border rounded-lg p-2 w-[300px]"
+      placeholder="วางคะแนนจาก Excel รหัสนศ|คะแนน"
       value={pasteText}
       onChange={(e) => setPasteText(e.target.value)}
     />

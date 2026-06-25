@@ -122,7 +122,7 @@ const renderSection7 = (data) => {
 
     <!-- ✅ เกณฑ์ -->
     <p style="margin-top:20px;"><strong>3. เกณฑ์การประเมินผล</strong></p>
-    <p style="margin-left:80px;">เกณฑ์การประเมินผลใช้วิธีการตัดเกรดแบบอิงเกณฑ์ ดังนี</p>
+    <p style="margin-left:40px;">เกณฑ์การประเมินผลใช้วิธีการตัดเกรดแบบอิงเกณฑ์ ดังนี</p>
     ${sortedGrading.map(g => {
       let text = '';
 
@@ -142,10 +142,10 @@ const renderSection7 = (data) => {
       `;
     }).join('')}
 
-    ${note ? `<div style="margin-left:80px;">${note}</div>` : ''}
+    ${note ? `<div style="text-indent: 40px;">${note}</div>` : ''}
       <p><strong>แนวทางการอุทธรณ์ของนักศึกษา/ผู้เรียน Appeal procedure</strong></p>
       </div>
-      <p style="text-indent: 80px; text-align: justify;">
+      <p style="text-indent: 40px; text-align: justify;">
       นักศึกษาสามารถทำเรื่องอุทธรณ์ผลการเรียนโดย Download แบบคำร้อง (ใช้คำร้องทั่วไป) ได้ที่ระบบ
 e-registra และยื่นคำร้องได้ที่สำนักงานฝ่ายวิชาการและวิจัยภายใน 10 วันทำการ หลังจากประกาศผลการ
 เรียนในระบบ e-registra</p>
@@ -160,7 +160,7 @@ e-registra และยื่นคำร้องได้ที่สำนั
 
       <p><strong>1. ตำราและเอกสารหลัก</strong></p>
 
-      <div style="margin-left:40px;">
+      <div style="text-indent: 40px;">
         ${(Array.isArray(books) && books.length
           ? books
           : ['-']

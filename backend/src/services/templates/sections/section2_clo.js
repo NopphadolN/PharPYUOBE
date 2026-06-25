@@ -31,7 +31,7 @@ const renderSection2 = (data) => {
     <p>เมื่อสิ้นสุดการเรียนการสอนแล้ว นักศึกษาที่สำเร็จการศึกษาในรายวิชา สามารถ (CLOs)</p>
     ${clos.length > 0
       ? clos.map((c, i) => `
-        <p style="text-indent:80px;">
+        <p style="text-indent:40px;">
           ${i + 1}. ${c.description || '-'}
         </p>
       `).join('')
@@ -46,7 +46,7 @@ const renderSection2 = (data) => {
       </div>
     </div>
     <p><strong>1. คำอธิบายรายวิชา</strong></p>
-    <p style="text-indent:80px; text-align: justify;">
+    <p style="text-indent:40px; text-align: justify;">
       ${c.description || '-'}
     </p>
 

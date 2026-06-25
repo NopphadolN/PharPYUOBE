@@ -18,47 +18,48 @@ const renderSection1 = (data) => {
       </div>
     </div>
     <p><strong>1. รหัสและชื่อรายวิชา</strong></p>
-        <p style="margin-left: 80px;">${c.code_th || '-'} ${c.name_th || '-'}</p>
-        <p style="margin-left: 80px;">${c.code_en || '-'} ${c.name_en || '-'}</p>
+        <p style="margin-left: 40px;">${c.code_th || '-'} ${c.name_th || '-'}</p>
+        <p style="margin-left: 40px;">${c.code_en || '-'} ${c.name_en || '-'}</p>
 
     <p><strong>2. จำนวนหน่วยกิต</strong></p> 
-        <p style="margin-left: 80px;">${c.credits || '-'} หน่วยกิต (${c.credit_format || '-'})</p>
+        <p style="margin-left: 40px;">${c.credits || '-'} หน่วยกิต (${c.credit_format || '-'})</p>
 
     <p><strong>3. หลักสูตรและประเภทของรายวิชา</strong></p>
-        <p style="margin-left: 80px;">ชื่อหลักสูตร
-        <span style="text-indent:40px;">เภสัชศาสตรบัณฑิต สาขาวิชาการบริบาลทางเภสัชกรรม (หลักสูตรปรับปรุง พ.ศ.2568)</span></p>
-        <p style="margin-left: 80px;">ประเภทของรายวิชา
-        <span style="margin-left:20px;">${c.course_type || '-'}</span></p>
+        <p style="margin-left: 40px;">ชื่อหลักสูตร
+        <span style="margin-left:20px;">เภสัชศาสตรบัณฑิต สาขาวิชาการบริบาลทางเภสัชกรรม (หลักสูตรปรับปรุง พ.ศ.2568)</span></p>
+        <p style="margin-left: 40px;">ประเภทของรายวิชา
+        <span style="margin-left:80px;">${c.course_type || '-'}</span></p>
 
     <p><strong>4. อาจารย์ผู้รับผิดชอบรายวิชาและอาจารย์ผู้สอน</strong></p>
-        <p style="margin-left: 80px;">อาจารย์ผู้รับผิดชอบรายวิชา
+        <p style="margin-left: 40px;">อาจารย์ผู้รับผิดชอบรายวิชา
         <span style="margin-left:5px;">
     ${instructors.find(i => i.id === c.owner_id)?.name_th || '-'}
     </span></p>
-        <p style="margin-left: 80px;">อาจารย์ผู้สอน</p>
-            <p style="margin-left: 120px;">ภาคบรรยาย</p>    
+        <p style="margin-left: 40px;">อาจารย์ผู้สอน</p>
+            <p style="margin-left: 80px;">ภาคบรรยาย</p>    
             ${instructors.map(i => `
-            <div style="text-indent: 200px;">${i.name_th}</div>`).join('')}
+            <div style="text-indent: 120px;">${i.name_th}</div>`).join('')}
     ${(Array.isArray(guestTeachers) && guestTeachers.length > 0)
     ? `
     ${guestTeachers.map(g => `
-      <div style="margin-left: 200px;">${g}</div>`).join('')}
+      <div style="margin-left: 120px;">${g}</div>`).join('')}
       `
     : ''
     }
-            <p style="margin-left: 120px;">ภาคปฏิบัติ</p>
+            <p style="margin-left: 80px;">ภาคปฏิบัติ</p>
+
     <p><strong>5. ภาคการศึกษา / ชั้นปีที่เรียน</strong> 
-        <p style="margin-left: 80px;">ภาคการศึกษาที่ ${c.semester || '-'} ปีการศึกษา ${c.year || '-'}</p>
-        <p style="margin-left: 80px;">ชั้นปีที่........</p>
+        <p style="margin-left: 40px;">ภาคการศึกษาที่ ${c.semester || '-'} ปีการศึกษา ${c.year || '-'}</p>
+        <p style="margin-left: 40px;">ชั้นปีที่........</p>
 
     <p><strong>6. รายวิชาที่ต้องเรียนมาก่อน (Pre-requisite) (ถ้ามี)</strong></p> 
-        <p style="margin-left: 80px;">${c.prerequisite || '-'}</p>
+        <p style="margin-left: 40px;">${c.prerequisite || '-'}</p>
     <p><strong>7. รายวิชาที่ต้องเรียนพร้อมกัน (Co-requisites) (ถ้ามี)</strong></p>
-        <p style="margin-left: 80px;"> - </p>
+        <p style="margin-left: 40px;"> - </p>
     <p><strong>8. สถานที่เรียน</strong></p>
-        <p style="margin-left: 80px;">คณะเภสัชศาสตร์ มหาวิทยาลัยพายัพ</p>
+        <p style="margin-left: 40px;">คณะเภสัชศาสตร์ มหาวิทยาลัยพายัพ</p>
     <p><strong>9. วันที่จัดทำหรือปรับปรุงรายละเอียดของรายวิชาครั้งล่าสุด</strong></p>
-        <p style="margin-left: 80px;"> - </p>
+        <p style="margin-left: 40px;"> - </p>
   `;
 
 };

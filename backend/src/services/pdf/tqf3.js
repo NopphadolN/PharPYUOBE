@@ -49,18 +49,54 @@ const generateTQF3 = async (data, res) => {
     await page.setContent(html, { waitUntil: 'domcontentloaded' });
 
     // ✅ generate PDF
+// ✅ โหลด logo เป็น base64
+const logoPath = path.join(__dirname, '../../assets/PayapLogo.png');
+const logoBase64 = fs.readFileSync(logoPath, { encoding: 'base64' });
+
+// ✅ generate PDF
 const buffer = await page.pdf({
   format: 'A4',
-  printBackground: true, 
+  printBackground: true,
+  displayHeaderFooter: true,
+
+  headerTemplate: `
+    <div style="
+      width:100%;
+      font-size:10px;
+      padding:5px 30px 0 30px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      box-sizing:border-box;
+    ">
+      
+      <!-- ✅ โลโก้ -->
+      <div>
+        <img src="data:image/png;base64,${logoBase64}" style="height:40px; object-fit:contain;" />
+      </div>
+
+      <!-- ✅ ข้อความด้านขวา -->
+      <div style="
+        font-size:14px;
+        font-family: 'TH Sarabun New', sans-serif;
+      ">
+        แผนการสอน (${data.course?.year || '-'})
+      </div>
+
+    </div>
+  `,
+
+footerTemplate: `<div></div>`,
+
   margin: {
-    top: '1in',
-    bottom: '1in',
+    top: '90px',     
+    bottom: '50px',
     left: '0.9in',
     right: '0.8in'
   }
-});   
+});
 
-    await page.close();
+await page.close();
 
     // ✅ respond PDF
 const code = data.course?.code_en || 'course';

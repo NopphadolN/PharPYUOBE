@@ -71,7 +71,7 @@ else if (docType === 'tqf5') {
   >
     <option value="">เลือกประเภทเอกสาร</option>
     <option value="plan">แผนการสอน</option>
-    <option value="tqf3">มคอ.3-ยังใช้งานไม่ได้-</option>
+    <option value="tqf3">มคอ.3</option>
     <option value="tqf5">มคอ.5-ยังใช้งานไม่ได้-</option>
   </Select>
 </Card>

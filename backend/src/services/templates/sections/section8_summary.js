@@ -2,6 +2,9 @@ const renderSection8 = (data) => {
 
   const { revision_note = '-' } = data;
 
+  // ✅ helper checkbox
+  const box = (checked) => checked ? '☑' : '☐';
+
   return `
   <div class="section page-break">
 
@@ -14,82 +17,106 @@ const renderSection8 = (data) => {
       </div>
     </div>
 
-    <!-- ✅ ตาราง checkbox -->
-    <table style="width:100%; border-collapse: collapse; font-size:14px;">
+    <!-- ✅ กล่องใหญ่ -->
+    <div style="border:1px solid #000; padding:15px;">
 
       <!-- ✅ ข้อ 1 -->
-      <tr>
-        <td style="border:1px solid #000; width:40%;">
-          <b>1. กลยุทธ์การประเมินประสิทธิผลของรายวิชาโดยนักศึกษา</b>
-        </td>
-        <td style="border:1px solid #000;">
-          ☐ แบบประเมินการสอนของนักศึกษา<br>
-          ☐ การเสนอแนะจากนักศึกษา<br>
-          ☐ อื่น ๆ ............................................................
-        </td>
-      </tr>
+      <div>
+        <b>1. กลยุทธ์การประเมินประสิทธิผลของรายวิชาโดยนักศึกษา</b>
+        <div style="margin-top:10px; margin-left:40px; line-height:1.8;">
+          <div>${box(false)} การประเมินผลรายวิชา</div>
+          <div>${box(true)} การประเมินการสอน</div>
+          <div>${box(false)} การสนทนากลุ่มระหว่างผู้สอนและผู้เรียน</div>
+          <div>
+            ${box(true)} ข้อเสนอแนะผ่านเวบบอร์ด/ สื่อสังคมออนไลน์ 
+            ที่อาจารย์ผู้สอนได้จัดทำเป็นช่องทางการสื่อสารกับนักศึกษา
+          </div>
+          <div>
+            ${box(false)} อื่นๆ (ระบุ) 
+            ............................................
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ เส้นแบ่ง -->
+      <div style="border-top:1px solid #000; margin:15px 0;"></div>
 
       <!-- ✅ ข้อ 2 -->
-      <tr>
-        <td style="border:1px solid #000;">
-          <b>2. กลยุทธ์การประเมินการสอน</b>
-        </td>
-        <td style="border:1px solid #000;">
-          ☐ ผลการเรียนของนักศึกษา<br>
-          ☐ การสังเกตพฤติกรรม<br>
-          ☐ การประชุมอาจารย์ผู้สอน<br>
-          ☐ อื่น ๆ ............................................................
-        </td>
-      </tr>
+      <div>
+        <b>2. กลยุทธ์การประเมินการสอน</b>
+        <div style="margin-top:10px; margin-left:40px; line-height:1.8;">
+          <div>${box(false)} การประเมินการสอน</div>
+          <div>${box(true)} ผลการสอบ/ ผลการเรียนรู้ของผู้เรียน</div>
+          <div>${box(false)} การสังเกตพฤติกรรมของผู้เรียน</div>
+          <div>${box(true)} การทวนสอบผลประเมินการเรียนรู้</div>
+          <div>
+            ${box(true)} การประเมินข้อสอบโดยคณะกรรมการ โดยคณะกรรมการบริหารหลักสูตร 
+            และ/หรือคณะกรรมการกำกับมาตรฐานวิชาการ
+          </div>
+          <div>${box(false)} การสังเกตการณ์สอนของผู้ร่วมทีมการสอน</div>
+          <div>
+            ${box(false)} อื่นๆ (ระบุ) 
+            ............................................
+          </div>
+        </div>
+      </div>
 
-      <!-- ✅ ข้อ 3 (dynamic table) -->
-      <tr>
-        <td style="border:1px solid #000;">
-          <b>3. การปรับปรุงการสอน</b>
-        </td>
-        <td style="border:1px solid #000; padding:0;">
-          
-          <table style="width:100%; border-collapse: collapse;">
-            <tr>
-              <th style="border:1px solid #000;">ประเด็นที่ทำการปรับปรุง</th>
-            </tr>
-            <tr>
-              <td style="border:1px solid #000; height:60px; vertical-align:top;">
-                ${revision_note || '-'}
-              </td>
-            </tr>
-          </table>
+    <!-- ✅ เส้นแบ่ง -->
+    <div style="border-top:1px solid #000; margin:15px 0;"></div>
 
-        </td>
-      </tr>
+    <!-- ✅ ข้อ 3 -->
+    <div style="margin-top:20px;">
+      <b>3. การปรับปรุงการสอน</b>
+      <table style="width:100%; border-collapse: collapse; margin-top:10px;">
+        <tr>
+          <th style="border:1px solid #000;">ประเด็นที่ทำการปรับปรุง</th>
+        </tr>
+        <tr>
+          <td style="border:1px solid #000; height:70px; vertical-align:top;">
+            ${revision_note || '-'}
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- ✅ เส้นแบ่ง -->
+    <div style="border-top:1px solid #000; margin:15px 0;"></div>
 
       <!-- ✅ ข้อ 4 -->
-      <tr>
-        <td style="border:1px solid #000;">
-          <b>4. การทวนสอบมาตรฐานผลสัมฤทธิ์ของนักศึกษา</b>
-        </td>
-        <td style="border:1px solid #000;">
-          ☐ มีการทวนสอบข้อสอบ<br>
-          ☐ มีการประชุมร่วมกันของผู้สอน<br>
-          ☐ อื่น ๆ ............................................................
-        </td>
-      </tr>
+      <div>
+        <b>4. การทวนสอบมาตรฐานผลสัมฤทธิ์ของนักศึกษา</b>
+        <div style="margin-top:10px; margin-left:40px; line-height:1.8;">
+          <div>${box(false)} ประเมินรายละเอียดรายวิชาว่าผลการเรียนรู้ที่กำหนดสอดคล้องกับความรับผิดชอบในหลักสูตร</div>
+          <div>${box(true)} ประเมินข้อสอบของรายวิชาว่าครอบคลุมผลการเรียนรู้ตามที่กำหนดไว้ในรายละเอียดวิชา</div>
+          <div>${box(false)} คณะกรรมการวิชาการประจำสาขาวิชาพิจารณาความเหมาะสมของข้อสอบให้เป็นไปตามแผนการสอน และมีการประเมินข้อสอบโดยผู้ทรงคุณวุฒิภายนอก</div>
+          <div>${box(true)} มีระบบประกันคุณภาพในการดำเนินการทวนสอบมาตรฐานผลการเรียนรู้และรายงานผล</div>
+          <div>${box(false)} อื่นๆ (ระบุ) 
+            ............................................
+          </div>
+        </div>
+      </div>
+    
+    <!-- ✅ เส้นแบ่ง -->
+    <div style="border-top:1px solid #000; margin:15px 0;"></div>
 
       <!-- ✅ ข้อ 5 -->
-      <tr>
-        <td style="border:1px solid #000;">
-          <b>5. การดำเนินการทบทวนและการวางแผนปรับปรุง</b>
-        </td>
-        <td style="border:1px solid #000;">
-          ☐ นำผลการประเมินมาปรับปรุง<br>
-          ☐ วิเคราะห์ผลการเรียน<br>
-          ☐ อื่น ๆ ............................................................
-        </td>
-      </tr>
-
-    </table>
-
-
+      <div>
+        <b>5. การดำเนินการทบทวนและการวางแผนปรับปรุงประสิทธิผลของรายวิชา</b>
+        <div style="margin-top:10px; margin-left:40px; line-height:1.8;">
+          <div>${box(false)} ปรับปรุงกระบวนวิชา ตามข้อเสนอแนะและผลการทวนสอบมาตรฐานผลสัมฤทธิ์ตามข้อ 4</div>
+          <div>${box(true)} ปรับปรุงกระบวนวิชา ตามผลการประเมินผู้สอนโดยนักศึกษา</div>
+          <div>${box(false)} การประชุมร่วมกับคณะกรรมการบริหารหลักสูตรเพื่อทบทวนกลยุทธ์การสอน วิธีการวัดและการประเมินผลการเรียนรู้</div>
+          <div>
+            ${box(true)} นำข้อมูลที่ได้จากรายงานผลการดำเนินการของรายวิชา (มคอ.5) ไปปรับปรุงรายละเอียดของรายวิชา (มคอ.3) ในภาคการศึกษาถัดไป
+          </div>
+          <div>${box(false)} ปรับปรุงกระบวนวิชาในช่วงเวลาการปรับปรุงหลักสูตร</div>
+          <div>
+            ${box(false)} อื่นๆ (ระบุ) 
+            ............................................
+          </div>
+        </div>
+      </div>
+    </div>  
 
     <!-- ✅ หมวดที่ 8 -->
     <div style="border: 1px solid #000; padding: 3px; margin: 30px 0 20px 0;">
@@ -99,50 +126,12 @@ const renderSection8 = (data) => {
         </h2>
       </div>
     </div>
-
-    <table style="width:100%; border-collapse: collapse; font-size:14px;">
-
-      <tr>
-        <td style="border:1px solid #000; width:40%;">
-          <b>1. การบูรณาการกับรายวิชาอื่น</b>
-        </td>
+        <p>รายวิชามีการบูรณาการกับ</p>
         <td style="border:1px solid #000;">
-          ☐ มีการบูรณาการ<br>
-          ☐ ไม่มี
+          ☐ งานวิจัย...........................................<br>
+          ☐ การบริการวิชาการ....................................<br>
+          ☐ ทำนุบำรุงศิลปวัฒนธรรม................................
         </td>
-      </tr>
-
-      <tr>
-        <td style="border:1px solid #000;">
-          <b>2. การบูรณาการกับการวิจัย/บริการวิชาการ</b>
-        </td>
-        <td style="border:1px solid #000;">
-          ☐ มีการบูรณาการ<br>
-          ☐ ไม่มี
-        </td>
-      </tr>
-
-      <tr>
-        <td style="border:1px solid #000;">
-          <b>3. การบูรณาการกับศิลปะและวัฒนธรรม</b>
-        </td>
-        <td style="border:1px solid #000;">
-          ☐ มีการบูรณาการ<br>
-          ☐ ไม่มี
-        </td>
-      </tr>
-
-      <tr>
-        <td style="border:1px solid #000;">
-          <b>4. การบูรณาการกับสิ่งแวดล้อม</b>
-        </td>
-        <td style="border:1px solid #000;">
-          ☐ มีการบูรณาการ<br>
-          ☐ ไม่มี
-        </td>
-      </tr>
-
-    </table>
 
   </div>
   `;

@@ -243,12 +243,13 @@ exports.upsertClos = async (course_instance_id, clos) => {
       );
       for (const ind of (c.indicators || [])) {
         await pool.query(`
-          INSERT INTO clo_indicators (clo_id, description, target)
-          VALUES ($1,$2,$3)
+          INSERT INTO clo_indicators (clo_id, description, target, course_instance_id)
+          VALUES ($1,$2,$3, $4)
         `, [
           c.id,
           ind.description,
-          ind.target
+          ind.target,
+          course_instance_id
         ]);
       }
     }
@@ -267,12 +268,13 @@ exports.upsertClos = async (course_instance_id, clos) => {
       const newId = insert.rows[0].id;
       for (const ind of (c.indicators || [])) {
         await pool.query(`
-          INSERT INTO clo_indicators (clo_id, description, target)
-          VALUES ($1,$2,$3)
+          INSERT INTO clo_indicators (clo_id, description, target, course_instance_id)
+          VALUES ($1,$2,$3, $4)
         `, [
           newId,
           ind.description,
-          ind.target
+          ind.target,
+          course_instance_id
         ]);
       }
     }

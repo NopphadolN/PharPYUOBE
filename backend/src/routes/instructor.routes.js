@@ -542,9 +542,9 @@ for (const ins of usedInstructors.rows) {
 
       for (const ind of indRes.rows) {
         await pool.query(`
-          INSERT INTO clo_indicators (clo_id, description, target)
-          VALUES ($1,$2,$3)
-        `, [newCloId, ind.description, ind.target]);
+          INSERT INTO clo_indicators (clo_id, description, target, course_instance_id)
+          VALUES ($1,$2,$3, $4)
+        `, [newCloId, ind.description, ind.target, course_instance_id]);
       }
     }
 

@@ -294,7 +294,7 @@ const barOptions = {
   <tr key={st.id} className="border-t border text-center px-2 
   hover:bg-gray-50">
     <td className="px-3 py-2">{st.user_code}</td>
-    <td className="px-3 py-2">{st.name_th}</td>
+    <td className="px-3 py-2 text-left">{st.name_th}</td>
     {plos.map(plo => {
       const avg = getPloAvg(st.id, plo);
       return (
@@ -368,7 +368,7 @@ const barOptions = {
         return (
           <tr key={st.id}>
             <td className="border-t px-2">{st.user_code}</td>
-            <td className="border-t px-2">{st.name_th}</td>
+            <td className="border-t px-2 text-left">{st.name_th}</td>
             {[...new Set(yloResults.map(y => y.code))].map(code => {
               const y = studentYLO.find(x => x.code === code);
               return (

@@ -540,7 +540,7 @@ console.log("BTN STATE:", {
       disabled={!isOwner}
       rows={4}
       className="border rounded-lg p-2 w-[200px]"
-      placeholder="วางคะแนนจาก Excel"
+      placeholder="วางคะแนนจาก Excel รูปแบบ |รหัส นศ.|คะแนน|"
       value={pasteText}
       onChange={(e) => setPasteText(e.target.value)}
     />
@@ -663,7 +663,7 @@ console.log("BTN STATE:", {
 >
 
             <td className="px-3 border">{st.user_code}</td>
-            <td className="px-3 border">{st.name_th}</td>
+            <td className="px-3 border text-left">{st.name_th}</td>
 
             <td className="border text-center">
               <input

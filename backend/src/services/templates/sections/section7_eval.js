@@ -122,7 +122,7 @@ const renderSection7 = (data) => {
 
     <!-- ✅ เกณฑ์ -->
     <p style="margin-top:20px;"><strong>3. เกณฑ์การประเมินผล</strong></p>
-    <p style="margin-left:40px;">เกณฑ์การประเมินผลใช้วิธีการตัดเกรดแบบอิงเกณฑ์ ดังนี</p>
+    <p style="margin-left:40px;">เกณฑ์การประเมินผลใช้วิธีการตัดเกรดแบบอิงเกณฑ์ ดังนี้</p>
     ${sortedGrading.map(g => {
       let text = '';
 

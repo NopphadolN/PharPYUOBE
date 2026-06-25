@@ -63,7 +63,7 @@ const buffer = await page.pdf({
     <div style="
       width:100%;
       font-size:10px;
-      padding:5px 30px 0 30px;
+      padding:30px 90px 0 90px;
       display:flex;
       justify-content:space-between;
       align-items:center;
@@ -72,15 +72,15 @@ const buffer = await page.pdf({
       
       <!-- ✅ โลโก้ -->
       <div>
-        <img src="data:image/png;base64,${logoBase64}" style="height:40px; object-fit:contain;" />
+        <img src="data:image/png;base64,${logoBase64}" style="height:30px; object-fit:contain;" />
       </div>
 
       <!-- ✅ ข้อความด้านขวา -->
       <div style="
-        font-size:14px;
+        font-size:12px;
         font-family: 'TH Sarabun New', sans-serif;
       ">
-        แผนการสอน (${data.course?.year || '-'})
+        Lesson Plan (${data.course?.year || '-'})
       </div>
 
     </div>

@@ -1,8 +1,8 @@
-const renderSection3 = (data) => {
+const renderSection7 = (data) => {
 
-  let { books, evaluations, grading, contents = [], clos = [], note } = data;
+  let { books, courseEvaluations, grading, courseContents = [], clos = [], note } = data;
 
-  // ✅ parse JSON
+  // ✅ parse
   if (typeof books === 'string') {
     try { books = JSON.parse(books); } catch { books = []; }
   }
@@ -11,9 +11,9 @@ const renderSection3 = (data) => {
     try { grading = JSON.parse(grading); } catch { grading = []; }
   }
 
-  const evalList = Array.isArray(evaluations) ? evaluations : [];
+  const evalList = Array.isArray(courseEvaluations) ? courseEvaluations : [];
 
-  // ✅ function หา CLO จาก content จริง
+  // ✅ map CLO จาก content
   const getCLOCodes = (e) => {
 
     const ids = [
@@ -24,176 +24,156 @@ const renderSection3 = (data) => {
     const cloSet = new Set();
 
     ids.forEach(cid => {
-      const content = contents.find(c =>
-  String(c.order) === String(cid) ||   // ✅ เดิม
-  String(c.id) === String(cid)         // ✅ FIX ใหม่
-);
+      const content = courseContents.find(c =>
+        String(c.order) === String(cid) ||
+        String(c.id) === String(cid)
+      );
       if (!content) return;
 
       (content.clo_ids || []).forEach(cloId => {
-        const clo = clos.find(c => c.id == cloId);
-        if (clo) cloSet.add(clo.code);
+        const clo = clos.find(c => String(c.id) === String(cloId));
+        if (clo) cloSet.add(clo.code || `CLO${clos.findIndex(x => x.id == cloId)+1}`);
       });
     });
 
     return Array.from(cloSet).sort().join(', ');
   };
 
-const gradeOrder = ['A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'F'];
-// ✅ sort จาก A → F
-let sortedGrading = Array.isArray(grading)
-  ? [...grading].sort((a, b) =>
-      gradeOrder.indexOf(a.grade) - gradeOrder.indexOf(b.grade)
-    )
-  : [];
+  // ✅ format content range
+  const formatContentRange = (ids) => {
 
-const totalEval = evalList.reduce(
-  (sum, e) => sum + Number(e.total || 0),
-  0
-);
+    let numbers = ids
+      .map(cid => {
+        const c = courseContents.find(x =>
+          String(x.order) === String(cid) ||
+          String(x.id) === String(cid)
+        );
+        return c ? Number(c.order) : Number(cid);
+      })
+      .filter(n => !isNaN(n));
 
-const formatContentRange = (ids) => {
+    numbers = [...new Set(numbers)].sort((a, b) => a - b);
 
-  // ✅ map หา order + กัน id/order ปน
-  let numbers = ids
-    .map(cid => {
-      const c = contents.find(x =>
-        String(x.order) === String(cid) ||
-        String(x.id) === String(cid)
-      );
-      return c ? Number(c.order) : Number(cid);
-    })
-    .filter(n => !isNaN(n));
+    const result = [];
+    let start = numbers[0];
+    let prev = numbers[0];
 
-  // ✅ remove duplicate
-  numbers = [...new Set(numbers)];
+    for (let i = 1; i <= numbers.length; i++) {
+      const curr = numbers[i];
 
-  // ✅ sort
-  numbers.sort((a, b) => a - b);
+      if (curr === prev + 1) {
+        prev = curr;
+        continue;
+      }
 
-  // ✅ group เป็นช่วง
-  const result = [];
-  let start = numbers[0];
-  let prev = numbers[0];
-
-  for (let i = 1; i <= numbers.length; i++) {
-    const curr = numbers[i];
-
-    if (curr === prev + 1) {
+      result.push(start === prev ? `${start}` : `${start}–${prev}`);
+      start = curr;
       prev = curr;
-      continue;
     }
 
-    // ✅ push range
-    if (start === prev) {
-      result.push(`${start}`);
-    } else {
-      result.push(`${start}–${prev}`);
-    }
+    return result.join(', ') || '-';
+  };
 
-    start = curr;
-    prev = curr;
-  }
+  // ✅ total
+  const totalEval = evalList.reduce(
+    (sum, e) => sum + Number(e.total || 0), 0
+  );
 
-  return result.join(', ') || '-';
-};
+  // ✅ grading sort
+  const gradeOrder = ['A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'F'];
+
+  const sortedGrading = Array.isArray(grading)
+    ? [...grading].sort(
+        (a, b) => gradeOrder.indexOf(a.grade) - gradeOrder.indexOf(b.grade)
+      )
+    : [];
+
   return `
-    <div class="section">
-      <div class="heading">
-      <p style="margin-top: 20px;"><b>8. รายชื่อหนังสือประกอบการสอน</b></p>
-      </div>
-      <div style="text-indent: 40px;">
-      ${(Array.isArray(books) && books.length
-  ? [...books].sort((a, b) => a.localeCompare(b, 'th'))
-  : ['-']).map((b, i) => `
-  <div>${i + 1}. ${b}</div>
-  `).join('')}
-      </div>
-      <div class="heading">  
-      <p><b>9. สัดส่วนการให้คะแนน</b></p>
-      </div>
-<table>
-  <tr>
-    <th>การประเมิน</th>
-    <th>CLOs</th>
-    <th>คะแนน</th>
-    <th>หัวข้อบรรยาย</th>
-    <th>หัวข้อปฏิบัติ</th>
-    <th>เครื่องมือ</th>
-    <th>สัปดาห์</th>
-  </tr>
+  <div class="section page-break">
+    <p><strong>2. แผนการประเมินผลการเรียนรู้</strong></p>
+    <table style="width:100%; border-collapse: collapse; font-size:13px;">
+      <tr>
+        <th style="border:1px solid #000;">การประเมิน</th>
+        <th style="border:1px solid #000;">CLOs</th>
+        <th style="border:1px solid #000;">คะแนน</th>
+        <th style="border:1px solid #000;">หัวข้อบรรยาย</th>
+        <th style="border:1px solid #000;">หัวข้อปฏิบัติ</th>
+        <th style="border:1px solid #000;">เครื่องมือ</th>
+        <th style="border:1px solid #000;">สัปดาห์</th>
+      </tr>
 
-  ${evalList.map(e => `
-    <tr style="vertical-align:top">
-      <td>${e.name || '-'}</td>
-      <td style="text-align:center">${getCLOCodes(e) || '-'}</td>
-      <td style="text-align:center">${e.total ?? '-'}</td>
-      <td style="text-align:center">${formatContentRange(e.content_ids_lecture || [])}</td>
-      <td style="text-align:center">${formatContentRange(e.content_ids_lab || [])}</td>
-      <td style="text-align:center">${e.tool || '-'}</td>
-      <td style="text-align:center">${e.week || '-'}</td>
-    </tr>
-  `).join('')}
+      ${evalList.map(e => `
+        <tr style="vertical-align:top">
+          <td style="border:1px solid #000;">${e.name || '-'}</td>
+          <td style="border:1px solid #000; text-align:center;">${getCLOCodes(e) || '-'}</td>
+          <td style="border:1px solid #000; text-align:center;">${e.total ?? '-'}</td>
+          <td style="border:1px solid #000; text-align:center;">${formatContentRange(e.content_ids_lecture || [])}</td>
+          <td style="border:1px solid #000; text-align:center;">${formatContentRange(e.content_ids_lab || [])}</td>
+          <td style="border:1px solid #000; text-align:center;">${e.tool || '-'}</td>
+          <td style="border:1px solid #000; text-align:center;">${e.week || '-'}</td>
+        </tr>
+      `).join('')}
+      <tr style="font-weight:bold; text-align:center;">
+        <td colspan="2">รวม</td>
+        <td>${totalEval}</td>
+        <td></td><td></td><td></td><td></td>
+      </tr>
+    </table>
 
-  <!-- ✅ ✅ ✅ TOTAL ROW -->
-  <tr style="font-weight:bold; text-align:center;">
-    <td colspan="2">รวม</td>
-    <td >${totalEval}</td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
-</table>
-      <div class="heading">
-      <p style="margin-top: 20px;"><b>10. เกณฑ์การประเมินผล</b></p>
+    <!-- ✅ เกณฑ์ -->
+    <p style="margin-top:20px;"><strong>3. เกณฑ์การประเมินผล</strong></p>
+    <p style="margin-left:80px;">เกณฑ์การประเมินผลใช้วิธีการตัดเกรดแบบอิงเกณฑ์ ดังนี</p>
+    ${sortedGrading.map(g => {
+      let text = '';
+
+      if (Number(g.min) >= 80) {
+        text = `≥ ${Number(g.min).toFixed(2)} %`;
+      } else if (g.grade === 'F') {
+        text = `≤ ${Number(g.max).toFixed(2)} %`;
+      } else {
+        text = `${Number(g.min).toFixed(2)} – ${Number(g.max).toFixed(2)} %`;
+      }
+
+      return `
+      <div style="display:flex; justify-content:space-between; width:250px; margin-left:120px;">
+        <div>${text}</div>
+        <div>${g.grade}</div>
       </div>
-      <div style="text-indent: 40px; justify-content:space-between;">
-      <p>• ในกรณีที่ไม่สามารถมาเข้าชั้นเรียน นักศึกษาต้องแจ้งให้อาจารย์ประจำวิชาทราบ 
-      <b>โดยมีใบรับรองแพทย์ หรือหนังสือยืนยันจากผู้ปกครองทุกครั้งที่ขาดเรียน หากไม่ปฏิบัติตาม 
-      จะถูกนับว่าขาดเรียน</b>ครั้งนั้น</p>
-      <p>• กรณีที่นักศึกษาขาดสอบไล่ นักศึกษาจะได้รับเกรด F ในกระบวนวิชานั้น</p>
+      `;
+    }).join('')}
+
+    ${note ? `<div style="margin-left:80px;">${note}</div>` : ''}
+      <p><strong>แนวทางการอุทธรณ์ของนักศึกษา/ผู้เรียน Appeal procedure</strong></p>
       </div>
-      <p><b>การประเมินผลการเรียน</b> จะพิจารณาระดับผลการเรียนแบบอิงเกณฑ์ ดังนี้</p>
-      
-${sortedGrading.map(g => {
-  let text = '';
-  // ✅ กรณี A (>=)
-  if (Number(g.min) >= 80) {
-    text = `≥ ${Number(g.min).toFixed(2)} %`;
-  }
-  // ✅ กรณี F (<=)
-  else if (g.grade === 'F') {
-    text = `≤ ${Number(g.max).toFixed(2)} %`;
-  }
-  // ✅ กรณีช่วงทั่วไป
-  else {
-    text = `${Number(g.min).toFixed(2)} – ${Number(g.max).toFixed(2)} %`;
-  }
-  return `
-    <div style="
-      display:flex;
-      margin-left: 120px;
-      justify-content:space-between;
-      width:250px;
-      padding:2px 0;
-    ">
-      <div>${text}</div>
-      <div>${g.grade}</div>
-    </div>
-  `;
-}).join('')}
-${note ? `<div style="text-indent: 40px; margin-top: 10px;">${note}</div>` : ''}
-      <div class="heading">
-      <p><b>แนวทางการอุทธรณ์ของนักศึกษา/ผู้เรียน Appeal procedure</b></p>
-      </div>
-      <p style="text-indent: 40px; text-align: justify;">
+      <p style="text-indent: 80px; text-align: justify;">
       นักศึกษาสามารถทำเรื่องอุทธรณ์ผลการเรียนโดย Download แบบคำร้อง (ใช้คำร้องทั่วไป) ได้ที่ระบบ
 e-registra และยื่นคำร้องได้ที่สำนักงานฝ่ายวิชาการและวิจัยภายใน 10 วันทำการ หลังจากประกาศผลการ
 เรียนในระบบ e-registra</p>
 
+    <!-- ✅ หมวดที่ 6 -->
+    <div style="margin-top:30px;">
+      <div style="border: 1px solid #000; padding: 3px;">
+        <div style="border: 4px solid #000; padding: 8px; text-align:center;">
+          <h2 style="margin:0; font-size: 16px;">หมวดที่ 6 ทรัพยากรประกอบการเรียนการสอน</h2>
+        </div>
+      </div>
+
+      <p><strong>1. ตำราและเอกสารหลัก</strong></p>
+
+      <div style="margin-left:40px;">
+        ${(Array.isArray(books) && books.length
+          ? books
+          : ['-']
+        ).map((b, i) => `
+          <div>${i + 1}. ${b}</div>
+        `).join('')}
+      </div>
+      <p><strong>2. เอกสาร และข้อมูลสำคัญ</strong></p>
+      <p><strong>3. เอกสาร และข้อมูลแนะนำ</strong></p>
     </div>
+
+  </div>
   `;
 };
 
-module.exports = { renderSection3 };
+module.exports = { renderSection7 };

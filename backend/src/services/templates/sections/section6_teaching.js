@@ -129,7 +129,7 @@ const renderSection6 = (data) => {
 
           <tr style="vertical-align:top">
 
-            <td style="border:1px solid #000;">
+            <td style="border:1px solid #000; text-align:center;">
               ${formatClos(c.clo_ids)}
             </td>
 

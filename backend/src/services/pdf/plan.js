@@ -13,16 +13,25 @@ const { renderSection2 } = require('../templates/sections/section2');
 const { renderSection3 } = require('../templates/sections/section3');
 
 async function mergePdf(mainBuffer, appendPath) {
-  if (!appendPath) return mainBuffer;
-  const mainDoc = await PDFDocument.load(mainBuffer);
-  const appendBytes = fs.readFileSync(appendPath);
-  const appendDoc = await PDFDocument.load(appendBytes);
-  const pages = await mainDoc.copyPages(
-    appendDoc,
-    appendDoc.getPageIndices()
-  );
-  pages.forEach(p => mainDoc.addPage(p));
-  return await mainDoc.save();
+  try {
+    if (!appendPath || !fs.existsSync(appendPath)) {
+      console.log("NO APPEND FILE");
+      return mainBuffer;
+    }
+    const mainDoc = await PDFDocument.load(mainBuffer);
+    const appendBytes = fs.readFileSync(appendPath);
+    const appendDoc = await PDFDocument.load(appendBytes);
+    const pages = await mainDoc.copyPages(
+      appendDoc,
+      appendDoc.getPageIndices()
+    );
+    pages.forEach(p => mainDoc.addPage(p));
+    console.log("MERGE SUCCESS");
+    return await mainDoc.save();
+  } catch (err) {
+    console.error("MERGE ERROR:", err);
+    return mainBuffer; // ✅ ไม่ให้ crash
+  }
 }
 
 let browser;

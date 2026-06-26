@@ -29,7 +29,7 @@ export default function CourseBook() {
   const [instanceId, setInstanceId] = useState(initInstanceId || null);
   const [owner, setOwner] = useState(null);
   const [user, setUser] = useState(null);
-  const [appendPdf, setAppendPdf] =
+  const [appendPdf, setAppendPdf] = useState(null);
 
   /* =========================
      LOAD DATA
@@ -345,15 +345,15 @@ setRevisionNote(data.revision_note || '');
       const file = e.target.files[0];
       if (file) setAppendPdf(file);
     }}
+    className="border p-2 rounded"
   />
 
   {appendPdf && (
     <div className="text-sm text-gray-600 mt-2">
-      📄 {appendPdf.name}
+      📄 เลือกไฟล์: {appendPdf.name}
     </div>
   )}
 </Card>
-
 
         <hr />
 <div className="flex gap-3">

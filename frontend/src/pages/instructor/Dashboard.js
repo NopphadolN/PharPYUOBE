@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import InstructorMenu from '../../components/InstructorMenu';
 import Card from '../../components/ui/Card';
+import Input from '../../components/ui/Input';
+import Button from '../../components/ui/Button';
 
 export default function Dashboard() {
 
@@ -123,23 +125,19 @@ export default function Dashboard() {
 
 <Card className="mb-6">
   <h3 className="font-semibold mb-4">📌 ข้อมูลติดต่ออาจารย์</h3>
-
   <div className="grid grid-cols-2 gap-4">
-
     <input
       placeholder="ห้องพัก"
       value={profile.office}
       onChange={e => setProfile({ ...profile, office: e.target.value })}
       className="border rounded-lg px-3 py-2"
     />
-
     <input
       placeholder="Email"
       value={profile.email}
       onChange={e => setProfile({ ...profile, email: e.target.value })}
       className="border rounded-lg px-3 py-2"
     />
-
     <input
       placeholder="วันให้คำปรึกษา เช่น จันทร์-ศุกร์"
       value={profile.consultation_day}
@@ -149,7 +147,6 @@ export default function Dashboard() {
       })}
       className="border rounded-lg px-3 py-2"
     />
-
     <input
       placeholder="เวลา เช่น 13:00 - 15:00"
       value={profile.consultation_time}
@@ -159,9 +156,7 @@ export default function Dashboard() {
       })}
       className="border rounded-lg px-3 py-2"
     />
-
   </div>
-
   <div className="mt-4 text-right">
     <button
       onClick={handleSaveProfile}

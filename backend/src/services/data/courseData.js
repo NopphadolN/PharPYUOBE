@@ -107,7 +107,8 @@ return {
   guestTeachers,
   owner_id: courseData.owner_id, 
   subPlos,
-  cloMappings
+  cloMappings,
+  appendPdf: courseData.append_pdf
 };
 
 };

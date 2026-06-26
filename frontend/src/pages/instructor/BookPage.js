@@ -29,6 +29,7 @@ export default function CourseBook() {
   const [instanceId, setInstanceId] = useState(initInstanceId || null);
   const [owner, setOwner] = useState(null);
   const [user, setUser] = useState(null);
+  const [appendPdf, setAppendPdf] =
 
   /* =========================
      LOAD DATA
@@ -102,23 +103,23 @@ const deleteGrade = (target) => {
   /* =========================
      SAVE (overwrite ✅)
   ========================= */
-  const handleSave = async () => {
-    
-    console.log("SAVE BOOK:", {
-  course_instance_id: instanceId,
-  books,
-  grading,
-  note
-});
-
-await api.post('/instructor/instance/book', {
-  course_instance_id: instanceId,
-  books,
-  grading,
-  note,
-  revision_note: revisionNote
-});
+const handleSave = async () => {
+  const formData = new FormData();
+  formData.append('course_instance_id', instanceId);
+  formData.append('books', JSON.stringify(books));
+  formData.append('grading', JSON.stringify(grading));
+  formData.append('note', note);
+  formData.append('revision_note', revisionNote);
+  if (appendPdf) {
+    formData.append('append_pdf', appendPdf); 
+  }
+  await api.post('/instructor/instance/book', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
   alert('✅ บันทึกแล้ว');
+};
   
   // ✅ reload
 const res = await api.get('/instructor/instance', {
@@ -330,6 +331,30 @@ setRevisionNote(data.revision_note || '');
   />
 </Card>
 
+{/* ================= APPEND PDF ================= */}
+<Card>
+  <h3 className="font-semibold mb-3">
+    📎 แนบเอกสารเพิ่มเติม rubric score (PDF)
+  </h3>
+
+  <input
+    type="file"
+    accept="application/pdf"
+    disabled={!isOwner}
+    onChange={(e) => {
+      const file = e.target.files[0];
+      if (file) setAppendPdf(file);
+    }}
+  />
+
+  {appendPdf && (
+    <div className="text-sm text-gray-600 mt-2">
+      📄 {appendPdf.name}
+    </div>
+  )}
+</Card>
+
+
         <hr />
 <div className="flex gap-3">
 
@@ -347,4 +372,3 @@ setRevisionNote(data.revision_note || '');
 </div>
 </div>
   );
-}

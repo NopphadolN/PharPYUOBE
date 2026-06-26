@@ -6,6 +6,21 @@ const PDFDocument = require('pdfkit');
 require('pdfkit-table'); 
 const controller = require('../controllers/instructor.controller');
 
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const storage = multer.diskStorage({
+  destination: 'uploads/',   // ✅ สร้างโฟลเดอร์นี้
+  filename: (req, file, cb) => {
+    const unique = Date.now() + '-' + Math.round(Math.random()*1e9);
+    cb(null, unique + path.extname(file.originalname));
+  }
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB
+});
+
 const checkOwner = async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -103,33 +118,48 @@ router.post('/evaluations', verifyToken, checkOwner, controller.saveEvaluations)
 router.get('/evaluations', verifyToken, controller.getEvaluations);
 
 /* =============================
-   POST: Save Books + Grading
+   POST: Save Books + Grading + PDF
 ============================= */
-router.post('/instance/book', verifyToken, checkOwner, async (req, res) => {
-  const { course_instance_id, books, grading, note, revision_note } = req.body;
-  try {
-    if (!course_instance_id) {
-      return res.status(400).json({ error: 'course_instance_id required' });
+router.post(
+  '/instance/book',
+  verifyToken,
+  checkOwner,
+  upload.single('append_pdf'), // ✅ เพิ่มตรงนี้
+  async (req, res) => {
+    const {
+      course_instance_id,
+      books,
+      grading,
+      note,
+      revision_note
+    } = req.body;
+    try {
+      if (!course_instance_id) {
+        return res.status(400).json({ error: 'course_instance_id required' });
+      }
+      // ✅ path ไฟล์ (ถ้ามี)
+      const appendPdfPath = req.file ? req.file.path : null;
+      await pool.query(`
+        UPDATE course_instances
+        SET books = $1,
+            grading = $2,
+            note = $3,
+            revision_note = $4,
+            append_pdf = COALESCE($5, append_pdf) -- ✅ เพิ่ม
+        WHERE id = $6
+      `, [
+        JSON.stringify(books || []),
+        JSON.stringify(grading || []),
+        note || '',
+        revision_note || '',
+        appendPdfPath,
+        course_instance_id
+      ]);
+      return res.json({ ok: true });
+    } catch (err) {
+      console.error('BOOK SAVE ERROR:', err);
+      return res.status(500).send('Save book error');
     }
-    await pool.query(`
-      UPDATE course_instances
-      SET books = $1,
-          grading = $2,          
-          note = $3,
-          revision_note = $4
-      WHERE id = $5
-    `, [
-      JSON.stringify(books || []),
-      JSON.stringify(grading || []),
-      note || '',
-      revision_note || '',
-      course_instance_id
-    ]);
-    return res.json({ ok: true });
-  } catch (err) {
-    console.error('BOOK SAVE ERROR:', err);
-    return res.status(500).send('Save book error');
-  }
 });
 
 // ✅ save mapping (VERSION ถูกต้อง)

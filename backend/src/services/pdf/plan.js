@@ -5,10 +5,25 @@ const fontBase64 =
 const fs = require('fs');
 const path = require('path');
 
+const { PDFDocument } = require('pdf-lib');
+
 const { renderHeader } = require('../templates/sections/header');
 const { renderSection1 } = require('../templates/sections/section1');
 const { renderSection2 } = require('../templates/sections/section2');
 const { renderSection3 } = require('../templates/sections/section3');
+
+async function mergePdf(mainBuffer, appendPath) {
+  if (!appendPath) return mainBuffer;
+  const mainDoc = await PDFDocument.load(mainBuffer);
+  const appendBytes = fs.readFileSync(appendPath);
+  const appendDoc = await PDFDocument.load(appendBytes);
+  const pages = await mainDoc.copyPages(
+    appendDoc,
+    appendDoc.getPageIndices()
+  );
+  pages.forEach(p => mainDoc.addPage(p));
+  return await mainDoc.save();
+}
 
 let browser;
 const generatePlanPDF = async (data, res) => {
@@ -53,6 +68,8 @@ const buffer = await page.pdf({
     right: '1in'
   }
 });   
+buffer = await mergePdf(buffer, data.appendPdf);
+return buffer;
 
     await page.close();
 

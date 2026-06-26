@@ -118,7 +118,7 @@ router.post('/evaluations', verifyToken, checkOwner, controller.saveEvaluations)
 router.get('/evaluations', verifyToken, controller.getEvaluations);
 
 // GET profile //
-router.get('/profile', async (req, res) => {
+router.get('/profile', verifyToken, async (req, res) => {
   const userId = req.user.id;
   const result = await pool.query(`
     SELECT * FROM instructor_profiles
@@ -127,7 +127,7 @@ router.get('/profile', async (req, res) => {
   res.json(result.rows[0] || null);
 });
 // POST save/update profile //
-router.post('/profile', async (req, res) => {
+router.post('/profile', verifyToken, async (req, res) => {
   const userId = req.user.id;
   const { office, email, consultation_day, consultation_time } = req.body;
   await pool.query(`

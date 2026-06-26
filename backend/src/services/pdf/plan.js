@@ -58,7 +58,7 @@ const generatePlanPDF = async (data, res) => {
     await page.setContent(html, { waitUntil: 'domcontentloaded' });
 
     // ✅ generate PDF
-const buffer = await page.pdf({
+let buffer = await page.pdf({
   format: 'A4',
   printBackground: true, 
   margin: {

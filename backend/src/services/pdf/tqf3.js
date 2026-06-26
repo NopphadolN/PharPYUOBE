@@ -70,7 +70,7 @@ const logoPath = path.join(__dirname, '../../assets/PayapLogo.png');
 const logoBase64 = fs.readFileSync(logoPath, { encoding: 'base64' });
 
 // ✅ generate PDF
-const buffer = await page.pdf({
+let buffer = await page.pdf({
   format: 'A4',
   printBackground: true,
   displayHeaderFooter: true,

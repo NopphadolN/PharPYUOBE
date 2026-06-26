@@ -562,8 +562,9 @@ exports.upsertContents = async (course_instance_id, contents) => {
           "order"=$7,
           exam_score=$8,
           work_score=$9,
-          clo_ids=$10
-        WHERE id=$11
+          clo_ids=$10,
+          llos=$11
+        WHERE id=$12
       `, [
         c.type,
         c.date || null,
@@ -575,6 +576,7 @@ exports.upsertContents = async (course_instance_id, contents) => {
         Number(c.examScore || 0),
         Number(c.workScore || 0),
         JSON.stringify(c.clo_ids || []),
+        c.llos || '',
         Number(c.id)
       ]);
     }
@@ -590,7 +592,7 @@ exports.upsertContents = async (course_instance_id, contents) => {
         values.push(`
           ($${idx++}, $${idx++}, $${idx++}::date, $${idx++}, $${idx++},
            $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++},
-           $${idx++})
+           $${idx++}), $${idx++}
         `);
         params.push(
           course_instance_id,
@@ -603,7 +605,8 @@ exports.upsertContents = async (course_instance_id, contents) => {
           Number(c.order || 0),
           Number(c.examScore || 0),
           Number(c.workScore || 0),
-          JSON.stringify(c.clo_ids || [])
+          JSON.stringify(c.clo_ids || []),
+          c.llos || ''
         );
       }
       await client.query(`
@@ -618,7 +621,8 @@ exports.upsertContents = async (course_instance_id, contents) => {
           "order",
           exam_score,
           work_score,
-          clo_ids
+          clo_ids,
+          llos
         )
         VALUES ${values.join(', ')}
       `, params);

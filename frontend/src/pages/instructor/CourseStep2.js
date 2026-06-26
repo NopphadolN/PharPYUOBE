@@ -47,7 +47,6 @@ export default function CourseStep2() {
   const [currentContent, setCurrentContent] = useState({
     id: null,
     type: 'lecture',
-
     date: '',
     order: '',
     topic: '',
@@ -55,7 +54,8 @@ export default function CourseStep2() {
     instructor: '',
     cloIds: [],
     examScore: '',
-    workScore: ''
+    workScore: '',
+    llos: ''
   });
 
   /* =========================
@@ -138,7 +138,8 @@ useEffect(() => {
           order: c.order || '',
           examScore: c.exam_score || '',
           workScore: c.work_score || '',
-          cloIds: Array.isArray(c.clo_ids) ? c.clo_ids : []
+          cloIds: Array.isArray(c.clo_ids) ? c.clo_ids : [],
+          llos: c.llos || ''
         }))
       );
       // ✅ evaluations
@@ -215,12 +216,15 @@ const addTeacher = (t) => {
       instructor: '',
       cloIds: [],
       examScore: '',
-      workScore: ''
+      workScore: '',
+      llos: ''
     });
   };
 
   const editContent = (c) => setCurrentContent({
-  ...c, date: c.date || ''});
+  ...c, date: c.date || '',
+        llos: c.llos || '' 
+});
 
   const deleteContent = (id) => {
     setContents(prev => prev.filter(c => c.id !== id));
@@ -352,7 +356,8 @@ let cleanContents = contents.map(c => {
     examScore: Number(c.examScore || 0),
     workScore: Number(c.workScore || 0),
     // ✅ field ที่ backend ใช้ชื่อ clo_ids
-    clo_ids: Array.isArray(c.cloIds) ? c.cloIds : []
+    clo_ids: Array.isArray(c.cloIds) ? c.cloIds : [],
+    llos: c.llos || ''
   };
 });
   cleanContents = normalizeOrder(cleanContents);
@@ -991,6 +996,20 @@ const isOwner = courses?.owner_id === user?.id;
       </Select>
     </div>
   </div>
+
+<div className="mt-3">
+  <input
+    placeholder="วัตถุประสงค์การสอนเฉพาะบท (LLOs)"
+    value={currentContent.llos}
+    onChange={e =>
+      setCurrentContent({
+        ...currentContent,
+        llos: e.target.value
+      })
+    }
+    className="border rounded-lg px-3 py-2 w-full"
+  />
+</div>
 
   {/* BUTTON */}
   <div className="mt-4">

@@ -117,6 +117,34 @@ router.post('/instance/contents', verifyToken, checkOwner, controller.saveConten
 router.post('/evaluations', verifyToken, checkOwner, controller.saveEvaluations);
 router.get('/evaluations', verifyToken, controller.getEvaluations);
 
+// GET profile //
+router.get('/profile', async (req, res) => {
+  const userId = req.user.id;
+  const result = await pool.query(`
+    SELECT * FROM instructor_profiles
+    WHERE user_id = $1
+  `, [userId]);
+  res.json(result.rows[0] || null);
+});
+// POST save/update profile //
+router.post('/profile', async (req, res) => {
+  const userId = req.user.id;
+  const { office, email, consultation_day, consultation_time } = req.body;
+  await pool.query(`
+    INSERT INTO instructor_profiles 
+    (user_id, office, email, consultation_day, consultation_time)
+    VALUES ($1, $2, $3, $4, $5)
+    ON CONFLICT (user_id)
+    DO UPDATE SET
+      office = EXCLUDED.office,
+      email = EXCLUDED.email,
+      consultation_day = EXCLUDED.consultation_day,
+      consultation_time = EXCLUDED.consultation_time,
+      updated_at = CURRENT_TIMESTAMP
+  `, [userId, office, email, consultation_day, consultation_time]);
+  res.json({ success: true });
+});
+
 /* =============================
    POST: Save Books + Grading + PDF
 ============================= */

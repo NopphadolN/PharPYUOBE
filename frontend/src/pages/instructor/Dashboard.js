@@ -12,13 +12,25 @@ export default function Dashboard() {
 
   const [teaching, setTeaching] = useState([]);
   const [responsible, setResponsible] = useState([]);
-  
-  const navigate = useNavigate();
+    const navigate = useNavigate();
+  const [profile, setProfile] = useState({
+  office: '',
+  email: '',
+  consultation_day: '',
+  consultation_time: ''
+  });
+
+  useEffect(() => {
+  api.get('/instructor/profile')
+    .then(res => {
+      if (res.data) setProfile(res.data);
+    });
+  }, []);
 
   useEffect(() => {
   const currentYear = new Date().getFullYear() + 543;
   setYear(String(currentYear));
-}, []);
+  }, []);
 
   useEffect(() => {
     api.get('/instructor/me')
@@ -51,6 +63,11 @@ export default function Dashboard() {
     (sum, c) => sum + Number(c.total_hours || 0),
     0
   );
+
+  const handleSaveProfile = async () => {
+  await api.post('/instructor/profile', profile);
+  alert('✅ บันทึกข้อมูลสำเร็จ');
+  };
 
   const goStep2 = (c) => {
     navigate('/instructor/course/step2', {
@@ -103,6 +120,57 @@ export default function Dashboard() {
         </select>
       </div>
     </div>
+
+<Card className="mb-6">
+  <h3 className="font-semibold mb-4">📌 ข้อมูลติดต่ออาจารย์</h3>
+
+  <div className="grid grid-cols-2 gap-4">
+
+    <input
+      placeholder="ห้องพัก"
+      value={profile.office}
+      onChange={e => setProfile({ ...profile, office: e.target.value })}
+      className="border rounded-lg px-3 py-2"
+    />
+
+    <input
+      placeholder="Email"
+      value={profile.email}
+      onChange={e => setProfile({ ...profile, email: e.target.value })}
+      className="border rounded-lg px-3 py-2"
+    />
+
+    <input
+      placeholder="วันให้คำปรึกษา เช่น จันทร์-ศุกร์"
+      value={profile.consultation_day}
+      onChange={e => setProfile({
+        ...profile,
+        consultation_day: e.target.value
+      })}
+      className="border rounded-lg px-3 py-2"
+    />
+
+    <input
+      placeholder="เวลา เช่น 13:00 - 15:00"
+      value={profile.consultation_time}
+      onChange={e => setProfile({
+        ...profile,
+        consultation_time: e.target.value
+      })}
+      className="border rounded-lg px-3 py-2"
+    />
+
+  </div>
+
+  <div className="mt-4 text-right">
+    <button
+      onClick={handleSaveProfile}
+      className="bg-green-500 text-white px-4 py-2 rounded-lg"
+    >
+      💾 บันทึกข้อมูล
+    </button>
+  </div>
+</Card>
 
     {/* GRID */}
     <div className="grid grid-cols-2 gap-6">

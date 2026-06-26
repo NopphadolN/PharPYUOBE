@@ -93,6 +93,12 @@ const indicatorRes = await pool.query(`
   WHERE course_instance_id = $1
 `, [instanceId]);
 
+const profileRes = await pool.query(`
+  SELECT office, email, consultation_day, consultation_time
+  FROM instructor_profiles
+  WHERE user_id = $1
+`, [courseData.owner_id]);
+
 return {
   course: courseData,
   clos: clos.rows,
@@ -105,7 +111,8 @@ return {
   note,
   revision_note,
   guestTeachers,
-  owner_id: courseData.owner_id, 
+  owner_id: courseData.owner_id,
+  instructorProfile: profileRes.rows[0] || null, 
   subPlos,
   cloMappings,
   appendPdf: courseData.append_pdf

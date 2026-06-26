@@ -18,6 +18,8 @@ const renderSection2 = (data) => {
   // ✅ คำนวณชั่วโมง
   const hours = calculateHours(c.credit_format);
 
+const profile = data.instructorProfile || {};
+
   return ` 
   <!-- ✅ หมวดที่ 2 -->
   <div class="section">
@@ -86,12 +88,13 @@ const renderSection2 = (data) => {
 
     <p><strong>3. จำนวนชั่วโมงต่อสัปดาห์ที่อาจารย์ให้คำปรึกษาและแนะนำทางวิชาการแก่นักศึกษาเป็นรายบุคคล</strong></p>
 <p style="text-indent:10px;">นักศึกษาสามารถเข้าพบอาจารย์เพื่อขอคำปรึกษาและแนะนำในเนื้อหาที่เกี่ยวข้องกับรายวิชาได้ดังนี้
-<p>1. ห้องพักอาจารย์:</p>
-<p>2. Email:</p>
+<p>1. ห้องพักอาจารย์: ${profile.office || '-'}</p>
+<p>2. Email: ${profile.email || '-'}</p>
 <p>3. MS Teams ของรายวิชาและของอาจารย์ผู้สอนแต่ละท่าน</p>
 <p>4. จัดเวลาให้คำปรึกษาเป็นรายบุคคลหรือรายกลุ่มตามความต้องการ 1 ชั่วโมงต่อสัปดาห์ (เฉพาะรายที่
 ต้องการ)</p>
-
+<p>วันให้คำปรึกษา: ${profile.consultation_day || '-'}</p>
+<p>เวลา: ${profile.consultation_time || '-'}</p>
   </div>
   `;
 };

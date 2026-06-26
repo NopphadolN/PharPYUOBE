@@ -1,6 +1,13 @@
 const renderSection3 = (data) => {
-
-  let { books, evaluations, grading, courseContents = [], clos = [], note } = data;
+  
+let {
+  books,
+  courseEvaluations,
+  grading,
+  courseContents = [],
+  clos = [],
+  note
+} = data;
 
   // ✅ parse JSON
   if (typeof books === 'string') {
@@ -11,7 +18,7 @@ const renderSection3 = (data) => {
     try { grading = JSON.parse(grading); } catch { grading = []; }
   }
 
-  const evalList = Array.isArray(evaluations) ? evaluations : [];
+  const evalList = Array.isArray(courseEvaluations) ? courseEvaluations : [];
 
   // ✅ function หา CLO จาก content จริง
   const getCLOCodes = (e) => {

@@ -93,8 +93,8 @@ const profile = data.instructorProfile || {};
 <p>3. MS Teams ของรายวิชาและของอาจารย์ผู้สอนแต่ละท่าน</p>
 <p>4. จัดเวลาให้คำปรึกษาเป็นรายบุคคลหรือรายกลุ่มตามความต้องการ 1 ชั่วโมงต่อสัปดาห์ (เฉพาะรายที่
 ต้องการ)</p>
-<p>วันให้คำปรึกษา: ${profile.consultation_day || '-'}</p>
-<p>เวลา: ${profile.consultation_time || '-'}</p>
+<p style="text-indent:10px;">วันให้คำปรึกษา: ${profile.consultation_day || '-'}</p>
+<p style="text-indent:10px;">เวลา: ${profile.consultation_time || '-'}</p>
   </div>
   `;
 };

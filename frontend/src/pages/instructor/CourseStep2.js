@@ -997,17 +997,21 @@ const isOwner = courses?.owner_id === user?.id;
     </div>
   </div>
 
-<div className="mt-3">
-  <input
-    placeholder="วัตถุประสงค์การสอนเฉพาะบท (LLOs)"
-    value={currentContent.llos}
+<div className="mt-6 p-3 bg-yellow-50 border rounded-lg">
+  <label className="block mb-1 font-medium">
+    วัตถุประสงค์การสอน (LLOs)
+  </label>
+  <textarea
+    disabled={!isOwner}
+    value={currentContent.llos || ''}
     onChange={e =>
       setCurrentContent({
         ...currentContent,
         llos: e.target.value
       })
     }
-    className="border rounded-lg px-3 py-2 w-full"
+    className="w-full border rounded-lg px-3 py-2"
+    rows={2}
   />
 </div>
 

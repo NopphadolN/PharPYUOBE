@@ -104,6 +104,7 @@ const deleteGrade = (target) => {
      SAVE (overwrite ✅)
   ========================= */
 const handleSave = async () => {
+  try {
   const formData = new FormData();
   formData.append('course_instance_id', instanceId);
   formData.append('books', JSON.stringify(books));
@@ -114,13 +115,10 @@ const handleSave = async () => {
     formData.append('append_pdf', appendPdf); 
   }
   await api.post('/instructor/instance/book', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+    headers: { 'Content-Type': 'multipart/form-data' }
   });
   alert('✅ บันทึกแล้ว');
-};
-  
+
   // ✅ reload
 const res = await api.get('/instructor/instance', {
   params: { course_id, year, semester }
@@ -130,7 +128,12 @@ setBooks(data.books || []);
 setGrading(data.grading || []);
 setNote(data.note || '');
 setRevisionNote(data.revision_note || '');
-}
+
+  } catch (err) {
+    console.error(err);
+    alert('❌ เกิดข้อผิดพลาด');
+  }
+};
 
   /* =========================
      NAV
@@ -372,3 +375,4 @@ setRevisionNote(data.revision_note || '');
 </div>
 </div>
   );
+  }

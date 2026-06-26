@@ -13,11 +13,16 @@ const { renderSection2 } = require('../templates/sections/section2');
 const { renderSection3 } = require('../templates/sections/section3');
 
 async function mergePdf(mainBuffer, appendPath) {
+  if (!appendPath) {
+    console.log("NO APPEND FILE → skip merge");
+    return mainBuffer;
+  }
+  const fs = require('fs');
+  if (!fs.existsSync(appendPath)) {
+    console.log("FILE NOT FOUND → skip merge");
+    return mainBuffer;
+  }
   try {
-    if (!appendPath || !fs.existsSync(appendPath)) {
-      console.log("NO APPEND FILE");
-      return mainBuffer;
-    }
     const mainDoc = await PDFDocument.load(mainBuffer);
     const appendBytes = fs.readFileSync(appendPath);
     const appendDoc = await PDFDocument.load(appendBytes);
@@ -26,11 +31,11 @@ async function mergePdf(mainBuffer, appendPath) {
       appendDoc.getPageIndices()
     );
     pages.forEach(p => mainDoc.addPage(p));
-    console.log("MERGE SUCCESS");
+    console.log("MERGE SUCCESS ✅");
     return await mainDoc.save();
   } catch (err) {
     console.error("MERGE ERROR:", err);
-    return mainBuffer; // ✅ ไม่ให้ crash
+    return mainBuffer;
   }
 }
 
@@ -77,8 +82,9 @@ let buffer = await page.pdf({
     right: '1in'
   }
 });   
-buffer = await mergePdf(buffer, data.appendPdf);
-return buffer;
+if (data.appendPdf) {
+  buffer = await mergePdf(buffer, data.appendPdf);
+}
 
     await page.close();
 

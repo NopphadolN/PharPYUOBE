@@ -221,7 +221,12 @@ const addTeacher = (t) => {
     });
   };
 
-  const editContent = (c) => setCurrentContent({
+  const editContent = (c) => 
+    
+{
+  console.log("EDIT CONTENT =", c);
+
+    setCurrentContent({
   ...c, date: c.date || '',
         llos: c.llos || '' 
 });

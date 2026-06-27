@@ -1001,7 +1001,7 @@ const isOwner = courses?.owner_id === user?.id;
     </div>
 
     {/* BUTTON */}
-    <div className="mt-4">
+    <div className="col-span-12 mt-4">
       <Button disabled={!isOwner} onClick={handleAddContent}>
         ✅ เพิ่ม 
       </Button>

@@ -404,7 +404,8 @@ let cleanContents = contents.map(c => {
           order: c.order || '',
           examScore: c.exam_score || '',
           workScore: c.work_score || '',
-          cloIds: Array.isArray(c.clo_ids) ? c.clo_ids : []
+          cloIds: Array.isArray(c.clo_ids) ? c.clo_ids : [],
+          llos: c.llos || ''
         };  
         })
       );
@@ -889,7 +890,7 @@ const isOwner = courses?.owner_id === user?.id;
     <div className="col-span-1">
       <Input
         disabled={!isOwner}
-        placeholder="ชม"
+        placeholder="ชั่วโมง"
         type="number"
         step="0.1"
         value={currentContent.hours}
@@ -944,10 +945,10 @@ const isOwner = courses?.owner_id === user?.id;
     </div>
 
     {/* SCORE */}
-    <div className="col-span-1">
+    <div className="col-span-2">
       <Input
         disabled={!isOwner}
-        placeholder="สอบ"
+        placeholder="คะแนนสอบ"
         type="number"
         step="0.1"
         value={currentContent.examScore}
@@ -955,10 +956,10 @@ const isOwner = courses?.owner_id === user?.id;
       />
     </div>
 
-    <div className="col-span-1">
+    <div className="col-span-2">
       <Input
         disabled={!isOwner}
-        placeholder="งาน"
+        placeholder="คะแนนอื่นๆ"
         type="number"
         step="0.1"
         value={currentContent.workScore}
@@ -1023,10 +1024,6 @@ const isOwner = courses?.owner_id === user?.id;
       </Button>
     </div>
 </Card>
-
-
-  
-
 
         {/* ================= TABLE ================= */}
     <hr />

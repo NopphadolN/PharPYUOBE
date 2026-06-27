@@ -996,24 +996,9 @@ const isOwner = courses?.owner_id === user?.id;
       </Select>
     </div>
 
-  {/* ✅ LLO (ต้องอยู่ใน grid) */}
-  <div className="col-span-12 mt-3">
-    <label className="block mb-1 font-medium">
-      วัตถุประสงค์การสอน (LLOs)
-    </label>
-    <textarea
-      disabled={!isOwner}
-      value={currentContent.llos || ''}
-      onChange={e =>
-        setCurrentContent({
-          ...currentContent,
-          llos: e.target.value
-        })
-      }
-      className="w-full border rounded-lg px-3 py-2"
-      rows={2}
-    />
-  </div>
+    <div className="col-span-12 border-4 border-red-500">
+      TEST LLO
+    </div>
   </div>
 
   {/* BUTTON */}

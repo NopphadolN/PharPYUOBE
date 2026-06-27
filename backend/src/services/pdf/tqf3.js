@@ -89,32 +89,36 @@ let buffer = await page.pdf({
   printBackground: true,
   displayHeaderFooter: true,
 
-  headerTemplate: `
-    <div style="
-      width:100%;
-      font-size:10px;
-      padding:30px 90px 0 90px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      box-sizing:border-box;
-    ">
-      
-      <!-- ✅ โลโก้ -->
+headerTemplate: `
+  <div style="width:100%;">
+    <style>
+      @font-face {
+        font-family: 'THSarabun';
+        src: url(data:font/truetype;base64,${fontBase64}) format('truetype');
+      }
+      .header-container {
+        width:100%;
+        padding:30px 90px 0 90px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        box-sizing:border-box;
+        font-family: 'THSarabun';
+        font-size:12px;
+      }
+    </style>
+    <div class="header-container">
+
+      <!-- ✅ LOGO -->
+      <img src="data:image/png;base64,${logoBase64}" style="height:30px; object-fit:contain;" />
+
+      <!-- ✅ TEXT -->
       <div>
-        <img src="data:image/png;base64,${logoBase64}" style="height:30px; object-fit:contain;" />
+        แผนการสอน (${data.course?.year || '-'})
       </div>
-
-      <!-- ✅ ข้อความด้านขวา -->
-      <div style="
-        font-size:10px;
-        font-family: 'TH Sarabun New', sans-serif;
-      ">
-        Course Specification (${data.course?.year || '-'})
-      </div>
-
     </div>
-  `,
+  </div>
+`,
 
 footerTemplate: `<div></div>`,
 

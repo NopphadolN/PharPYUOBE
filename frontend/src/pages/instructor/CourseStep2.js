@@ -223,7 +223,6 @@ const addTeacher = (t) => {
 
   const editContent = (c) => 
     
-{
   console.log("EDIT CONTENT =", c);
 
     setCurrentContent({

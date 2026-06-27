@@ -995,21 +995,21 @@ const isOwner = courses?.owner_id === user?.id;
         ))}
       </Select>
     </div>
+  </div>
+</Card>
 
-    <div className="col-span-12 border-4 border-red-500">
-      TEST LLO
-    </div>
+<div style={{background:"red", padding:"20px"}}>
+  HELLO TEST
+</div>
 
     {/* BUTTON */}
-    <div className="col-span-12 mt-4">
+    <div className="mt-4">
       <Button disabled={!isOwner} onClick={handleAddContent}>
         ✅ เพิ่ม 
       </Button>
     </div>
   
-  </div>
 
-</Card>
 
         {/* ================= TABLE ================= */}
     <hr />

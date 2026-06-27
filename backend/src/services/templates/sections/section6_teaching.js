@@ -75,19 +75,21 @@ const renderSection6 = (data) => {
   };
 
   // ✅ LLO
-  const getLLO = (c) => {
-    if (!c.topic) return '-';
-
-    if (c.type === 'lecture') {
-      return `อธิบาย เลือก หรือระบุ ${c.topic}`;
-    }
-
-    if (c.type === 'lab') {
-      return `ปฏิบัติ ${c.topic}`;
-    }
-
-    return c.topic;
-  };
+const getLLO = (c) => {
+  // ✅ ถ้ามี LLO (จาก DB) ให้ใช้ก่อน
+  if (typeof c.llos === 'string' && c.llos.trim()) {
+    return c.llos.replace(/\n/g, '<br>')
+  }
+  // ✅ fallback logic เดิม
+  if (!c.topic) return '-';
+  if (c.type === 'lecture') {
+    return `อธิบาย เลือก หรือระบุ ${c.topic}`;
+  }
+  if (c.type === 'lab') {
+    return `ปฏิบัติ ${c.topic}`;
+  }
+  return c.topic;
+};
 
   // ✅ activity
   const getActivity = (c) => {

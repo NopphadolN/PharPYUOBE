@@ -206,7 +206,8 @@ exports.getInstance = async (req, res) => {
   "order",
   exam_score,
   work_score,
-  clo_ids
+  clo_ids,
+  llos
       FROM course_contents
       WHERE course_instance_id=$1
       ORDER BY "order"

@@ -643,9 +643,10 @@ for (const c of contentRes.rows) {
       "order",
       exam_score,
       work_score,
-      clo_ids
+      clo_ids,
+      llos
     )
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
     RETURNING id
   `, [
     newId,
@@ -658,6 +659,7 @@ for (const c of contentRes.rows) {
     c.order,
     c.exam_score,
     c.work_score,
+    c.llos,
     JSON.stringify(newCloIds)
   ]);
 

@@ -997,7 +997,8 @@ const isOwner = courses?.owner_id === user?.id;
     </div>
   </div>
 
-<div className="mt-6 p-3 bg-yellow-50 border rounded-lg">
+{/* ✅ LLO (อยู่ใน grid) */}
+<div className="col-span-12 mt-3">
   <label className="block mb-1 font-medium">
     วัตถุประสงค์การสอน (LLOs)
   </label>

@@ -999,14 +999,16 @@ const isOwner = courses?.owner_id === user?.id;
     <div className="col-span-12 border-4 border-red-500">
       TEST LLO
     </div>
+
+    {/* BUTTON */}
+    <div className="mt-4">
+      <Button disabled={!isOwner} onClick={handleAddContent}>
+        ✅ เพิ่ม 
+      </Button>
+    </div>
+  
   </div>
 
-  {/* BUTTON */}
-  <div className="mt-4">
-    <Button disabled={!isOwner} onClick={handleAddContent}>
-      ✅ เพิ่ม 
-    </Button>
-  </div>
 </Card>
 
         {/* ================= TABLE ================= */}

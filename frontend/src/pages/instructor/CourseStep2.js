@@ -995,15 +995,26 @@ const isOwner = courses?.owner_id === user?.id;
         ))}
       </Select>
     </div>
+
+  {/* ✅ LLO (ต้องอยู่ใน grid) */}
+  <div className="col-span-12 mt-3">
+    <label className="block mb-1 font-medium">
+      วัตถุประสงค์การสอน (LLOs)
+    </label>
+    <textarea
+      disabled={!isOwner}
+      value={currentContent.llos || ''}
+      onChange={e =>
+        setCurrentContent({
+          ...currentContent,
+          llos: e.target.value
+        })
+      }
+      className="w-full border rounded-lg px-3 py-2"
+      rows={2}
+    />
   </div>
-
-{/* ✅ LLO (อยู่ใน grid) */}
-<div className="col-span-12 mt-3">
-  <label className="block mb-1 font-medium">
-    วัตถุประสงค์การสอน (LLOs)
-  </label>
-
-</div>
+  </div>
 
   {/* BUTTON */}
   <div className="mt-4">
@@ -1011,7 +1022,6 @@ const isOwner = courses?.owner_id === user?.id;
       ✅ เพิ่ม 
     </Button>
   </div>
-
 </Card>
 
         {/* ================= TABLE ================= */}

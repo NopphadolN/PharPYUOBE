@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import InstructorMenu from '../../components/InstructorMenu';
 import Card from '../../components/ui/Card';
-import Input from '../../components/ui/Input';
-import Button from '../../components/ui/Button';
 
 export default function Dashboard() {
 

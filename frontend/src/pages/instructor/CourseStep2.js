@@ -996,7 +996,6 @@ const isOwner = courses?.owner_id === user?.id;
       </Select>
     </div>
   </div>
-</Card>
 
 <div style={{background:"red", padding:"20px"}}>
   HELLO TEST
@@ -1008,6 +1007,9 @@ const isOwner = courses?.owner_id === user?.id;
         ✅ เพิ่ม 
       </Button>
     </div>
+</Card>
+
+
   
 
 

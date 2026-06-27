@@ -898,7 +898,7 @@ const isOwner = courses?.owner_id === user?.id;
     </div>
 
     {/* CLO MULTI SELECT */}
-    <div ref={dropdownRef} className="col-span-4 relative">
+    <div ref={dropdownRef} className="col-span-2 relative">
       <div
         onClick={() => setShowDropdown(!showDropdown)}
         className="border rounded-lg px-3 py-2 bg-white cursor-pointer hover:border-blue-400"
@@ -997,8 +997,23 @@ const isOwner = courses?.owner_id === user?.id;
     </div>
   </div>
 
-<div style={{background:"red", padding:"20px"}}>
-  HELLO TEST
+{/* ✅ LLO */}
+<div className="mt-4 p-3 border rounded-lg bg-gray-50">
+  <label className="block mb-2 font-medium">
+    วัตถุประสงค์การสอนเฉพาะบท (LLOs)
+  </label>
+  <textarea
+    disabled={!isOwner}
+    value={currentContent.llos || ''}
+    onChange={e =>
+      setCurrentContent({
+        ...currentContent,
+        llos: e.target.value
+      })
+    }
+    className="w-full border rounded-lg px-3 py-2"
+    rows={3}
+  />
 </div>
 
     {/* BUTTON */}

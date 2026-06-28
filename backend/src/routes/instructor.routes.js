@@ -16,22 +16,19 @@ const storage = multer.diskStorage({
     cb(null, unique + path.extname(file.originalname));
   }
 });
-const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 } // 5MB
-});
+const upload = multer({ storage });
 
 const checkOwner = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const instanceId =
-      req.body.course_instance_id ||    
+      req.body?.course_instance_id ||    
       req.body.results?.[0]?.course_instance_id ||
       req.body.data?.[0]?.course_instance_id ||
       req.body.instanceId ||
-      req.query.course_instance_id ||
+      req.query?.course_instance_id ||
       req.query.instanceId ||
-      req.params.id;
+      req.params?.id;
     if (!instanceId) {
       return res.status(400).json({ error: "course_instance_id required" });
     }
@@ -151,8 +148,8 @@ router.post('/profile', verifyToken, async (req, res) => {
 router.post(
   '/instance/book',
   verifyToken,
-  checkOwner,
-  upload.single('append_pdf'), // ✅ เพิ่มตรงนี้
+  upload.single('append_pdf'),
+  checkOwner, // ✅ เพิ่มตรงนี้
   async (req, res) => {
     const {
       course_instance_id,

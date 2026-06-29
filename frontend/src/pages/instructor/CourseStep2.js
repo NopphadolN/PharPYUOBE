@@ -362,36 +362,41 @@ const normalizeOrder = (list) => {
       order: index + 1   // ✅ เรียงใหม่ 1..n
     }));
 };    
+
 // ✅ 3. CLEAN CONTENTS (FIX VERSION)
+// ✅ 1. เริ่มจาก contents เดิม
 let calculatedContents = contents;
-// ✅ เช็คว่ามี evaluation + มีคะแนนหรือยัง
+// ✅ 2. ถ้ามี evaluation → คำนวณคะแนน
 const hasValidEval = evaluations.some(
   e => Number(e.total) > 0
 );
+
 if (hasValidEval) {
   calculatedContents = distributeScores(contents, evaluations);
 }
 
-  // ✅ identify new item (timestamp หรือ undefined)
+// ✅ 3. map เพื่อ prepare data สำหรับ backend
+let cleanContents = calculatedContents.map(c => {
+
+  // ✅ identify new item
   const isNew = !c.id || Number(c.id) > 2147483647;
+
   let instructor_id = null;
   let guest_teacher_name = null;
+
   // ✅ map instructor
   if (c.instructor === 'faculty') {
     guest_teacher_name = 'คณาจารย์';
-  }
-  else if (!isNaN(Number(c.instructor))) {
+  } else if (!isNaN(Number(c.instructor))) {
     instructor_id = Number(c.instructor);
-  }
-  else {
+  } else {
     guest_teacher_name = c.instructor;
   }
+
   return {
-    ...(isNew ? {} : { id: Number(c.id) }), 
-    type: c.type || 'lecture',   
-    date: c.date && c.date !== ''
-        ? c.date
-        : null,
+    ...(isNew ? {} : { id: Number(c.id) }),
+    type: c.type || 'lecture',
+    date: c.date && c.date !== '' ? c.date : null,
     topic: c.topic || '',
     hours: Number(c.hours || 0),
     instructor_id,
@@ -399,18 +404,22 @@ if (hasValidEval) {
     order: Number(c.order || 0),
     examScore: Number(c.examScore || 0),
     workScore: Number(c.workScore || 0),
-    // ✅ field ที่ backend ใช้ชื่อ clo_ids
     clo_ids: Array.isArray(c.cloIds) ? c.cloIds : [],
     llos: c.llos || ''
   };
-  cleanContents = normalizeOrder(cleanContents);
+});
 
-    // ✅ 4. SAVE CONTENTS
-    await api.post('/instructor/instance/contents', {
-      course_instance_id,
-      contents: cleanContents
-    });
-    console.log("✅ CONTENTS SAVED");
+// ✅ 4. normalize order
+cleanContents = normalizeOrder(cleanContents);
+
+// ✅ 5. SAVE
+await api.post('/instructor/instance/contents', {
+  course_instance_id,
+  contents: cleanContents
+});
+
+console.log("✅ CONTENTS SAVED");
+
 
     // ✅ 5. SAVE EVALUATIONS
     const cleanEvaluations = evaluations

@@ -291,6 +291,40 @@ const formatDate = (d) => {
   return `${Number(da)} ${monthNames[Number(m) - 1]} ${Number(y) + 543}`;
 };
 
+// distributeScores //
+const distributeScores = (contents, evaluations) => {
+  const updated = contents.map(c => ({
+    ...c,
+    examScore: 0,
+    workScore: 0
+  }));
+  evaluations.forEach(e => {
+    const allIds = [
+      ...(e.lectureIds || []),
+      ...(e.labIds || [])
+    ];
+    const related = updated.filter(c =>
+      allIds.includes(String(c.id))
+    );
+    const totalHours = related.reduce(
+      (sum, c) => sum + Number(c.hours || 0),
+      0
+    );
+    if (!totalHours || !e.total) return;
+    related.forEach(c => {
+      const ratio = Number(c.hours || 0) / totalHours;
+      const scorePart = e.total * ratio;
+      if (e.type === 'สอบ') {
+        c.examScore += scorePart;
+      }
+      if (e.type === 'งาน') {
+        c.workScore += scorePart;
+      }
+    });
+  });
+  return updated;
+};
+
 /* =========================
    SAVE (FULL VERSION)
 ========================= */
@@ -329,7 +363,15 @@ const normalizeOrder = (list) => {
     }));
 };    
 // ✅ 3. CLEAN CONTENTS (FIX VERSION)
-let cleanContents = contents.map(c => {
+let calculatedContents = contents;
+// ✅ เช็คว่ามี evaluation + มีคะแนนหรือยัง
+const hasValidEval = evaluations.some(
+  e => Number(e.total) > 0
+);
+if (hasValidEval) {
+  calculatedContents = distributeScores(contents, evaluations);
+}
+
   // ✅ identify new item (timestamp หรือ undefined)
   const isNew = !c.id || Number(c.id) > 2147483647;
   let instructor_id = null;
@@ -361,7 +403,6 @@ let cleanContents = contents.map(c => {
     clo_ids: Array.isArray(c.cloIds) ? c.cloIds : [],
     llos: c.llos || ''
   };
-});
   cleanContents = normalizeOrder(cleanContents);
 
     // ✅ 4. SAVE CONTENTS
@@ -946,28 +987,6 @@ const isOwner = courses?.owner_id === user?.id;
       )}
     </div>
 
-    {/* SCORE */}
-    <div className="col-span-2">
-      <Input
-        disabled={!isOwner}
-        placeholder="คะแนนสอบ"
-        type="number"
-        step="0.1"
-        value={currentContent.examScore}
-        onChange={e => setCurrentContent({ ...currentContent, examScore: e.target.value })}
-      />
-    </div>
-
-    <div className="col-span-2">
-      <Input
-        disabled={!isOwner}
-        placeholder="คะแนนอื่นๆ"
-        type="number"
-        step="0.1"
-        value={currentContent.workScore}
-        onChange={e => setCurrentContent({ ...currentContent, workScore: e.target.value })}
-      />
-    </div>
     {/* INSTRUCTOR */}
     <div className="col-span-2">
       <Select
@@ -1121,10 +1140,18 @@ const isOwner = courses?.owner_id === user?.id;
 
     {/* คะแนนรวม */}
     <div className="col-span-2">
-      <Input
-        readOnly
-        value={currentEval.total}
-      />
+<Input
+  disabled={!isOwner}
+  placeholder="คะแนน"
+  type="number"
+  value={currentEval.total}
+  onChange={e =>
+    setCurrentEval({
+      ...currentEval,
+      total: Number(e.target.value)
+    })
+  }
+/>
     </div>
   </div>
 

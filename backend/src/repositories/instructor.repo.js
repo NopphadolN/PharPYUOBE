@@ -585,30 +585,39 @@ exports.upsertContents = async (course_instance_id, contents) => {
     // ✅ 5. INSERT (bulk)
     // =========================
     if (insertList.length > 0) {
-      const values = [];
-      const params = [];
-      let idx = 1;
-      for (const c of insertList) {
-        values.push(`
-          ($${idx++}, $${idx++}, $${idx++}::date, $${idx++}, $${idx++},
-           $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++},
-           $${idx++}), $${idx++}
-        `);
-        params.push(
-          course_instance_id,
-          c.type,
-          c.date || null,
-          c.topic || '',
-          Number(c.hours || 0),
-          c.instructor_id,
-          c.guest_teacher_name,
-          Number(c.order || 0),
-          Number(c.examScore || 0),
-          Number(c.workScore || 0),
-          JSON.stringify(c.clo_ids || []),
-          c.llos || ''
-        );
-      }
+const values = [];
+const params = [];
+insertList.forEach((c, i) => {
+  const base = i * 12;   // ✅ 1 row = 12 columns
+  values.push(`(
+    $${base + 1}, 
+    $${base + 2}, 
+    $${base + 3}::date, 
+    $${base + 4}, 
+    $${base + 5},
+    $${base + 6}, 
+    $${base + 7}, 
+    $${base + 8}, 
+    $${base + 9}, 
+    $${base + 10},
+    $${base + 11}, 
+    $${base + 12}
+  )`);
+  params.push(
+    course_instance_id,
+    c.type,
+    c.date || null,
+    c.topic || '',
+    Number(c.hours || 0),
+    c.instructor_id,
+    c.guest_teacher_name,
+    Number(c.order || 0),
+    Number(c.examScore || 0),
+    Number(c.workScore || 0),
+    JSON.stringify(c.clo_ids || []),
+    c.llos || ''
+  );
+});
       await client.query(`
         INSERT INTO course_contents (
           course_instance_id,

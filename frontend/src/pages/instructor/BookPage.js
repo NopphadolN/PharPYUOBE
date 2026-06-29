@@ -112,7 +112,7 @@ const handleSave = async () => {
   formData.append('note', note);
   formData.append('revision_note', revisionNote);
   if (appendPdf) {
-    formData.append('append_pdf', appendPdf); 
+  formData.append('append_pdf', appendPdf); 
   }
   await api.post('/instructor/instance/book', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }

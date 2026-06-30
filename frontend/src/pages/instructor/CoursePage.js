@@ -737,8 +737,11 @@ if (loadingCourses) {
 <div className="mt-3">
   <Button
     disabled={!isOwner}
-    onClick={async () => {
-      await api.post('/instructor/clo-mapping', { cloMappings });
+    onClick={async () => {     
+await api.post('/instructor/clo-mapping', {
+  course_instance_id: instanceId, 
+  cloMappings
+});
       alert('✅ บันทึก Mapping แล้ว');
     }}
   >

@@ -649,9 +649,9 @@ evaluations.forEach(e => {
 </td>
               <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>{Number(c.examScore).toFixed(1)}</td>
               <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>{Number(c.workScore).toFixed(1)}</td>
-                <td>
+                <td style={{ textAlign: 'center' }}>
                   <button disabled={!isOwner} onClick={() => editContent(c)}>✏️</button>
-                  <button disabled={!isOwner} style={{ marginLeft: 5 }} onClick={() => deleteContent(c.id)}>❌</button>
+                  <button disabled={!isOwner} style={{ marginLeft: 10 }} onClick={() => deleteContent(c.id)}>❌</button>
                 </td>
               </tr>
           ))}
@@ -1129,7 +1129,7 @@ const isOwner = courses?.owner_id === user?.id;
         <option value="">-- เครื่องมือ --</option>
         <option>ข้อสอบ</option>
         <option>แบบบันทึกการเข้าชั้นเรียน</option>
-        <option>แบบให้คะแนน</option>
+        <option>แบบให้คะแนนงานมอบหมาย</option>
         <option>แบบประเมิน</option>
       </Select>
     </div>

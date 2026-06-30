@@ -606,6 +606,7 @@ evaluations.forEach(e => {
         <th className="p-2">อาจารย์</th>
         <th className="p-2">คะแนนสอบ</th>
         <th className="p-2">คะแนนอื่นๆ</th>
+        <th className="p-2">แก้ไข/ลบ</th>
       </tr>
     </thead>
 

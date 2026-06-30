@@ -602,11 +602,11 @@ evaluations.forEach(e => {
         <th className="p-2">CLO</th>
         <th className="p-2">วันที่</th>
         <th className="p-2">หัวข้อ</th>
-        <th className="p-2">ชม</th>
+        <th className="p-2">ชม.</th>
         <th className="p-2">อาจารย์</th>
         <th className="p-2">คะแนนสอบ</th>
         <th className="p-2">คะแนนอื่นๆ</th>
-        <th className="p-2">แก้ไข/ลบ</th>
+        <th className="p-2">จัดการ</th>
       </tr>
     </thead>
 

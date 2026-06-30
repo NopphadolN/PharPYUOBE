@@ -292,6 +292,7 @@ const formatDate = (d) => {
 };
 
 // distributeScores //
+const round1 = (num) => Math.round(num * 10) / 10;
 const distributeScores = (contents, evaluations) => {
   const updated = contents.map(c => ({
     ...c,
@@ -311,16 +312,16 @@ const distributeScores = (contents, evaluations) => {
       0
     );
     if (!totalHours || !e.total) return;
-    related.forEach(c => {
-      const ratio = Number(c.hours || 0) / totalHours;
-      const scorePart = e.total * ratio;
-      if (e.type === 'สอบ') {
-        c.examScore += scorePart;
-      }
-      if (e.type === 'งาน') {
-        c.workScore += scorePart;
-      }
-    });
+related.forEach(c => {
+  const ratio = Number(c.hours || 0) / totalHours;
+  const scorePart = e.total * ratio;
+  if (e.type === 'สอบ') {
+    c.examScore = round1(c.examScore + scorePart);
+  }
+  if (e.type === 'งาน') {
+    c.workScore = round1(c.workScore + scorePart);
+  }
+});
   });
   return updated;
 };
@@ -603,8 +604,8 @@ evaluations.forEach(e => {
         <th className="p-2">หัวข้อ</th>
         <th className="p-2">ชม</th>
         <th className="p-2">อาจารย์</th>
-        <th className="p-2">สอบ</th>
-        <th className="p-2">งาน</th>
+        <th className="p-2">คะแนนสอบ</th>
+        <th className="p-2">คะแนนอื่นๆ</th>
       </tr>
     </thead>
 
@@ -645,8 +646,8 @@ evaluations.forEach(e => {
   })()
 }
 </td>
-              <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>{c.examScore}</td>
-              <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>{c.workScore}</td>
+              <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>{Number(c.examScore).toFixed(1)}</td>
+              <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>{Number(c.workScore).toFixed(1)}</td>
                 <td>
                   <button disabled={!isOwner} onClick={() => editContent(c)}>✏️</button>
                   <button disabled={!isOwner} style={{ marginLeft: 5 }} onClick={() => deleteContent(c.id)}>❌</button>
@@ -1105,9 +1106,9 @@ const isOwner = courses?.owner_id === user?.id;
           })
         }
       >
-        <option value="">-- ประเภท --</option>
-        <option>สอบ</option>
-        <option>งาน</option>
+        <option value="">-- ประเภทคะแนน --</option>
+        <option>คะแนนสอบ</option>
+        <option>คะแนนอื่นๆ</option>
         <option>ผ่าน/ไม่ผ่าน</option>
       </Select>
     </div>
@@ -1198,7 +1199,6 @@ const isOwner = courses?.owner_id === user?.id;
                   lectureIds: updated,
                   total
                 });
-
               }}
             />
             หัวข้อ {c.order}
@@ -1211,15 +1211,12 @@ const isOwner = courses?.owner_id === user?.id;
     {/* lab */}
 <div>
   <h4 className="text-sm font-medium mb-2">🧪 ปฏิบัติ</h4>
-
   <div className="border rounded-lg p-2 max-h-40 overflow-y-auto">
-
     {contents
       .filter(c => c.type === 'lab')
       .sort((a, b) => Number(a.order || 0) - Number(b.order || 0)) // ✅ เรียง
       .map(c => {
         const checked = currentEval.labIds.includes(String(c.id));
-
         return (
           <label
             key={c.id}
@@ -1230,26 +1227,20 @@ const isOwner = courses?.owner_id === user?.id;
               disabled={!isOwner}
               checked={checked}
               onChange={(e) => {
-
                 let updated = [...currentEval.labIds];
-
                 if (e.target.checked) {
                   updated.push(String(c.id));
                 } else {
                   updated = updated.filter(id => id !== String(c.id));
                 }
-
                 const total = calculateTotal(currentEval.lectureIds, updated);
-
                 setCurrentEval({
                   ...currentEval,
                   labIds: updated,
                   total
                 });
-
               }}
             />
-
             หัวข้อ {c.order}
           </label>
         );

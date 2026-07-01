@@ -70,7 +70,8 @@ export default function CourseStep2() {
     contentIds: [],    
     lectureIds: [],
     labIds: [],
-    total: 0
+    cloIds: [],
+    total: ''
   });
 
 // owner //
@@ -232,50 +233,69 @@ const addTeacher = (t) => {
     setContents(prev => prev.filter(c => c.id !== id));
   };
 
-  /* =========================
-     EVAL CALC
-  ========================= */
-const calculateTotal = (lectureIds, labIds) => {
-  const allIds = [...lectureIds, ...labIds];
-  return contents
-    .filter(c => allIds.includes(String(c.id)))
-    .reduce((sum, c) => {
-      if (currentEval.type === 'คะแนนสอบ') {
-        return sum + Number(c.examScore || 0);
-      }
-      if (currentEval.type === 'คะแนนอื่นๆ') {
-        return sum + Number(c.workScore || 0);
-      }
-      return sum;
-    }, 0);
+const applyEvalToContents = (baseContents, evalItem) => {
+  let updated = baseContents.map(c => ({
+    ...c,
+    examScore: Number(c.examScore || 0),
+    workScore: Number(c.workScore || 0)
+  }));
+  const allIds = [
+    ...(evalItem.lectureIds || []),
+    ...(evalItem.labIds || [])
+  ];
+  const related = updated.filter(c =>
+    allIds.includes(String(c.id))
+  );
+  const totalHours = related.reduce(
+    (sum, c) => sum + Number(c.hours || 0), 0
+  );
+  if (!totalHours || !evalItem.total) return updated;
+  related.forEach(c => {
+    const ratio = Number(c.hours || 0) / totalHours;
+    const scorePart = evalItem.total * ratio;
+    if (evalItem.type === 'คะแนนสอบ') {
+      c.examScore += scorePart;
+    }
+    if (evalItem.type === 'คะแนนอื่นๆ') {
+      c.workScore += scorePart;
+    }
+  });
+  return updated;
 };
 
 const addEval = () => {
-  const newData = {
-    ...currentEval,    
-    tool: currentEval.tool,   // ✅ เพิ่ม
-    week: currentEval.week, 
-    content_ids_lecture: currentEval.lectureIds,
-    content_ids_lab: currentEval.labIds
-  };
+  let newEvaluations = [...evaluations];
+  // ✅ UPDATE
   if (currentEval.id !== undefined && currentEval.id !== null) {
-    // UPDATE
-    setEvaluations(prev =>
-      prev.map((e, i) =>
-        i === currentEval.id ? newData : e
-      )
+    newEvaluations = evaluations.map((e, i) =>
+      i === currentEval.id ? currentEval : e
     );
-  } else {
-    setEvaluations(prev => [...prev, newData]);
+  } 
+  // ✅ INSERT
+  else {
+    newEvaluations = [...evaluations, currentEval];
   }
+  // ✅ ✅ RESET CONTENT ก่อนคำนวณใหม่ทั้งหมด
+  let baseContents = contents.map(c => ({
+    ...c,
+    examScore: 0,
+    workScore: 0
+  }));
+  // ✅ APPLY ทุก evaluation ใหม่ทั้งหมด
+  newEvaluations.forEach(e => {
+    baseContents = applyEvalToContents(baseContents, e);
+  });
+  setContents(baseContents);
+  setEvaluations(newEvaluations);
   setCurrentEval({
     name: '',
-    type: '',    
+    type: '',
     tool: '',
     week: '',
     lectureIds: [],
     labIds: [],
-    total: 0
+    cloIds: [],   // ✅ ใหม่
+    total: ''
   });
 };
 
@@ -1165,6 +1185,37 @@ const isOwner = courses?.owner_id === user?.id;
   }
 />
     </div>
+
+<div className="col-span-12">
+  <div className="border rounded-lg p-2 bg-white">
+    <div className="text-sm mb-2">เลือก CLO</div>
+    {clos.map(c => {
+      const checked = currentEval.cloIds.includes(String(c.id));
+      return (
+        <label key={c.id} className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={checked}
+            onChange={(e) => {
+              let updated = [...currentEval.cloIds];
+              if (e.target.checked) {
+                updated.push(String(c.id));
+              } else {
+                updated = updated.filter(id => id !== String(c.id));
+              }
+              setCurrentEval({
+                ...currentEval,
+                cloIds: updated
+              });
+            }}
+          />
+          {c.code}
+        </label>
+      );
+    })}
+  </div>
+</div>
+
   </div>
 
   {/* ✅ SELECT CONTENT */}
@@ -1195,11 +1246,9 @@ const isOwner = courses?.owner_id === user?.id;
                 } else {
                   updated = updated.filter(id => id !== String(c.id));
                 }
-                const total = calculateTotal(updated, currentEval.labIds);
                 setCurrentEval({
                   ...currentEval,
-                  lectureIds: updated,
-                  total
+                  lectureIds: updated
                 });
               }}
             />
@@ -1235,11 +1284,9 @@ const isOwner = courses?.owner_id === user?.id;
                 } else {
                   updated = updated.filter(id => id !== String(c.id));
                 }
-                const total = calculateTotal(currentEval.lectureIds, updated);
                 setCurrentEval({
                   ...currentEval,
-                  labIds: updated,
-                  total
+                  labIds: updated
                 });
               }}
             />
@@ -1282,16 +1329,7 @@ const isOwner = courses?.owner_id === user?.id;
       {/* BODY */}
       <tbody>
         {evaluations.flatMap((e, index) => {
-          const cloSet = new Set();
-          [...(e.lectureIds || []), ...(e.labIds || [])].forEach(cid => {
-            const c = contents.find(x =>
-              String(x.id) === String(cid)
-            );
-            if (c) {
-              (c.cloIds || []).forEach(cloId => cloSet.add(cloId));
-            }
-          });
-          const cloIds = Array.from(cloSet);
+        const cloIds = e.cloIds || [];
           return cloIds.map((cloId, i) => {
             const cloCode = clos.find(c => c.id === cloId)?.code;
             return (

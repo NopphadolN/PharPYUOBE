@@ -148,7 +148,10 @@ useEffect(() => {
         (data.evaluations || []).map(e => ({
           ...e,
           lectureIds: (e.content_ids_lecture || []).map(String),
-          labIds: (e.content_ids_lab || []).map(String)
+          labIds: (e.content_ids_lab || []).map(String),          
+          cloIds: Array.isArray(e.clo_ids)
+              ? e.clo_ids.map(String)
+              : [] 
         }))
       );
       // ✅ CLO
@@ -447,6 +450,7 @@ console.log("✅ CONTENTS SAVED");
   .filter(e => e && e.name && e.type) // ✅ ตัดตัวพัง
   .map(e => ({
     ...e,
+    clo_ids: e.cloIds || [], 
     content_ids_lecture: e.lectureIds || [],
     content_ids_lab: e.labIds || []
   }));  
@@ -486,7 +490,10 @@ console.log("✅ CONTENTS SAVED");
         (data.evaluations || []).map(e => ({
           ...e,
           lectureIds: (e.content_ids_lecture || []).map(String),
-          labIds: (e.content_ids_lab || []).map(String)
+          labIds: (e.content_ids_lab || []).map(String),          
+          cloIds: Array.isArray(e.clo_ids)
+                ? e.clo_ids.map(String)
+                : [] 
         }))
       );
       setInstructors(data.instructors || []);

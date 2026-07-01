@@ -290,6 +290,10 @@ exports.getEvaluations = async (course_instance_id) => {
   `, [course_instance_id]);
   return result.rows.map(e => ({
     ...e,
+    clo_ids:
+      typeof e.clo_ids === 'string'
+        ? JSON.parse(e.clo_ids)
+        : (e.clo_ids || []),
     content_ids_lecture:
       typeof e.content_ids_lecture === 'string'
         ? JSON.parse(e.content_ids_lecture)
@@ -330,8 +334,9 @@ exports.upsertEvaluations = async (course_instance_id, evaluations) => {
           week=$4,
           content_ids_lecture=$5,
           content_ids_lab=$6,
-          total=$7
-        WHERE id=$8
+          clo_ids=$7,
+          total=$8
+        WHERE id=$9
       `, [
         e.name,
         e.type,
@@ -339,6 +344,7 @@ exports.upsertEvaluations = async (course_instance_id, evaluations) => {
         e.week,
         JSON.stringify(e.content_ids_lecture || []),
         JSON.stringify(e.content_ids_lab || []),
+        JSON.stringify(e.clo_ids || []),
         e.total,
         e.id
       ]);
@@ -352,9 +358,10 @@ exports.upsertEvaluations = async (course_instance_id, evaluations) => {
           week,
           content_ids_lecture,
           content_ids_lab,
+          clo_ids,
           total
         )
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
       `, [
         course_instance_id,
         e.name,
@@ -363,6 +370,7 @@ exports.upsertEvaluations = async (course_instance_id, evaluations) => {
         e.week,
         JSON.stringify(e.content_ids_lecture || []),
         JSON.stringify(e.content_ids_lab || []),
+        JSON.stringify(e.clo_ids || []),
         e.total
       ]);
     }

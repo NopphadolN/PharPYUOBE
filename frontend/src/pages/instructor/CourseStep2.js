@@ -449,8 +449,10 @@ console.log("✅ CONTENTS SAVED");
     const cleanEvaluations = evaluations
   .filter(e => e && e.name && e.type) // ✅ ตัดตัวพัง
   .map(e => ({
-    ...e,
-    clo_ids: e.cloIds || [], 
+    ...e, 
+    clo_ids: Array.isArray(e.cloIds)
+    ? e.cloIds.map(id => Number(id))
+    : [],
     content_ids_lecture: e.lectureIds || [],
     content_ids_lab: e.labIds || []
   }));  

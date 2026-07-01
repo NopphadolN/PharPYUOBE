@@ -552,24 +552,52 @@ console.log("✅ CONTENTS SAVED");
 // CalCloSummary
 const getCloSummary = () => {
   const result = {};
-  contents.forEach(c => {
-    const cloList = c.cloIds || [];
-    const exam = Number(c.examScore || 0);
-    const work = Number(c.workScore || 0);
-    cloList.forEach(cloId => {
+  evaluations.forEach(e => {
+    const allIds = [
+      ...(e.lectureIds || []),
+      ...(e.labIds || [])
+    ];
+    // ✅ ดึง content ที่ใช้ใน evaluation นี้
+    const relatedContents = contents.filter(c =>
+      allIds.includes(String(c.id))
+    );
+    if (!relatedContents.length || !e.total) return;
+    // ✅ รวมชั่วโมงทั้งหมด
+    const totalHours = relatedContents.reduce(
+      (sum, c) => sum + Number(c.hours || 0),
+      0
+    );
+    if (!totalHours) return;
+    // ✅ นับชั่วโมงต่อ CLO
+    const cloHourMap = {};
+    relatedContents.forEach(c => {
+      const cloList = c.cloIds || [];
+      cloList.forEach(cloId => {
+        if (!cloHourMap[cloId]) {
+          cloHourMap[cloId] = 0;
+        }
+        // ✅ ถ้ามีหลาย CLO → split ชั่วโมง
+        const share = 1 / cloList.length;
+        cloHourMap[cloId] += Number(c.hours || 0) * share;
+      });
+    });
+    // ✅ กระจาย score ตามสัดส่วนชั่วโมง
+    Object.entries(cloHourMap).forEach(([cloId, cloHours]) => {
       if (!result[cloId]) {
-        result[cloId] = {
-          exam: 0,
-          work: 0
-        };
+        result[cloId] = { exam: 0, work: 0 };
       }
-      const share = 1 / cloList.length;
-      result[cloId].exam += exam * share;
-      result[cloId].work += work * share;
+      const score = e.total * (cloHours / totalHours);
+      if (e.type === 'คะแนนสอบ') {
+        result[cloId].exam += score;
+      }
+      if (e.type === 'คะแนนอื่นๆ') {
+        result[cloId].work += score;
+      }
     });
   });
   return result;
-}; 
+};
+
 const cloSummary = getCloSummary();
 
 /* =========================

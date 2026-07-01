@@ -240,10 +240,10 @@ const calculateTotal = (lectureIds, labIds) => {
   return contents
     .filter(c => allIds.includes(String(c.id)))
     .reduce((sum, c) => {
-      if (currentEval.type === 'สอบ') {
+      if (currentEval.type === 'คะแนนสอบ') {
         return sum + Number(c.examScore || 0);
       }
-      if (currentEval.type === 'งาน') {
+      if (currentEval.type === 'คะแนนอื่นๆ') {
         return sum + Number(c.workScore || 0);
       }
       return sum;
@@ -292,7 +292,7 @@ const formatDate = (d) => {
 };
 
 // distributeScores //
-const round1 = (num) => Math.round(num * 10) / 10;
+const round1 = (num) => Math.round(num * 100) / 100;
 const distributeScores = (contents, evaluations) => {
   const updated = contents.map(c => ({
     ...c,
@@ -315,10 +315,10 @@ const distributeScores = (contents, evaluations) => {
 related.forEach(c => {
   const ratio = Number(c.hours || 0) / totalHours;
   const scorePart = e.total * ratio;
-  if (e.type === 'สอบ') {
+  if (e.type === 'คะแนนสอบ') {
     c.examScore = round1(c.examScore + scorePart);
   }
-  if (e.type === 'งาน') {
+  if (e.type === 'คะแนนอื่นๆ') {
     c.workScore = round1(c.workScore + scorePart);
   }
 });
@@ -1091,6 +1091,7 @@ const isOwner = courses?.owner_id === user?.id;
         <option>งานมอบหมาย</option>
         <option>ปฏิบัติ</option>
         <option>สอบปฏิบัติ</option>
+        <option>คะแนนเข้าชั้นเรียน</option>
         <option>พฤติกรรม</option>
       </Select>
     </div>
@@ -1408,8 +1409,8 @@ const isOwner = courses?.owner_id === user?.id;
         <tr>
           <th className="p-3 text-left">CLO</th>
           <th className="p-3 text-left">รายละเอียด</th>
-          <th className="p-3 text-center">สอบ</th>
-          <th className="p-3 text-center">งาน</th>
+          <th className="p-3 text-center">คะแนนสอบ</th>
+          <th className="p-3 text-center">คะแนนอื่นๆ</th>
           <th className="p-3 text-center">รวม</th>
         </tr>
       </thead>

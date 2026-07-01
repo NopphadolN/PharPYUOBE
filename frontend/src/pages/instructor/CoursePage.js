@@ -210,8 +210,8 @@ const addMapping = () => {
     setCloMappings([
       ...cloMappings,
       {
-        cloId: cloIdNum,
-        subPloIds: uniqueSubPlo
+        cloId: Number(cloIdNum),
+        subPloIds: uniqueSubPlo.map(id => Number(id))
       }
     ]);
   }

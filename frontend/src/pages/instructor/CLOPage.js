@@ -317,54 +317,6 @@ const saveCourseResults = async (course_instance_id) => {
   }
 };
 
-// calculateEvaluationCLOWeights
-const calculateEvaluationCLOWeights = (e) => {
-  const selectedClos = e.cloIds || [];
-  if (!selectedClos.length) {
-    return {};
-  }
-  const allIds = [
-    ...(e.lectureIds || []),
-    ...(e.labIds || [])
-  ];
-  const relatedContents = contents.filter(c =>
-    allIds.includes(String(c.id))
-  );
-  const cloHours = {};
-  selectedClos.forEach(cloId => {
-    cloHours[cloId] = 0;
-  });
-  relatedContents.forEach(content => {
-    const matchedClos =
-      (content.cloIds || []).filter(cloId =>
-        selectedClos.includes(String(cloId))
-      );
-    if (!matchedClos.length) return;
-    const shareHours =
-      Number(content.hours || 0) /
-      matchedClos.length;
-    matchedClos.forEach(cloId => {
-      cloHours[cloId] += shareHours;
-    });
-  });
-  const totalCloHours =
-    Object.values(cloHours)
-      .reduce((sum, h) => sum + h, 0);
-  if (!totalCloHours) {
-    return {};
-  }
-  const cloScores = {};
-  Object.entries(cloHours).forEach(
-    ([cloId, hours]) => {
-      cloScores[cloId] =
-        Number(e.total || 0) *
-        (hours / totalCloHours);
-    }
-  );
-  return cloScores;
-};
-
-
   // getEvalScoreForCLO
 const getEvalScoreForCLO = (e, cloId) => {
  return Number(

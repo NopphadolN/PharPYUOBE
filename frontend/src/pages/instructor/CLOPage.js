@@ -110,6 +110,10 @@ useEffect(() => {
           cloIds: (e.clo_ids || []).map(String)
         }))
       );
+console.log(
+  "EVALS",
+  inst.data.evaluations
+);
 
       // ✅ load scores
       const scoreRes = await api.get('/instructor/clo-scores', {
@@ -308,45 +312,66 @@ const saveCourseResults = async (course_instance_id) => {
 
 // calculateEvaluationCLOWeights
 const calculateEvaluationCLOWeights = (e) => {
+
   const selectedClos = e.cloIds || [];
-  const result = {};
-  selectedClos.forEach(id => {
-    result[id] = 0;
+
+  const cloHours = {};
+
+  selectedClos.forEach(cloId => {
+    cloHours[cloId] = 0;
   });
+
   const allIds = [
     ...(e.lectureIds || []),
     ...(e.labIds || [])
   ];
+
   const relatedContents = contents.filter(c =>
     allIds.includes(String(c.id))
   );
+
   relatedContents.forEach(content => {
-    const matchedClos =
-      (content.cloIds || []).filter(id =>
-        selectedClos.includes(String(id))
-      );
-    if (!matchedClos.length) return;
-    const shareHours =
-      Number(content.hours || 0) /
-      matchedClos.length;
-    matchedClos.forEach(id => {
-      result[id] += shareHours;
+
+    const contentClos =
+      (content.cloIds || []).map(String);
+
+    selectedClos.forEach(cloId => {
+
+      if (
+        contentClos.includes(String(cloId))
+      ) {
+        cloHours[cloId] +=
+          Number(content.hours || 0);
+      }
+
     });
+
   });
+
   const totalHours =
-    Object.values(result)
-      .reduce((a, b) => a + b, 0);
+    Object.values(cloHours)
+      .reduce((a,b) => a+b,0);
+
   if (!totalHours) return {};
-  const scores = {};
-  Object.entries(result).forEach(
-    ([cloId, hours]) => {
-      scores[cloId] =
+
+  const result = {};
+
+  Object.entries(cloHours).forEach(
+    ([cloId,hours]) => {
+
+      result[cloId] =
         Number(e.total || 0) *
         (hours / totalHours);
+
     }
   );
-  return scores;
+
+  return result;
 };
+console.log(
+  e.name,
+  calculateEvaluationCLOWeights(e)
+);
 
   // getEvalScoreForCLO
 const getEvalScoreForCLO = (e, cloId) => {

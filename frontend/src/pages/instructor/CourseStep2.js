@@ -728,6 +728,7 @@ evaluations.forEach(e => {
 
     <thead className="bg-gray-100">
       <tr>
+        <th className="p-2">จัดการ</th>
         <th className="p-2">ลำดับ</th>
         <th className="p-2">CLO</th>
         <th className="p-2">วันที่</th>
@@ -736,7 +737,6 @@ evaluations.forEach(e => {
         <th className="p-2">อาจารย์</th>
         <th className="p-2">คะแนนสอบ</th>
         <th className="p-2">คะแนนอื่นๆ</th>
-        <th className="p-2">จัดการ</th>
       </tr>
     </thead>
 
@@ -748,6 +748,10 @@ evaluations.forEach(e => {
             .map(c => (
               <tr key={c.id}
               className="border-b border-gray-300">
+              <td style={{ textAlign: 'center' }}>
+                  <button disabled={!isOwner} onClick={() => editContent(c)}>✏️</button>
+                  <button disabled={!isOwner} style={{ marginLeft: 10 }} onClick={() => deleteContent(c.id)}>❌</button>
+              </td>
               <td style={{ 
                 textAlign: 'center', whiteSpace: 'nowrap' }}>{c.order}</td>
               <td style={{ textAlign: 'center' }}>
@@ -767,22 +771,18 @@ evaluations.forEach(e => {
                   {c.topic}
               </td>
               <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>{c.hours}</td>
-<td style={{ textAlign: 'center'}}>
-{
-  (() => {
-    const teacher = selectedTeachers.find(t => t.id === c.instructor);
-    if (c.instructor === 'faculty') return 'คณาจารย์';
-    if (teacher) return teacher.name_th;
-    return `${c.instructor}`; // ✅ fallback debug
-  })()
-}
-</td>
+              <td style={{ textAlign: 'center'}}>
+                {
+                (() => {
+                const teacher = selectedTeachers.find(t => t.id === c.instructor);
+                if (c.instructor === 'faculty') return 'คณาจารย์';
+                if (teacher) return teacher.name_th;
+                return `${c.instructor}`; // ✅ fallback debug
+                })()
+                }
+              </td>
               <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>{Number(c.examScore).toFixed(1)}</td>
               <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>{Number(c.workScore).toFixed(1)}</td>
-                <td style={{ textAlign: 'center' }}>
-                  <button disabled={!isOwner} onClick={() => editContent(c)}>✏️</button>
-                  <button disabled={!isOwner} style={{ marginLeft: 10 }} onClick={() => deleteContent(c.id)}>❌</button>
-                </td>
               </tr>
           ))}
         </tbody>

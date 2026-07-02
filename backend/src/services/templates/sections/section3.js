@@ -13,38 +13,20 @@ let {
   if (typeof books === 'string') {
     try { books = JSON.parse(books); } catch { books = []; }
   }
-
   if (typeof grading === 'string') {
     try { grading = JSON.parse(grading); } catch { grading = []; }
   }
-
   const evalList = Array.isArray(courseEvaluations) ? courseEvaluations : [];
 
-  // ✅ function หา CLO จาก content จริง
-  const getCLOCodes = (e) => {
-
-    const ids = [
-      ...(e.content_ids_lecture || []),
-      ...(e.content_ids_lab || [])
-    ];
-
-    const cloSet = new Set();
-
-    ids.forEach(cid => {
-      const content = courseContents.find(c =>
-  String(c.order) === String(cid) ||   // ✅ เดิม
-  String(c.id) === String(cid)         // ✅ FIX ใหม่
-);
-      if (!content) return;
-
-      (content.clo_ids || []).forEach(cloId => {
-        const clo = clos.find(c => c.id == cloId);
-        if (clo) cloSet.add(clo.code);
-      });
-    });
-
-    return Array.from(cloSet).sort().join(', ');
-  };
+const getCLOCodes = (e) => {
+  const cloIds = e.clo_ids || e.cloIds || [];
+  return cloIds
+    .map(cloId =>
+      clos.find(c => String(c.id) === String(cloId))?.code
+    )
+    .filter(Boolean)
+    .join(', ');
+};
 
 const gradeOrder = ['A', 'B+', 'B', 'C+', 'C', 'D+', 'D', 'F'];
 // ✅ sort จาก A → F
@@ -137,7 +119,7 @@ const formatContentRange = (ids) => {
       <td style="text-align:center">${e.total ?? '-'}</td>
       <td style="text-align:center">${formatContentRange(e.content_ids_lecture || [])}</td>
       <td style="text-align:center">${formatContentRange(e.content_ids_lab || [])}</td>
-      <td style="text-align:center">${e.tool || '-'}</td>
+      <td>${e.tool || '-'}</td>
       <td style="text-align:center">${e.week || '-'}</td>
     </tr>
   `).join('')}

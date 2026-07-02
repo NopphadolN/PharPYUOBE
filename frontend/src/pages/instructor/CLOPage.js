@@ -110,14 +110,7 @@ useEffect(() => {
           cloIds: (e.clo_ids || []).map(String)
         }))
       );
-console.log(
-  evaluations.map(e => ({
-    name: e.name,
-    total: e.total,
-    cloIds: e.cloIds,
-    lectureIds: e.lectureIds
-  }))
-);
+
       // ✅ load scores
       const scoreRes = await api.get('/instructor/clo-scores', {
         params: { course_instance_id: instanceIdLocal }
@@ -312,11 +305,7 @@ const saveCourseResults = async (course_instance_id) => {
 
 // calculateEvaluationCLOWeights
 const calculateEvaluationCLOWeights = (e) => {
-console.log(
-  e.name,
-  cloHours,
-  cloScores
-);
+
   const selectedClos = e.cloIds || [];
 
   if (!selectedClos.length) {
@@ -376,7 +365,6 @@ console.log(
 
     }
   );
-
   return cloScores;
 };
 

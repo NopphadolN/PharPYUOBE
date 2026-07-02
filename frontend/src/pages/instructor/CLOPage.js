@@ -144,6 +144,9 @@ const getEvalByCLO = (cloId) => {
   );
 };
 
+
+
+
   /* ================= MAX CLO ================= */
   const getCloMax = (cloId) => {
     const evals = getEvalByCLO(cloId);
@@ -154,19 +157,28 @@ const getEvalByCLO = (cloId) => {
 
   /* ================= % ================= */
   const getPercent = (studentId, cloId) => {
-
     const evals = getEvalByCLO(cloId);
-
     const total = evals.reduce((sum, e) =>
       sum + Number(scores?.[studentId]?.[cloId]?.[e.id] || 0)
     , 0);
-
     const max = getCloMax(cloId);
-
     if (max === 0) return 0;
-
     return (total / max) * 100;
   };
+
+const isEvalMappedToCLO = (
+  evalId,
+  cloId
+) => {
+  const evaluation =
+    evaluations.find(
+      e => String(e.id) === String(evalId)
+    );
+  if (!evaluation) return false;
+  return (evaluation.cloIds || [])
+    .map(String)
+    .includes(String(cloId));
+};  
 
   /* ================= APPLY SCORE ================= */
   const handleApplyScore = () => {
@@ -178,19 +190,26 @@ const getEvalByCLO = (cloId) => {
       alert('เลือก CLO และ วิธีประเมิน');
       return;
     }
+    if (
+      !isEvalMappedToCLO(
+        evalId,
+        cloId
+      )
+    ) {
+      alert(
+        '❌ วิธีประเมินนี้ไม่ได้ผูกกับ CLO ที่เลือก'
+      );
+    return;
+    }
 
     const updated = { ...scores };
-
     Object.keys(inputScores).forEach(stId => {
       const val = Number(inputScores[stId]);
       if (isNaN(val)) return;
-
       if (!updated[stId]) updated[stId] = {};
       if (!updated[stId][cloId]) updated[stId][cloId] = {};
-
       updated[stId][cloId][evalId] = val;
     });
-
     setScores({ ...updated });
   };
 
@@ -287,16 +306,13 @@ const saveCourseResults = async (course_instance_id) => {
   }
 };
 
-  // getEvalScoreForCLO
-const getEvalScoreForCLO = (e, cloId) => {
+// calculateEvaluationCLOWeights
+const calculateEvaluationCLOWeights = (e) => {
   const selectedClos = e.cloIds || [];
-  if (
-    !selectedClos
-      .map(String)
-      .includes(String(cloId))
-  ) {
-    return 0;
-  }
+  const result = {};
+  selectedClos.forEach(id => {
+    result[id] = 0;
+  });
   const allIds = [
     ...(e.lectureIds || []),
     ...(e.labIds || [])
@@ -304,31 +320,41 @@ const getEvalScoreForCLO = (e, cloId) => {
   const relatedContents = contents.filter(c =>
     allIds.includes(String(c.id))
   );
-  const cloHours = {};
-  selectedClos.forEach(id => {
-    cloHours[id] = 0;
-  });
   relatedContents.forEach(content => {
     const matchedClos =
       (content.cloIds || []).filter(id =>
-        selectedClos
-          .map(String)
-          .includes(String(id))
+        selectedClos.includes(String(id))
       );
     if (!matchedClos.length) return;
     const shareHours =
       Number(content.hours || 0) /
       matchedClos.length;
     matchedClos.forEach(id => {
-      cloHours[id] += shareHours;
+      result[id] += shareHours;
     });
   });
   const totalHours =
-    Object.values(cloHours)
+    Object.values(result)
       .reduce((a, b) => a + b, 0);
-  if (!totalHours) return 0;
-  return Number(e.total || 0) *
-    (cloHours[cloId] / totalHours);
+  if (!totalHours) return {};
+  const scores = {};
+  Object.entries(result).forEach(
+    ([cloId, hours]) => {
+      scores[cloId] =
+        Number(e.total || 0) *
+        (hours / totalHours);
+    }
+  );
+  return scores;
+};
+
+  // getEvalScoreForCLO
+const getEvalScoreForCLO = (e, cloId) => {
+  const scores =
+    calculateEvaluationCLOWeights(e);
+  return Number(
+    scores[String(cloId)] || 0
+  );
 };
 
 // buildCLODetails
@@ -531,9 +557,24 @@ console.log("BTN STATE:", {
 
     <Select id="evalSelect" disabled={!isOwner}>
       <option>เลือกวิธีประเมิน</option>
-      {evaluations.map(e => (
-        <option key={e.id} value={e.id}>{e.name}</option>
-      ))}
+{evaluations.map(e => (
+  <option
+    key={e.id}
+    value={e.id}
+  >
+    {e.name}
+    {' ('}
+    {(e.cloIds || [])
+      .map(id =>
+        clos.find(
+          c => String(c.id) === String(id)
+        )?.code
+      )
+      .filter(Boolean)
+      .join(', ')}
+    {')'}
+  </option>
+))}
     </Select>
 
     <textarea

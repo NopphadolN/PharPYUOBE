@@ -44,7 +44,8 @@ export default function CLOPage() {
 
   const [owner, setOwner] = useState(null);
   const [user, setUser] = useState(null);
-
+  const [evalMaxScores, setEvalMaxScores] = useState({});
+  
   useEffect(() => {
   api.get('/instructor/me')
     .then(res => setUser(res.data))
@@ -107,9 +108,25 @@ useEffect(() => {
           id: e.id ?? i + 1,
           lectureIds: (e.content_ids_lecture || []).map(String),
           labIds: (e.content_ids_lab || []).map(String),
-          cloIds: (e.clo_ids || []).map(String)
+          cloIds: (e.clo_ids || []).map(String),
+          cloScoreMap:e.clo_score_map || {}
         }))
       );
+
+      // setEvalMaxScores
+      const maxMap = {};
+        (inst.data.evaluations || []).forEach(e => {
+      const scoreMap =
+        e.clo_score_map || {};
+        Object.keys(scoreMap).forEach(cloId => {
+        if (!maxMap[e.id]) {
+          maxMap[e.id] = {};
+          }
+          maxMap[e.id][cloId] =
+          Number(scoreMap[cloId]);
+        });
+      });
+      setEvalMaxScores(maxMap);
 
       // ✅ load scores
       const scoreRes = await api.get('/instructor/clo-scores', {
@@ -179,10 +196,8 @@ const isEvalMappedToCLO = (
 
   /* ================= APPLY SCORE ================= */
   const handleApplyScore = () => {
-
     const cloId = document.getElementById('cloSelect').value;
     const evalId = document.getElementById('evalSelect').value;
-
     if (!cloId || !evalId) {
       alert('เลือก CLO และ วิธีประเมิน');
       return;
@@ -227,7 +242,8 @@ const saveScores = async (course_instance_id) => {
   console.log("STEP 1: save scores");
   const res = await api.post('/instructor/clo-scores', {
     course_instance_id,
-    scores
+    scores,
+    evalMaxScores
   });
   return res;
 };
@@ -265,11 +281,9 @@ const saveCourseResults = async (course_instance_id) => {
       const target = clo.indicators?.length
         ? Math.max(...clo.indicators.map(i => Number(i.target || 50)))
         : 50;
-
       return percent >= target;
     })
   }));
-
   const res = await api.post('/instructor/save-course-results', {
     course_instance_id,
     results
@@ -305,64 +319,46 @@ const saveCourseResults = async (course_instance_id) => {
 
 // calculateEvaluationCLOWeights
 const calculateEvaluationCLOWeights = (e) => {
-
   const selectedClos = e.cloIds || [];
-
   if (!selectedClos.length) {
     return {};
   }
-
   const allIds = [
     ...(e.lectureIds || []),
     ...(e.labIds || [])
   ];
-
   const relatedContents = contents.filter(c =>
     allIds.includes(String(c.id))
   );
-
   const cloHours = {};
-
   selectedClos.forEach(cloId => {
     cloHours[cloId] = 0;
   });
-
   relatedContents.forEach(content => {
-
     const matchedClos =
       (content.cloIds || []).filter(cloId =>
         selectedClos.includes(String(cloId))
       );
-
     if (!matchedClos.length) return;
-
     const shareHours =
       Number(content.hours || 0) /
       matchedClos.length;
-
     matchedClos.forEach(cloId => {
       cloHours[cloId] += shareHours;
     });
-
   });
-
   const totalCloHours =
     Object.values(cloHours)
       .reduce((sum, h) => sum + h, 0);
-
   if (!totalCloHours) {
     return {};
   }
-
   const cloScores = {};
-
   Object.entries(cloHours).forEach(
     ([cloId, hours]) => {
-
       cloScores[cloId] =
         Number(e.total || 0) *
         (hours / totalCloHours);
-
     }
   );
   return cloScores;
@@ -371,10 +367,8 @@ const calculateEvaluationCLOWeights = (e) => {
 
   // getEvalScoreForCLO
 const getEvalScoreForCLO = (e, cloId) => {
-  const scores =
-    calculateEvaluationCLOWeights(e);
-  return Number(
-    scores[String(cloId)] || 0
+ return Number(
+    evalMaxScores?.[e.id]?.[cloId] || 0
   );
 };
 
@@ -652,14 +646,22 @@ console.log("BTN STATE:", {
 <th
   key={clo.id}
   colSpan={evals.length + 2}
-  className="px-2 border"
-  title={`Target: ${
-    clo.indicators?.length
-      ? Math.max(...clo.indicators.map(i => Number(i.target || 50)))
-      : 50
-  }%`}
+  className="px-2 border text-center"
 >
-  {clo.code}
+  <div className="font-semibold">
+    {clo.code}
+  </div>
+  <div className="text-xs text-blue-600 mt-1">
+    Target {
+      clo.indicators?.length
+        ? Math.max(
+            ...clo.indicators.map(i =>
+              Number(i.target || 50)
+            )
+          )
+        : 50
+    }%
+  </div>
 </th>
             );
           })}
@@ -690,17 +692,36 @@ console.log("BTN STATE:", {
         <tr>
           {clos.flatMap(clo => {
             const evals = getEvalByCLO(clo.id);
-
             const totalMax = evals.reduce(
-              (sum, e) => sum + getEvalScoreForCLO(e, clo.id),
-              0
-            );
-
+                (sum, e) =>
+                sum +
+                  Number(
+                evalMaxScores?.[e.id]?.[clo.id] || 0
+                ),
+                0
+                );
             return [
               ...evals.map(e => (
-                <th key={e.id} className="text-xs border">
-                  {getEvalScoreForCLO(e, clo.id).toFixed(2)}
-                </th>
+<th key={e.id} className="text-xs border">
+  <input
+    type="number"
+    step="0.01"
+    className="w-16 text-center border rounded"
+    value={
+      evalMaxScores?.[e.id]?.[clo.id] ?? ''
+    }
+    onChange={(ev) => {
+      setEvalMaxScores(prev => ({
+        ...prev,
+        [e.id]: {
+          ...(prev[e.id] || {}),
+          [clo.id]:
+            Number(ev.target.value || 0)
+        }
+      }));
+    }}
+  />
+</th>
               )),
               <th key={clo.id + '-sum'} className="border">
                 {totalMax.toFixed(2)}

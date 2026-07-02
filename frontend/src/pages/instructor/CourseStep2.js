@@ -315,37 +315,128 @@ const formatDate = (d) => {
 };
 
 // distributeScores //
-const round1 = (num) => Math.round(num * 100) / 100;
+const round1 = (num) =>
+  Math.round((num + Number.EPSILON) * 100) / 100;
+
 const distributeScores = (contents, evaluations) => {
+
   const updated = contents.map(c => ({
     ...c,
     examScore: 0,
     workScore: 0
   }));
+
   evaluations.forEach(e => {
+
+    const selectedClos = e.cloIds || [];
+
+    if (!selectedClos.length) return;
+
     const allIds = [
       ...(e.lectureIds || []),
       ...(e.labIds || [])
     ];
-    const related = updated.filter(c =>
+
+    const relatedContents = updated.filter(c =>
       allIds.includes(String(c.id))
     );
-    const totalHours = related.reduce(
-      (sum, c) => sum + Number(c.hours || 0),
-      0
+
+    if (!relatedContents.length) return;
+
+    // =========================
+    // STEP A : หาชั่วโมงรวมของ CLO ที่ถูกเลือก
+    // =========================
+
+    const cloHours = {};
+
+    selectedClos.forEach(cloId => {
+      cloHours[cloId] = 0;
+    });
+
+    relatedContents.forEach(content => {
+
+      const matchedClos =
+        (content.cloIds || []).filter(cloId =>
+          selectedClos.includes(String(cloId))
+        );
+
+      if (!matchedClos.length) return;
+
+      const shareHours =
+        Number(content.hours || 0) /
+        matchedClos.length;
+
+      matchedClos.forEach(cloId => {
+        cloHours[cloId] += shareHours;
+      });
+    });
+
+    const totalCloHours =
+      Object.values(cloHours)
+        .reduce((sum, h) => sum + h, 0);
+
+    if (!totalCloHours) return;
+
+    // =========================
+    // STEP B : แจกคะแนนให้ CLO
+    // =========================
+
+    const cloScores = {};
+
+    Object.entries(cloHours).forEach(
+      ([cloId, hours]) => {
+
+        cloScores[cloId] =
+          Number(e.total || 0) *
+          (hours / totalCloHours);
+      }
     );
-    if (!totalHours || !e.total) return;
-related.forEach(c => {
-  const ratio = Number(c.hours || 0) / totalHours;
-  const scorePart = e.total * ratio;
-  if (e.type === 'คะแนนสอบ') {
-    c.examScore = round1(c.examScore + scorePart);
-  }
-  if (e.type === 'คะแนนอื่นๆ') {
-    c.workScore = round1(c.workScore + scorePart);
-  }
-});
+
+    // =========================
+    // STEP C : แจกคะแนน CLO → Content
+    // =========================
+
+    Object.entries(cloScores).forEach(
+      ([cloId, score]) => {
+
+        const cloContents =
+          relatedContents.filter(c =>
+            (c.cloIds || []).includes(String(cloId))
+          );
+
+        const totalHoursForClo =
+          cloContents.reduce(
+            (sum, c) =>
+              sum + Number(c.hours || 0),
+            0
+          );
+
+        if (!totalHoursForClo) return;
+
+        cloContents.forEach(c => {
+
+          const scorePart =
+            score *
+            (Number(c.hours || 0) /
+              totalHoursForClo);
+
+          if (e.type === 'คะแนนสอบ') {
+            c.examScore = round1(
+              c.examScore + scorePart
+            );
+          }
+
+          if (e.type === 'คะแนนอื่นๆ') {
+            c.workScore = round1(
+              c.workScore + scorePart
+            );
+          }
+
+        });
+      }
+    );
   });
+
   return updated;
 };
 
@@ -551,27 +642,82 @@ console.log("✅ CONTENTS SAVED");
 
 // CalCloSummary
 const getCloSummary = () => {
+
   const result = {};
+
   evaluations.forEach(e => {
-    const cloList = e.cloIds || [];
-    if (!cloList.length) return;
-    const share =
-      Number(e.total || 0) / cloList.length;
-    cloList.forEach(cloId => {
-      if (!result[cloId]) {
-        result[cloId] = {
-          exam: 0,
-          work: 0
-        };
-      }
-      if (e.type === 'คะแนนสอบ') {
-        result[cloId].exam += share;
-      }
-      if (e.type === 'คะแนนอื่นๆ') {
-        result[cloId].work += share;
-      }
+
+    const selectedClos = e.cloIds || [];
+
+    if (!selectedClos.length) return;
+
+    const allIds = [
+      ...(e.lectureIds || []),
+      ...(e.labIds || [])
+    ];
+
+    const relatedContents = contents.filter(c =>
+      allIds.includes(String(c.id))
+    );
+
+    if (!relatedContents.length) return;
+
+    const cloHours = {};
+
+    selectedClos.forEach(cloId => {
+      cloHours[cloId] = 0;
     });
+
+    relatedContents.forEach(content => {
+
+      const matchedClos =
+        (content.cloIds || []).filter(cloId =>
+          selectedClos.includes(String(cloId))
+        );
+
+      if (!matchedClos.length) return;
+
+      const shareHours =
+        Number(content.hours || 0) /
+        matchedClos.length;
+
+      matchedClos.forEach(cloId => {
+        cloHours[cloId] += shareHours;
+      });
+    });
+
+    const totalCloHours =
+      Object.values(cloHours)
+        .reduce((sum, h) => sum + h, 0);
+
+    if (!totalCloHours) return;
+
+    Object.entries(cloHours).forEach(
+      ([cloId, hours]) => {
+
+        if (!result[cloId]) {
+          result[cloId] = {
+            exam: 0,
+            work: 0
+          };
+        }
+
+        const score =
+          Number(e.total || 0) *
+          (hours / totalCloHours);
+
+        if (e.type === 'คะแนนสอบ') {
+          result[cloId].exam += score;
+        }
+
+        if (e.type === 'คะแนนอื่นๆ') {
+          result[cloId].work += score;
+        }
+      }
+    );
+
   });
+
   return result;
 };
 

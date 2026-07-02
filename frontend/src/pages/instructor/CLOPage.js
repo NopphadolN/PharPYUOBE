@@ -105,6 +105,14 @@ useEffect(() => {
         (inst.data.evaluations || []).forEach(e => {
       const scoreMap =
         e.clo_score_map || {};
+
+        console.log(
+  "EVAL",
+  e.id,
+  e.name,
+  e.clo_score_map
+);
+
         Object.keys(scoreMap).forEach(cloId => {
         if (!maxMap[e.id]) {
           maxMap[e.id] = {};
@@ -114,6 +122,7 @@ useEffect(() => {
         });
       });
       setEvalMaxScores(maxMap);
+console.log("MAX MAP", maxMap);
 
       // ✅ load scores
       const scoreRes = await api.get('/instructor/clo-scores', {

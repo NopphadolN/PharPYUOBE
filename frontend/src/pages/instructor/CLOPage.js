@@ -368,10 +368,7 @@ const calculateEvaluationCLOWeights = (e) => {
 
   return result;
 };
-console.log(
-  e.name,
-  calculateEvaluationCLOWeights(e)
-);
+
 
   // getEvalScoreForCLO
 const getEvalScoreForCLO = (e, cloId) => {

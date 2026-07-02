@@ -37,7 +37,7 @@ export default function CLOPage() {
 
   const [clos, setClos] = useState([]);
   const [evaluations, setEvaluations] = useState([]);
-  const [contents, setContents] = useState([]);
+
   const [scores, setScores] = useState({});
   const [inputScores, setInputScores] = useState({});
   const [pasteText, setPasteText] = useState('');

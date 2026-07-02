@@ -317,126 +317,95 @@ const formatDate = (d) => {
 // distributeScores //
 const round1 = (num) =>
   Math.round((num + Number.EPSILON) * 100) / 100;
-
 const distributeScores = (contents, evaluations) => {
-
   const updated = contents.map(c => ({
     ...c,
     examScore: 0,
     workScore: 0
   }));
-
   evaluations.forEach(e => {
-
     const selectedClos = e.cloIds || [];
-
     if (!selectedClos.length) return;
-
     const allIds = [
       ...(e.lectureIds || []),
       ...(e.labIds || [])
     ];
-
     const relatedContents = updated.filter(c =>
       allIds.includes(String(c.id))
     );
-
     if (!relatedContents.length) return;
 
     // =========================
     // STEP A : หาชั่วโมงรวมของ CLO ที่ถูกเลือก
     // =========================
-
     const cloHours = {};
-
     selectedClos.forEach(cloId => {
       cloHours[cloId] = 0;
     });
-
     relatedContents.forEach(content => {
-
       const matchedClos =
         (content.cloIds || []).filter(cloId =>
           selectedClos.includes(String(cloId))
         );
-
       if (!matchedClos.length) return;
-
       const shareHours =
         Number(content.hours || 0) /
         matchedClos.length;
-
       matchedClos.forEach(cloId => {
         cloHours[cloId] += shareHours;
       });
     });
-
     const totalCloHours =
       Object.values(cloHours)
         .reduce((sum, h) => sum + h, 0);
-
     if (!totalCloHours) return;
-
     // =========================
     // STEP B : แจกคะแนนให้ CLO
     // =========================
-
     const cloScores = {};
-
     Object.entries(cloHours).forEach(
       ([cloId, hours]) => {
-
         cloScores[cloId] =
           Number(e.total || 0) *
           (hours / totalCloHours);
       }
     );
-
     // =========================
     // STEP C : แจกคะแนน CLO → Content
     // =========================
-
     Object.entries(cloScores).forEach(
       ([cloId, score]) => {
-
         const cloContents =
           relatedContents.filter(c =>
+            allIds.includes(String(c.id)) &&
             (c.cloIds || []).includes(String(cloId))
           );
-
         const totalHoursForClo =
           cloContents.reduce(
             (sum, c) =>
               sum + Number(c.hours || 0),
             0
           );
-
         if (!totalHoursForClo) return;
-
         cloContents.forEach(c => {
-
           const scorePart =
             score *
             (Number(c.hours || 0) /
               totalHoursForClo);
-
           if (e.type === 'คะแนนสอบ') {
             c.examScore = round1(
               c.examScore + scorePart
             );
           }
-
           if (e.type === 'คะแนนอื่นๆ') {
             c.workScore = round1(
               c.workScore + scorePart
             );
           }
-
         });
       }
     );
   });
-
   return updated;
 };
 
@@ -480,15 +449,8 @@ const normalizeOrder = (list) => {
 
 // ✅ 3. CLEAN CONTENTS (FIX VERSION)
 // ✅ 1. เริ่มจาก contents เดิม
-let calculatedContents = contents;
-// ✅ 2. ถ้ามี evaluation → คำนวณคะแนน
-const hasValidEval = evaluations.some(
-  e => Number(e.total) > 0
-);
-
-if (hasValidEval) {
-  calculatedContents = distributeScores(contents, evaluations);
-}
+const calculatedContents =
+  distributeScores(contents, evaluations);
 
 // ✅ 3. map เพื่อ prepare data สำหรับ backend
 let cleanContents = calculatedContents.map(c => {
@@ -642,82 +604,70 @@ console.log("✅ CONTENTS SAVED");
 
 // CalCloSummary
 const getCloSummary = () => {
-
+  console.log(
+  JSON.stringify(
+    evaluations.map(e => ({
+      name: e.name,
+      cloIds: e.cloIds,
+      total: e.total
+    })),
+    null,
+    2
+  )
+);
   const result = {};
-
   evaluations.forEach(e => {
-
     const selectedClos = e.cloIds || [];
-
     if (!selectedClos.length) return;
-
     const allIds = [
       ...(e.lectureIds || []),
       ...(e.labIds || [])
     ];
-
     const relatedContents = contents.filter(c =>
       allIds.includes(String(c.id))
     );
-
     if (!relatedContents.length) return;
-
     const cloHours = {};
-
     selectedClos.forEach(cloId => {
       cloHours[cloId] = 0;
     });
-
     relatedContents.forEach(content => {
-
       const matchedClos =
         (content.cloIds || []).filter(cloId =>
           selectedClos.includes(String(cloId))
         );
-
       if (!matchedClos.length) return;
-
       const shareHours =
         Number(content.hours || 0) /
         matchedClos.length;
-
       matchedClos.forEach(cloId => {
         cloHours[cloId] += shareHours;
       });
     });
-
     const totalCloHours =
       Object.values(cloHours)
         .reduce((sum, h) => sum + h, 0);
-
     if (!totalCloHours) return;
-
     Object.entries(cloHours).forEach(
       ([cloId, hours]) => {
-
         if (!result[cloId]) {
           result[cloId] = {
             exam: 0,
             work: 0
           };
         }
-
         const score =
           Number(e.total || 0) *
           (hours / totalCloHours);
-
         if (e.type === 'คะแนนสอบ') {
           result[cloId].exam += score;
         }
-
         if (e.type === 'คะแนนอื่นๆ') {
           result[cloId].work += score;
         }
       }
     );
-
   });
-
   return result;
 };
 

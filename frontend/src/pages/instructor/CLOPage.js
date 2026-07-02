@@ -111,10 +111,13 @@ useEffect(() => {
         }))
       );
 console.log(
-  "EVALS",
-  inst.data.evaluations
+  evaluations.map(e => ({
+    name: e.name,
+    total: e.total,
+    cloIds: e.cloIds,
+    lectureIds: e.lectureIds
+  }))
 );
-
       // ✅ load scores
       const scoreRes = await api.get('/instructor/clo-scores', {
         params: { course_instance_id: instanceIdLocal }
@@ -147,9 +150,6 @@ const getEvalByCLO = (cloId) => {
       .includes(String(cloId))
   );
 };
-
-
-
 
   /* ================= MAX CLO ================= */
   const getCloMax = (cloId) => {
@@ -312,14 +312,16 @@ const saveCourseResults = async (course_instance_id) => {
 
 // calculateEvaluationCLOWeights
 const calculateEvaluationCLOWeights = (e) => {
-
+console.log(
+  e.name,
+  cloHours,
+  cloScores
+);
   const selectedClos = e.cloIds || [];
 
-  const cloHours = {};
-
-  selectedClos.forEach(cloId => {
-    cloHours[cloId] = 0;
-  });
+  if (!selectedClos.length) {
+    return {};
+  }
 
   const allIds = [
     ...(e.lectureIds || []),
@@ -330,43 +332,52 @@ const calculateEvaluationCLOWeights = (e) => {
     allIds.includes(String(c.id))
   );
 
+  const cloHours = {};
+
+  selectedClos.forEach(cloId => {
+    cloHours[cloId] = 0;
+  });
+
   relatedContents.forEach(content => {
 
-    const contentClos =
-      (content.cloIds || []).map(String);
+    const matchedClos =
+      (content.cloIds || []).filter(cloId =>
+        selectedClos.includes(String(cloId))
+      );
 
-    selectedClos.forEach(cloId => {
+    if (!matchedClos.length) return;
 
-      if (
-        contentClos.includes(String(cloId))
-      ) {
-        cloHours[cloId] +=
-          Number(content.hours || 0);
-      }
+    const shareHours =
+      Number(content.hours || 0) /
+      matchedClos.length;
 
+    matchedClos.forEach(cloId => {
+      cloHours[cloId] += shareHours;
     });
 
   });
 
-  const totalHours =
+  const totalCloHours =
     Object.values(cloHours)
-      .reduce((a,b) => a+b,0);
+      .reduce((sum, h) => sum + h, 0);
 
-  if (!totalHours) return {};
+  if (!totalCloHours) {
+    return {};
+  }
 
-  const result = {};
+  const cloScores = {};
 
   Object.entries(cloHours).forEach(
-    ([cloId,hours]) => {
+    ([cloId, hours]) => {
 
-      result[cloId] =
+      cloScores[cloId] =
         Number(e.total || 0) *
-        (hours / totalHours);
+        (hours / totalCloHours);
 
     }
   );
 
-  return result;
+  return cloScores;
 };
 
 

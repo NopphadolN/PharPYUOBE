@@ -604,17 +604,6 @@ console.log("✅ CONTENTS SAVED");
 
 // CalCloSummary
 const getCloSummary = () => {
-  console.log(
-  JSON.stringify(
-    evaluations.map(e => ({
-      name: e.name,
-      cloIds: e.cloIds,
-      total: e.total
-    })),
-    null,
-    2
-  )
-);
   const result = {};
   evaluations.forEach(e => {
     const selectedClos = e.cloIds || [];

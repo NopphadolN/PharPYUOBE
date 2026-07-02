@@ -106,7 +106,8 @@ useEffect(() => {
           ...e,
           id: e.id ?? i + 1,
           lectureIds: (e.content_ids_lecture || []).map(String),
-          labIds: (e.content_ids_lab || []).map(String)
+          labIds: (e.content_ids_lab || []).map(String),
+          cloIds: (e.clo_ids || []).map(String)
         }))
       );
 
@@ -136,22 +137,11 @@ useEffect(() => {
 
   /* ================= MAP EVAL → CLO ================= */
 const getEvalByCLO = (cloId) => {
-  return evaluations.filter(e => {
-    const allIds = [
-      ...(e.lectureIds || []),
-      ...(e.labIds || [])
-    ];
-    return allIds.some(cid => {
-      const content = contents.find(c =>        
-        String(c.id) === String(cid) ||
-        String(c.order) === String(cid)
-      );
-      if (!content) return false;
-      return (content.cloIds || [])
-        .map(String)
-        .includes(String(cloId));
-    });
-  });
+  return evaluations.filter(e =>
+    (e.cloIds || [])
+      .map(String)
+      .includes(String(cloId))
+  );
 };
 
   /* ================= MAX CLO ================= */
@@ -299,36 +289,46 @@ const saveCourseResults = async (course_instance_id) => {
 
   // getEvalScoreForCLO
 const getEvalScoreForCLO = (e, cloId) => {
-  let total = 0;
-  contents.forEach(content => {
-
-    // ✅ 1. เช็คว่า content อยู่ใน evaluation
-    const isInEval =
-  (e.lectureIds || []).includes(String(content.id)) ||
-  (e.lectureIds || []).includes(String(content.order)) ||
-  (e.labIds || []).includes(String(content.id)) ||
-  (e.labIds || []).includes(String(content.order)); 
-
-    if (!isInEval) return;
-
-    // ✅ 2. เช็ค CLO mapping
-    const cloList = content.cloIds || [];
-
-    if (!cloList.includes(String(cloId))) return;
-
-    // ✅ 3. คะแนนของ content
-    let score = 0;
-
-    if (e.name?.includes('สอบ')) {
-      score = Number(content.examScore || content.exam_score || 0);
-    } else if (e.name?.includes('งาน')) {
-      score = Number(content.workScore || content.work_score || 0);
-    }
-
-    // ✅ 4. กระจาย
-    total += score / (cloList.length || 1);
+  const selectedClos = e.cloIds || [];
+  if (
+    !selectedClos
+      .map(String)
+      .includes(String(cloId))
+  ) {
+    return 0;
+  }
+  const allIds = [
+    ...(e.lectureIds || []),
+    ...(e.labIds || [])
+  ];
+  const relatedContents = contents.filter(c =>
+    allIds.includes(String(c.id))
+  );
+  const cloHours = {};
+  selectedClos.forEach(id => {
+    cloHours[id] = 0;
   });
-  return total;
+  relatedContents.forEach(content => {
+    const matchedClos =
+      (content.cloIds || []).filter(id =>
+        selectedClos
+          .map(String)
+          .includes(String(id))
+      );
+    if (!matchedClos.length) return;
+    const shareHours =
+      Number(content.hours || 0) /
+      matchedClos.length;
+    matchedClos.forEach(id => {
+      cloHours[id] += shareHours;
+    });
+  });
+  const totalHours =
+    Object.values(cloHours)
+      .reduce((a, b) => a + b, 0);
+  if (!totalHours) return 0;
+  return Number(e.total || 0) *
+    (cloHours[cloId] / totalHours);
 };
 
 // buildCLODetails

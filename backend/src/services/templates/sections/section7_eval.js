@@ -13,31 +13,15 @@ const renderSection7 = (data) => {
 
   const evalList = Array.isArray(courseEvaluations) ? courseEvaluations : [];
 
-  // ✅ map CLO จาก content
-  const getCLOCodes = (e) => {
-
-    const ids = [
-      ...(e.content_ids_lecture || []),
-      ...(e.content_ids_lab || [])
-    ];
-
-    const cloSet = new Set();
-
-    ids.forEach(cid => {
-      const content = courseContents.find(c =>
-        String(c.order) === String(cid) ||
-        String(c.id) === String(cid)
-      );
-      if (!content) return;
-
-      (content.clo_ids || []).forEach(cloId => {
-        const clo = clos.find(c => String(c.id) === String(cloId));
-        if (clo) cloSet.add(clo.code || `CLO${clos.findIndex(x => x.id == cloId)+1}`);
-      });
-    });
-
-    return Array.from(cloSet).sort().join(', ');
-  };
+const getCLOCodes = (e) => {
+  const cloIds = e.clo_ids || e.cloIds || [];
+  return cloIds
+    .map(cloId =>
+      clos.find(c => String(c.id) === String(cloId))?.code
+    )
+    .filter(Boolean)
+    .join(', ');
+};
 
   // ✅ format content range
   const formatContentRange = (ids) => {
@@ -109,7 +93,7 @@ const renderSection7 = (data) => {
           <td style="border:1px solid #000; text-align:center;">${e.total ?? '-'}</td>
           <td style="border:1px solid #000; text-align:center;">${formatContentRange(e.content_ids_lecture || [])}</td>
           <td style="border:1px solid #000; text-align:center;">${formatContentRange(e.content_ids_lab || [])}</td>
-          <td style="border:1px solid #000; text-align:center;">${e.tool || '-'}</td>
+          <td style="border:1px solid #000;">${e.tool || '-'}</td>
           <td style="border:1px solid #000; text-align:center;">${e.week || '-'}</td>
         </tr>
       `).join('')}

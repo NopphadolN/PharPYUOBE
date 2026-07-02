@@ -71,7 +71,6 @@ useEffect(() => {
         // ✅ reset state กันค้าง
         setClos([]);
         setStudents([]);
-        setContents([]);
         setEvaluations([]);
         setScores({});
         setOwner(null);
@@ -90,18 +89,6 @@ useEffect(() => {
       });
       setClos(cloRes.data);
       setStudents(stuRes.data);
-      setContents(
-        (inst.data.contents || []).map(c => ({
-          ...c,
-          order: c.order || '',
-          examScore: Number(c.exam_score || 0),
-          workScore: Number(c.work_score || 0),
-          cloIds: Array.isArray(c.clo_ids)
-            ? c.clo_ids.map(String)
-            : []
-        }))
-      );
-
       setEvaluations(
         (inst.data.evaluations || []).map((e, i) => ({
           ...e,

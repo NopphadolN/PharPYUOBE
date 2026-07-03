@@ -313,7 +313,7 @@ const saveActualScoreMap = async () => {
     await saveCourseResults(course_instance_id);
     alert('✅ บันทึกครบ (คะแนน + CLO + PASS)');
   } catch (err) {
-    console.error("❌ SAVE ERROR:", err);
+    console.error("❌ SAVE ERROR:", err.response?.data);
     alert(
       '❌ บันทึกไม่สำเร็จ: ' +
       (err.response?.data?.detail || err.message)
@@ -676,24 +676,41 @@ console.log("BTN STATE:", {
             return [
               ...evals.map(e => (
 <th key={e.id} className="text-xs border">
-  <input
-    type="number"
-    step="0.01"
-    className="w-16 text-center border rounded"
-    value={
-      actualScores?.[e.id]?.[clo.id] ?? ''
-    }
-    onChange={(ev) => {
-      setActualScores(prev => ({
-        ...prev,
-        [e.id]: {
-          ...(prev[e.id] || {}),
-          [clo.id]:
-            Number(ev.target.value || 0)
-        }
-      }));
-    }}
-  />
+<input
+  type="number"
+  step="0.01"
+  min="0"
+  className="w-16 text-center border rounded"
+  value={actualScores?.[e.id]?.[clo.id] ?? ''}
+  onChange={(ev) => {
+    const value =
+      ev.target.value;
+    setActualScores(prev => ({
+      ...prev,
+      [e.id]: {
+        ...(prev[e.id] || {}),
+        [clo.id]:
+          value === ''
+            ? ''
+            : Number(Number(value).toFixed(2))
+      }
+    }));
+  }}
+  onBlur={(ev) => {
+    if (ev.target.value === '')
+      return;
+    const num =
+      Number(ev.target.value);
+    setActualScores(prev => ({
+      ...prev,
+      [e.id]: {
+        ...(prev[e.id] || {}),
+        [clo.id]:
+          Number(num.toFixed(2))
+      }
+    }));
+  }}
+/>
 </th>
               )),
               <th key={clo.id + '-sum'} className="border">

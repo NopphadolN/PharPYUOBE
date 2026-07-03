@@ -385,7 +385,8 @@ exports.upsertEvaluations = async (course_instance_id, evaluations) => {
         JSON.stringify(e.content_ids_lecture || []),
         JSON.stringify(e.content_ids_lab || []),
         JSON.stringify(e.clo_ids || []),
-        JSON.stringify(e.clo_score_map || {}),
+        JSON.stringify(e.clo_plan_score_map || {}),
+        JSON.stringify(e.clo_actual_score_map || {}),
         e.total
       ]);
     }

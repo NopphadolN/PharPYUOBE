@@ -661,6 +661,7 @@ console.log("BTN STATE:", {
   <div
     className="text-[10px] text-blue-600 mt-1"
   >
+    คำนวน
     (
     {
       Number(
@@ -692,6 +693,7 @@ console.log("BTN STATE:", {
             return [
               ...evals.map(e => (
 <th key={e.id} className="text-xs border">
+คะแนนเต็ม
 <input
   type="number"
   step="0.01"

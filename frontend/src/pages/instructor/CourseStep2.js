@@ -524,7 +524,7 @@ console.log("✅ CONTENTS SAVED");
     content_ids_lecture: e.lectureIds || [],
     content_ids_lab: e.labIds || []
   }));  
-    const evaluationsToSave = evaluations.map(e => ({
+    const evaluationsToSave = cleanEvaluations.map(e => ({
     ...e,
     clo_plan_score_map:
       evalMaxScores[e.id] || {}

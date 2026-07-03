@@ -589,7 +589,9 @@ console.log("BTN STATE:", {
 {/* ================= TABLE ================= */}
 <Card>
   <h3 className="font-semibold mb-4">ตารางคะแนน</h3>
-<th>คะแนนคำนวณมาจากโปรแกรม ให้ใส่คะแนนเต็มตามจริงในแต่ละ CLO ในช่องหัวตาราง</th>
+<div className="text-sm text-gray-600">
+  คะแนนคำนวณมาจากโปรแกรม ให้ใส่คะแนนเต็มตามจริงในแต่ละ CLO ในช่องหัวตาราง
+</div>
   {!clos.length && (
     <div className="text-red-500 mb-3">
       ❌ ยังไม่มีข้อมูล CLO

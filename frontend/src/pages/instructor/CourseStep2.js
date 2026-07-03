@@ -156,64 +156,6 @@ useEffect(() => {
         }))
       );
 
-      const calculateEvaluationCLOWeights = (e) => {
-  const selectedClos = e.cloIds || [];
-  if (!selectedClos.length) {
-    return {};
-  }
-  const allIds = [
-    ...(e.lectureIds || []),
-    ...(e.labIds || [])
-  ];
-  const relatedContents = contents.filter(c =>
-    allIds.includes(String(c.id))
-  );
-  const cloHours = {};
-  selectedClos.forEach(cloId => {
-    cloHours[cloId] = 0;
-  });
-  relatedContents.forEach(content => {
-    const matchedClos =
-      (content.cloIds || []).filter(cloId =>
-        selectedClos.includes(String(cloId))
-      );
-    if (!matchedClos.length) return;
-    const shareHours =
-      Number(content.hours || 0) /
-      matchedClos.length;
-    matchedClos.forEach(cloId => {
-      cloHours[cloId] += shareHours;
-    });
-  });
-  const totalCloHours =
-    Object.values(cloHours)
-      .reduce((sum, h) => sum + h, 0);
-  if (!totalCloHours) {
-    return {};
-  }
-  const cloScores = {};
-  Object.entries(cloHours).forEach(
-    ([cloId, hours]) => {
-      cloScores[cloId] =
-        Number(e.total || 0) *
-        (hours / totalCloHours);
-    }
-  );
-  return cloScores;
-};
-
-const planMatrix = {};
-clos.forEach(clo => {
-  planMatrix[clo.id] = {};
-  evaluations.forEach(e => {
-    const scores =
-      calculateEvaluationCLOWeights(e);
-    planMatrix[clo.id][e.id] =
-      Number(
-        scores[String(clo.id)] || 0
-      );
-  });
-});
       // ✅ CLO
       const cloRes = await api.get('/instructor/clos', {
         params: { course_instance_id: data.id }
@@ -689,12 +631,12 @@ const getCloSummary = () => {
       cloHours[cloId] = 0;
     });
     relatedContents.forEach(content => {
-      const matchedClos =
+    const matchedClos =
         (content.cloIds || []).filter(cloId =>
           selectedClos.includes(String(cloId))
         );
       if (!matchedClos.length) return;
-      const shareHours =
+    const shareHours =
         Number(content.hours || 0) /
         matchedClos.length;
       matchedClos.forEach(cloId => {
@@ -713,7 +655,7 @@ const getCloSummary = () => {
             work: 0
           };
         }
-        const score =
+    const score =
           Number(e.total || 0) *
           (hours / totalCloHours);
         if (e.type === 'คะแนนสอบ') {
@@ -727,8 +669,66 @@ const getCloSummary = () => {
   });
   return result;
 };
-
 const cloSummary = getCloSummary();
+
+  const calculateEvaluationCLOWeights = (e) => {
+  const selectedClos = e.cloIds || [];
+  if (!selectedClos.length) {
+    return {};
+  }
+  const allIds = [
+    ...(e.lectureIds || []),
+    ...(e.labIds || [])
+  ];
+  const relatedContents = contents.filter(c =>
+    allIds.includes(String(c.id))
+  );
+  const cloHours = {};
+  selectedClos.forEach(cloId => {
+    cloHours[cloId] = 0;
+  });
+  relatedContents.forEach(content => {
+    const matchedClos =
+      (content.cloIds || []).filter(cloId =>
+        selectedClos.includes(String(cloId))
+      );
+    if (!matchedClos.length) return;
+    const shareHours =
+      Number(content.hours || 0) /
+      matchedClos.length;
+    matchedClos.forEach(cloId => {
+      cloHours[cloId] += shareHours;
+    });
+  });
+  const totalCloHours =
+    Object.values(cloHours)
+      .reduce((sum, h) => sum + h, 0);
+  if (!totalCloHours) {
+    return {};
+  }
+  const cloScores = {};
+  Object.entries(cloHours).forEach(
+    ([cloId, hours]) => {
+      cloScores[cloId] =
+        Number(e.total || 0) *
+        (hours / totalCloHours);
+    }
+  );
+  return cloScores;
+};
+
+const planMatrix = {};
+clos.forEach(clo => {
+  planMatrix[clo.id] = {};
+  evaluations.forEach(e => {
+    const scores =
+      calculateEvaluationCLOWeights(e);
+    planMatrix[clo.id][e.id] =
+      Number(
+        scores[String(clo.id)] || 0
+      );
+  });
+});
 
 /* =========================
    CALCULATE TABLE DATA

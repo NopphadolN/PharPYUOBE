@@ -62,6 +62,7 @@ export default function CourseStep2() {
      EVALUATION
   ========================= */
   const [evaluations, setEvaluations] = useState([]);
+  const [evalMaxScores, setEvalMaxScores] = useState({});
   const [currentEval, setCurrentEval] = useState({
     name: '',
     type: '',   
@@ -154,6 +155,20 @@ useEffect(() => {
               : [] 
         }))
       );
+      const maxMap = {};
+        (data.evaluations || []).forEach(e => {
+      const scoreMap =
+        e.clo_plan_score_map || {};
+        if (!maxMap[e.id]) {
+        maxMap[e.id] = {};
+        }
+      Object.keys(scoreMap).forEach(cloId => {
+        maxMap[e.id][cloId] =
+      Number(scoreMap[cloId]);
+      });
+      });
+      setEvalMaxScores(maxMap);
+
       // ✅ CLO
       const cloRes = await api.get('/instructor/clos', {
         params: { course_instance_id: data.id }
@@ -509,9 +524,15 @@ console.log("✅ CONTENTS SAVED");
     content_ids_lecture: e.lectureIds || [],
     content_ids_lab: e.labIds || []
   }));  
+    const evaluationsToSave = evaluations.map(e => ({
+    ...e,
+    clo_plan_score_map:
+      evalMaxScores[e.id] || {}
+  }));
+
   await api.post('/instructor/evaluations', {
     course_instance_id,
-    evaluations: cleanEvaluations
+    evaluations: evaluationsToSave
   });
 
     // ✅ 6. LOAD DATA ใหม่ 
@@ -1543,46 +1564,63 @@ const isOwner = courses?.owner_id === user?.id;
     <table className="w-full text-sm">
       {/* HEADER */}
       <thead className="bg-gray-100 text-gray-700">
-        <tr>
-          <th className="p-3 text-left">CLO</th>
-          <th className="p-3 text-left">รายละเอียด</th>
-          <th className="p-3 text-center">คะแนนสอบ</th>
-          <th className="p-3 text-center">คะแนนอื่นๆ</th>
-          <th className="p-3 text-center">รวม</th>
-        </tr>
+<tr>
+  <th>CLO</th>
+  {evaluations.map(e => (
+    <th
+      key={e.id}
+      title={`Plan Score = ${e.total}`}
+    >
+      {e.name}
+    </th>
+  ))}
+  <th>รวม</th>
+</tr>
       </thead>
       {/* BODY */}
       <tbody>
-        {clos.map(clo => {
-          const sum = cloSummary[clo.id] || { exam: 0, work: 0 };
-          const total = sum.exam + sum.work;
-          return (
-            <tr
-              key={clo.id}
-              className="border-t hover:bg-gray-50"
-            >
-              <td className="p-3 font-medium text-blue-600">
-                {clo.code}
-              </td>
-
-              <td className="p-3 text-gray-600">
-                {clo.description}
-              </td>
-
-              <td className="p-3 text-center">
-                {sum.exam.toFixed(2)}
-              </td>
-
-              <td className="p-3 text-center">
-                {sum.work.toFixed(2)}
-              </td>
-
-              <td className="p-3 text-center font-semibold text-green-600">
-                {total.toFixed(2)}
-              </td>
-            </tr>
-          );
-        })}
+        {clos.map(clo => (
+<tr key={clo.id}>
+  <td>{clo.code}</td>
+  {evaluations.map(e => (
+    <td key={e.id}>
+      <input
+        type="number"
+        step="0.01"
+        value={
+          evalMaxScores?.[e.id]?.[clo.id]
+          ?? ''
+        }
+        onChange={(ev) => {
+          setEvalMaxScores(prev => ({
+            ...prev,
+            [e.id]: {
+              ...(prev[e.id] || {}),
+              [clo.id]:
+                Number(
+                  ev.target.value || 0
+                )
+            }
+          }));
+        }}
+      />
+    </td>
+  ))}
+  <td>
+    {
+      evaluations.reduce(
+        (sum,e) =>
+          sum +
+          Number(
+            evalMaxScores?.[e.id]?.[clo.id]
+            || 0
+          ),
+        0
+      )
+    }
+  </td>
+</tr>
+))}
       </tbody>
 
       {/* FOOTER */}

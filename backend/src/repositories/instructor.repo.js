@@ -302,10 +302,14 @@ exports.getEvaluations = async (course_instance_id) => {
       typeof e.content_ids_lab === 'string'
         ? JSON.parse(e.content_ids_lab)
         : (e.content_ids_lab || []),
-    clo_score_map:
-      typeof e.clo_score_map === 'string'
-        ? JSON.parse(e.clo_score_map)
-        : (e.clo_score_map || {}),
+    clo_plan_score_map:
+      typeof e.clo_plan_score_map === 'string'
+        ? JSON.parse(e.clo_plan_score_map)
+        : (e.clo_plan_score_map || {}),        
+    clo_actual_score_map:
+      typeof e.clo_actual_score_map === 'string'
+        ? JSON.parse(e.clo_actual_score_map)
+        : (e.clo_actual_score_map || {}),
   }));
 };
 
@@ -338,10 +342,11 @@ exports.upsertEvaluations = async (course_instance_id, evaluations) => {
           week=$4,
           content_ids_lecture=$5,
           content_ids_lab=$6,
-          clo_ids=$7,
-          clo_score_map=$8,
-          total=$9
-        WHERE id=$10
+          clo_ids=$7,         
+          clo_plan_score_map=$8,
+          clo_actual_score_map=$9,
+          total=$10
+        WHERE id=$11
       `, [
         e.name,
         e.type,
@@ -350,7 +355,8 @@ exports.upsertEvaluations = async (course_instance_id, evaluations) => {
         JSON.stringify(e.content_ids_lecture || []),
         JSON.stringify(e.content_ids_lab || []),
         JSON.stringify(e.clo_ids || []),
-        JSON.stringify(e.clo_score_map || {}),
+        JSON.stringify(e.clo_plan_score_map || {}),
+        JSON.stringify(e.clo_actual_score_map || {}),
         e.total,
         e.id
       ]);
@@ -365,10 +371,11 @@ exports.upsertEvaluations = async (course_instance_id, evaluations) => {
           content_ids_lecture,
           content_ids_lab,
           clo_ids,
-          clo_score_map,
+          clo_plan_score_map,
+          clo_actual_score_map,
           total
         )
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
       `, [
         course_instance_id,
         e.name,

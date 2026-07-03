@@ -589,7 +589,7 @@ console.log("BTN STATE:", {
 {/* ================= TABLE ================= */}
 <Card>
   <h3 className="font-semibold mb-4">ตารางคะแนน</h3>
-
+<th>คะแนนคำนวณมาจากโปรแกรม ให้ใส่คะแนนเต็มตามจริงในแต่ละ CLO ในช่องหัวตาราง</th>
   {!clos.length && (
     <div className="text-red-500 mb-3">
       ❌ ยังไม่มีข้อมูล CLO
@@ -661,7 +661,7 @@ console.log("BTN STATE:", {
   <div
     className="text-[10px] text-blue-600 mt-1"
   >
-    คำนวน
+    คำนวณ
     (
     {
       Number(
@@ -693,7 +693,7 @@ console.log("BTN STATE:", {
             return [
               ...evals.map(e => (
 <th key={e.id} className="text-xs border">
-คะแนนเต็ม
+เต็ม
 <input
   type="number"
   step="0.01"

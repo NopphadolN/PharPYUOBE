@@ -306,7 +306,7 @@ const saveActualScoreMap = async () => {
   try {
     const course_instance_id = instanceId;
     // ✅ run ทีละ step
-    await saveActualCLOScoreMaps(instanceId);
+    await saveActualScoreMap(instanceId);
     await saveScores(course_instance_id);
     await saveCLOResults(course_instance_id);
     await saveCourseResults(course_instance_id);
@@ -680,10 +680,10 @@ console.log("BTN STATE:", {
     step="0.01"
     className="w-16 text-center border rounded"
     value={
-      evalMaxScores?.[e.id]?.[clo.id] ?? ''
+      actualScores?.[e.id]?.[clo.id] ?? ''
     }
     onChange={(ev) => {
-      setEvalMaxScores(prev => ({
+      setActualScores(prev => ({
         ...prev,
         [e.id]: {
           ...(prev[e.id] || {}),

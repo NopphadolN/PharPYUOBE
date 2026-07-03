@@ -297,6 +297,15 @@ const saveActualScoreMap = async () => {
   );
 };
 
+  const hasAnyStudentScore = () => {
+  return Object.values(scores)
+    .some(student =>
+      Object.values(student || {})
+        .some(clo =>
+          Object.keys(clo || {}).length > 0
+        )
+    );
+  };
   const handleSave = async () => {
   if (loading) return;
   if (!instanceId) {
@@ -307,10 +316,17 @@ const saveActualScoreMap = async () => {
   try {
     const course_instance_id = instanceId;
     // ✅ run ทีละ step
-    await saveActualScoreMap(instanceId);
+    await saveActualScoreMap();
     await saveScores(course_instance_id);
-    await saveCLOResults(course_instance_id);
-    await saveCourseResults(course_instance_id);
+      if (hasAnyStudentScore()) {
+    await saveCLOResults(
+        course_instance_id
+      );
+    await saveCourseResults(
+        course_instance_id
+      );
+    }
+
     alert('✅ บันทึกครบ (คะแนน + CLO + PASS)');
   } catch (err) {
     console.error("❌ SAVE ERROR:", err.response?.data);

@@ -264,6 +264,12 @@ router.post('/save-course-results', verifyToken, checkOwner, async (req, res) =>
         !!r.is_pass
       );
     }
+    if (values.length === 0) {
+    console.log("⚠️ NO COURSE RESULT TO SAVE");
+    return res.json({
+    message: "No course result"
+    });
+    }
     await pool.query(`
       INSERT INTO course_results
       (course_instance_id, student_id, course_id, year, semester, is_pass)

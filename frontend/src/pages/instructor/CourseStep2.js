@@ -62,7 +62,7 @@ export default function CourseStep2() {
      EVALUATION
   ========================= */
   const [evaluations, setEvaluations] = useState([]);
-  const [evalMaxScores, setEvalMaxScores] = useState({});
+  
   const [currentEval, setCurrentEval] = useState({
     name: '',
     type: '',   
@@ -155,20 +155,65 @@ useEffect(() => {
               : [] 
         }))
       );
-      const maxMap = {};
-        (data.evaluations || []).forEach(e => {
-      const scoreMap =
-        e.clo_plan_score_map || {};
-        if (!maxMap[e.id]) {
-        maxMap[e.id] = {};
-        }
-      Object.keys(scoreMap).forEach(cloId => {
-        maxMap[e.id][cloId] =
-      Number(scoreMap[cloId]);
-      });
-      });
-      setEvalMaxScores(maxMap);
 
+      const calculateEvaluationCLOWeights = (e) => {
+  const selectedClos = e.cloIds || [];
+  if (!selectedClos.length) {
+    return {};
+  }
+  const allIds = [
+    ...(e.lectureIds || []),
+    ...(e.labIds || [])
+  ];
+  const relatedContents = contents.filter(c =>
+    allIds.includes(String(c.id))
+  );
+  const cloHours = {};
+  selectedClos.forEach(cloId => {
+    cloHours[cloId] = 0;
+  });
+  relatedContents.forEach(content => {
+    const matchedClos =
+      (content.cloIds || []).filter(cloId =>
+        selectedClos.includes(String(cloId))
+      );
+    if (!matchedClos.length) return;
+    const shareHours =
+      Number(content.hours || 0) /
+      matchedClos.length;
+    matchedClos.forEach(cloId => {
+      cloHours[cloId] += shareHours;
+    });
+  });
+  const totalCloHours =
+    Object.values(cloHours)
+      .reduce((sum, h) => sum + h, 0);
+  if (!totalCloHours) {
+    return {};
+  }
+  const cloScores = {};
+  Object.entries(cloHours).forEach(
+    ([cloId, hours]) => {
+      cloScores[cloId] =
+        Number(e.total || 0) *
+        (hours / totalCloHours);
+    }
+  );
+  return cloScores;
+};
+
+const planMatrix = {};
+clos.forEach(clo => {
+  planMatrix[clo.id] = {};
+  evaluations.forEach(e => {
+    const scores =
+      calculateEvaluationCLOWeights(e);
+    planMatrix[clo.id][e.id] =
+      Number(
+        scores[String(clo.id)] || 0
+      );
+  });
+});
       // ✅ CLO
       const cloRes = await api.get('/instructor/clos', {
         params: { course_instance_id: data.id }
@@ -527,7 +572,9 @@ console.log("✅ CONTENTS SAVED");
     const evaluationsToSave = cleanEvaluations.map(e => ({
     ...e,
     clo_plan_score_map:
-      evalMaxScores[e.id] || {}
+      calculateEvaluationCLOWeights(e),
+    clo_actual_score_map:
+      e.clo_actual_score_map || {}
   }));
 
   await api.post('/instructor/evaluations', {
@@ -1559,89 +1606,102 @@ const isOwner = courses?.owner_id === user?.id;
 </Card>
 
 <Card className="mb-6">
-  <h3 className="font-semibold mb-4">📊 สรุปคะแนน CLO</h3>
+  <h3 className="font-semibold mb-4">
+    📊 สรุปคะแนน CLO
+  </h3>
   <div className="overflow-x-auto border rounded-lg">
     <table className="w-full text-sm">
-      {/* HEADER */}
-      <thead className="bg-gray-100 text-gray-700">
-<tr>
-  <th>CLO</th>
-  {evaluations.map(e => (
-    <th
-      key={e.id}
-      title={`Plan Score = ${e.total}`}
-    >
-      {e.name}
-    </th>
-  ))}
-  <th>รวม</th>
-</tr>
+      <thead className="bg-gray-100">
+        <tr>
+          <th className="p-3 border">
+            CLO
+          </th>
+          {evaluations.map(e => (
+            <th
+              key={e.id}
+              className="p-3 border text-center"
+              title={`คะแนนเต็มรายการประเมิน ${e.total}`}
+            >
+              {e.name}
+            </th>
+          ))}
+          <th className="p-3 border">
+            รวม
+          </th>
+        </tr>
       </thead>
-      {/* BODY */}
+
       <tbody>
-        {clos.map(clo => (
-<tr key={clo.id}>
-  <td>{clo.code}</td>
-  {evaluations.map(e => (
-    <td key={e.id}>
-      <input
-        type="number"
-        step="0.01"
-        value={
-          evalMaxScores?.[e.id]?.[clo.id]
-          ?? ''
-        }
-        onChange={(ev) => {
-          setEvalMaxScores(prev => ({
-            ...prev,
-            [e.id]: {
-              ...(prev[e.id] || {}),
-              [clo.id]:
+        {clos.map(clo => {
+          const rowTotal =
+            evaluations.reduce(
+              (sum, e) =>
+                sum +
                 Number(
-                  ev.target.value || 0
-                )
-            }
-          }));
-        }}
-      />
-    </td>
-  ))}
-  <td>
-    {
-      evaluations.reduce(
-        (sum,e) =>
-          sum +
-          Number(
-            evalMaxScores?.[e.id]?.[clo.id]
-            || 0
-          ),
-        0
-      )
-    }
-  </td>
-</tr>
-))}
+                  planMatrix?.[clo.id]?.[e.id]
+                  || 0
+                ),
+              0
+            );
+          return (
+
+            <tr key={clo.id}>
+              <td className="p-3 border">
+                {clo.code}
+              </td>
+              {evaluations.map(e => (
+                <td
+                  key={e.id}
+                  className="p-3 border text-center"
+                >
+                  {(
+                    planMatrix?.[clo.id]?.[e.id]
+                    || 0
+                  ).toFixed(2)}
+                </td>
+              ))}
+              <td className="p-3 border text-center font-semibold">
+                {rowTotal.toFixed(2)}
+              </td>
+            </tr>
+          );
+        })}
       </tbody>
 
-      {/* FOOTER */}
       <tfoot>
-        <tr className="bg-gray-50 border-t font-semibold">
-          <td colSpan="2" className="p-3 text-left">
+        <tr className="bg-gray-50 font-semibold">
+          <td className="p-3 border">
             รวมทั้งหมด
           </td>
-          <td className="p-3 text-center">
-            {Object.values(cloSummary)
-              .reduce((a,b)=>a+b.exam,0)
-              .toFixed(2)}
-          </td>
-          <td className="p-3 text-center">
-            {Object.values(cloSummary)
-              .reduce((a,b)=>a+b.work,0)
-              .toFixed(2)}
-          </td>
-          <td className="p-3 text-center text-green-600">
-            {Object.values(cloSummary)
-              .reduce((a,b)=>a+b.exam + b.work,0)
+          {evaluations.map(e => {
+            const evalTotal =
+              clos.reduce(
+                (sum, clo) =>
+                  sum +
+                  Number(
+                    planMatrix?.[clo.id]?.[e.id]
+                    || 0
+                  ),
+                0
+              );
+
+            return (
+              <td
+                key={e.id}
+                className="p-3 border text-center"
+              >
+                {evalTotal.toFixed(2)}
+              </td>
+            );
+          })}
+          <td className="p-3 border text-center text-green-600">
+            {evaluations
+              .reduce(
+                (sum, e) =>
+                  sum +
+                  Number(e.total || 0),
+                0
+              )
               .toFixed(2)}
           </td>
         </tr>

@@ -637,22 +637,22 @@ console.log("BTN STATE:", {
 
             return [
               ...evals.map(e => (
-                <th key={e.id}                 
-                    title={
-                    Object.entries(
-                     e.clo_plan_score_map || {}
-                    )
-                    .map(
-                    ([clo, score]) =>
-                    `CLO ${clo}: ${score}`
-                    )
-                    .join('\n')
-                    }
-                className="px-2 border">
-                  <div className="writing-vertical text-xs">
-                    {e.name}
-                  </div>
-                </th>
+<th key={e.id} className="px-2 border">
+  <div className="writing-vertical text-xs">
+    {e.name}
+  </div>
+  <div
+    className="text-[10px] text-blue-600 mt-1"
+  >
+    (
+    {
+      Number(
+        e.cloPlanScoreMap?.[clo.id] || 0
+      ).toFixed(2)
+    }
+    )
+  </div>
+</th>
               )),
               <th key={clo.id + '-sum'} className="border">รวม</th>,
               <th key={clo.id + '-percent'} className="border">%</th>

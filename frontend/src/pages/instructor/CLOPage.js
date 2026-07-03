@@ -95,8 +95,9 @@ useEffect(() => {
           id: e.id ?? i + 1,
           lectureIds: (e.content_ids_lecture || []).map(String),
           labIds: (e.content_ids_lab || []).map(String),
-          cloIds: (e.clo_ids || []).map(String),
-          cloScoreMap:e.clo_actual_score_map || {}
+          cloIds: (e.clo_ids || []).map(String),          
+          cloPlanScoreMap: e.clo_plan_score_map || {},
+          cloActualScoreMap: e.clo_actual_score_map || {}
         }))
       );
 

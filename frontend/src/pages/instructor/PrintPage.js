@@ -70,8 +70,8 @@ else if (docType === 'tqf5') {
     onChange={e => setDocType(e.target.value)}
   >
     <option value="">เลือกประเภทเอกสาร</option>
-    <option value="plan">แผนการสอน</option>
-    <option value="tqf3">มคอ.3</option>
+    <option value="plan">ประมวลรายวิชา (Course Syllabus) </option>
+    <option value="tqf3">แผนการสอน (มคอ.3)</option>
     <option value="tqf5">มคอ.5-ยังใช้งานไม่ได้-</option>
   </Select>
 </Card>

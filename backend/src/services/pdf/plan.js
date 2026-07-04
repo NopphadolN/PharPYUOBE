@@ -5,39 +5,10 @@ const fontBase64 =
 const fs = require('fs');
 const path = require('path');
 
-const { PDFDocument } = require('pdf-lib');
-
 const { renderHeader } = require('../templates/sections/header');
 const { renderSection1 } = require('../templates/sections/section1');
 const { renderSection2 } = require('../templates/sections/section2');
 const { renderSection3 } = require('../templates/sections/section3');
-
-async function mergePdf(mainBuffer, appendPath) {
-  if (!appendPath) {
-    console.log("NO APPEND FILE → skip merge");
-    return mainBuffer;
-  }
-  const fs = require('fs');
-  if (!fs.existsSync(appendPath)) {
-    console.log("FILE NOT FOUND → skip merge");
-    return mainBuffer;
-  }
-  try {
-    const mainDoc = await PDFDocument.load(mainBuffer);
-    const appendBytes = fs.readFileSync(appendPath);
-    const appendDoc = await PDFDocument.load(appendBytes);
-    const pages = await mainDoc.copyPages(
-      appendDoc,
-      appendDoc.getPageIndices()
-    );
-    pages.forEach(p => mainDoc.addPage(p));
-    console.log("MERGE SUCCESS ✅");
-    return await mainDoc.save();
-  } catch (err) {
-    console.error("MERGE ERROR:", err);
-    return mainBuffer;
-  }
-}
 
 let browser;
 const generatePlanPDF = async (data, res) => {
@@ -82,9 +53,6 @@ let buffer = await page.pdf({
     right: '1in'
   }
 });   
-if (data.appendPdf) {
-  buffer = await mergePdf(buffer, data.appendPdf);
-}
 
     await page.close();
 

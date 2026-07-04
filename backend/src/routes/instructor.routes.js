@@ -148,7 +148,6 @@ router.post('/profile', verifyToken, async (req, res) => {
 router.post(
   '/instance/book',
   verifyToken,
-  upload.single('append_pdf'),
   checkOwner, // ✅ เพิ่มตรงนี้
   async (req, res) => {
     const {
@@ -163,21 +162,18 @@ router.post(
         return res.status(400).json({ error: 'course_instance_id required' });
       }
       // ✅ path ไฟล์ (ถ้ามี)
-      const appendPdfPath = req.file ? req.file.path : null;
       await pool.query(`
         UPDATE course_instances
         SET books = $1,
             grading = $2,
             note = $3,
             revision_note = $4,
-            append_pdf = COALESCE($5, append_pdf) -- ✅ เพิ่ม
-        WHERE id = $6
+        WHERE id = $5
       `, [
         JSON.stringify(books || []),
         JSON.stringify(grading || []),
         note || '',
         revision_note || '',
-        appendPdfPath,
         course_instance_id
       ]);
       return res.json({ ok: true });

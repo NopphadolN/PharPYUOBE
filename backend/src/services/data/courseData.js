@@ -115,7 +115,6 @@ return {
   instructorProfile: profileRes.rows[0] || null, 
   subPlos,
   cloMappings,
-  appendPdf: courseData.append_pdf
 };
 
 };

@@ -24,6 +24,10 @@ api.interceptors.response.use(
       )
     ) {
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      alert(
+        'Session หมดอายุ กรุณา Login ใหม่'
+      );
       window.location.href = '/login';
     }
     return Promise.reject(error);

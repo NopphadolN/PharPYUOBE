@@ -67,7 +67,7 @@ const labInstructors = [
 
     <p><strong>3. หลักสูตรและประเภทของรายวิชา</strong></p>
         <p style="margin-left: 40px;">ชื่อหลักสูตร
-        <span style="text-indent:50px;">เภสัชศาสตรบัณฑิต สาขาวิชาการบริบาลทางเภสัชกรรม (หลักสูตรปรับปรุง พ.ศ.2568)</span></p>
+        <span style="text-indent:180px;">เภสัชศาสตรบัณฑิต สาขาวิชาการบริบาลทางเภสัชกรรม (หลักสูตรปรับปรุง พ.ศ.2568)</span></p>
         <p style="margin-left: 40px;">ประเภทของรายวิชา
         <span style="margin-left:10px;">${c.course_type || '-'}</span></p>
 

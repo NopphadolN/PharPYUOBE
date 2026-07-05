@@ -20,6 +20,8 @@ import StudentEnrollPage from './pages/instructor/StudentEnrollPage';
 import PLOReportPage from './pages/instructor/PLOReportPage';
 import ReportPage from './pages/instructor/ReportPage';
 import BookPage from './pages/instructor/BookPage';
+import AdvisorPage from './pages/instructor/AdvisorPage';
+import WorkloadPage from './pages/instructor/WorkloadPage';
 import PrintPage from './pages/instructor/PrintPage';
 
 function App() {
@@ -97,6 +99,20 @@ function App() {
               <CLOPage />
             </ProtectedRoute>}/>
           
+          <Route
+            path="/instructor/advisor"
+          element={
+            <ProtectedRoute role="instructor">
+              <AdvisorPage />
+            </ProtectedRoute>}/>
+
+          <Route
+            path="/instructor/workload"
+          element={
+            <ProtectedRoute role="instructor">
+              <WorkloadPage />
+            </ProtectedRoute>}/>
+
           <Route
             path="/instructor/course/step2"
           element={

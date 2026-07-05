@@ -50,6 +50,8 @@ export default function InstructorMenu() {
           <MenuItem to="/instructor/clo" label="ประเมิน CLOs" icon={<FaClipboardCheck />} active={isActive('/instructor/clo')} />
           <MenuItem to="/instructor/plo-report" label="รายงานผล PLOs YLOs" icon={<FaChartBar />} active={isActive('/instructor/plo-report')} />
           <MenuItem to="/instructor/report" label="รายงานนักศึกษา" icon={<FaFileAlt />} active={isActive('/instructor/report')} />
+          <MenuItem to="/instructor/print" label="ภาระการสอน (ยังไม่พร้อมใช้งาน)" icon={<FaPrint />} active={isActive('/instructor/workload')} />
+          <MenuItem to="/instructor/print" label="อาจารย์ที่ปรึกษา (ยังไม่พร้อมใช้งาน)" icon={<FaPrint />} active={isActive('/instructor/advisor')} />
           <MenuItem to="/instructor/print" label="พิมพ์เอกสาร" icon={<FaPrint />} active={isActive('/instructor/print')} />
           <p></p>
           <p></p>

@@ -42,7 +42,7 @@ const renderSection5 = (data) => {
   return `
   <div class="section">
 
-    <table style="width:100%; border-collapse: collapse; font-size:13px;">
+    <table style="width:100%; border-collapse: collapse; font-size:21px;">
 
       <thead>
         <tr>

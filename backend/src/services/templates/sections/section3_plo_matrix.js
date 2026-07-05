@@ -51,7 +51,7 @@ const renderSection3 = (data) => {
   <div class="section">
     <div style="border: 1px solid #000; padding: 3px; margin: 20px 0;">
       <div style="border: 4px solid #000; padding: 8px 0; text-align: center;">
-        <h2 style="margin: 0; font-size: 16px;">
+        <h2 style="margin: 0; font-size: 23px;">
           หมวดที่ 4 การพัฒนาผลการเรียนรู้ของนักศึกษา
         </h2>
       </div>

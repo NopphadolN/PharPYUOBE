@@ -75,7 +75,7 @@ const getCLOCodes = (e) => {
   return `
   <div class="section page-break">
     <p><strong>2. แผนการประเมินผลการเรียนรู้</strong></p>
-    <table style="width:100%; border-collapse: collapse; font-size:13px;">
+    <table style="width:100%; border-collapse: collapse; font-size:21px;">
       <tr>
         <th style="border:1px solid #000;">การประเมิน</th>
         <th style="border:1px solid #000;">CLOs</th>
@@ -138,7 +138,7 @@ e-registra และยื่นคำร้องได้ที่สำนั
     <div style="margin-top:30px;">
       <div style="border: 1px solid #000; padding: 3px;">
         <div style="border: 4px solid #000; padding: 8px; text-align:center;">
-          <h2 style="margin:0; font-size: 16px;">หมวดที่ 6 ทรัพยากรประกอบการเรียนการสอน</h2>
+          <h2 style="margin:0; font-size: 23px;">หมวดที่ 6 ทรัพยากรประกอบการเรียนการสอน</h2>
         </div>
       </div>
 

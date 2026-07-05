@@ -103,7 +103,7 @@ const getLLO = (c) => {
 
     <div style="border: 1px solid #000; padding: 3px; margin: 20px 0;">
       <div style="border: 4px solid #000; padding: 8px 0; text-align: center;">
-        <h2 style="margin: 0; font-size: 16px;">
+        <h2 style="margin: 0; font-size: 23px;">
           หมวดที่ 5 แผนการสอนและการประเมินผล
         </h2>
       </div>
@@ -111,7 +111,7 @@ const getLLO = (c) => {
 
     <p><strong>1. แผนการสอน</strong></p>
 
-    <table style="width:100%; border-collapse: collapse; font-size:12px;">
+    <table style="width:100%; border-collapse: collapse;">
 
       <thead>
         <tr>

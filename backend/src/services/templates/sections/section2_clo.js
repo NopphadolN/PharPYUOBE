@@ -25,7 +25,7 @@ const profile = data.instructorProfile || {};
   <div class="section">
     <div style="border: 1px solid #000; padding: 3px; margin: 20px 0;">
       <div style="border: 4px solid #000; padding: 8px 0; text-align: center;">
-        <h2 style="margin: 0; font-size: 16px;">
+        <h2 style="margin: 0; font-size: 23px;">
           หมวดที่ 2 ผลลัพธ์การเรียนรู้ระดับรายวิชา
         </h2>
       </div>
@@ -42,7 +42,7 @@ const profile = data.instructorProfile || {};
 
     <div style="border: 1px solid #000; padding: 3px; margin: 20px 0;">
       <div style="border: 4px solid #000; padding: 8px 0; text-align: center;">
-        <h2 style="margin: 0; font-size: 16px;">
+        <h2 style="margin: 0; font-size: 23px;">
           หมวดที่ 3 ลักษณะและการดำเนินการ
         </h2>
       </div>
@@ -55,7 +55,7 @@ const profile = data.instructorProfile || {};
     <!-- ✅ ตารางชั่วโมง -->
     <p><strong>2. จำนวนชั่วโมงที่ใช้ต่อภาคการศึกษา</strong></p>
     <table style="width:100%; border-collapse: collapse; margin-top:10px; 
-    font-size: 13px; text-align: center;">
+    font-size: 21px; text-align: center;">
       <tr>
         <td style="border:1px solid #000; padding:6px;">
           <b>บรรยาย</b>

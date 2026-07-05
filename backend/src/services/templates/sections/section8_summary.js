@@ -11,7 +11,7 @@ const renderSection8 = (data) => {
     <!-- ✅ หมวดที่ 7 -->
     <div style="border: 1px solid #000; padding: 3px; margin: 20px 0;">
       <div style="border: 4px solid #000; padding: 8px; text-align:center;">
-        <h2 style="margin:0; font-size:16px;">
+        <h2 style="margin:0; font-size:23px;">
           หมวดที่ 7 การประเมินและปรับปรุงการดำเนินการของรายวิชา
         </h2>
       </div>
@@ -23,7 +23,7 @@ const renderSection8 = (data) => {
       <!-- ✅ ข้อ 1 -->
       <div>
         <b>1. กลยุทธ์การประเมินประสิทธิผลของรายวิชาโดยนักศึกษา</b>
-        <div style="margin-top:10px; margin-left:40px; line-height:1.8;">
+        <div style="margin-top:10px; margin-left:40px; line-height:1.4;">
           <div>${box(false)} การประเมินผลรายวิชา</div>
           <div>${box(true)} การประเมินการสอน</div>
           <div>${box(false)} การสนทนากลุ่มระหว่างผู้สอนและผู้เรียน</div>
@@ -44,7 +44,7 @@ const renderSection8 = (data) => {
       <!-- ✅ ข้อ 2 -->
       <div>
         <b>2. กลยุทธ์การประเมินการสอน</b>
-        <div style="margin-top:10px; margin-left:40px; line-height:1.8;">
+        <div style="margin-top:10px; margin-left:40px; line-height:1.4;">
           <div>${box(false)} การประเมินการสอน</div>
           <div>${box(true)} ผลการสอบ/ ผลการเรียนรู้ของผู้เรียน</div>
           <div>${box(false)} การสังเกตพฤติกรรมของผู้เรียน</div>
@@ -68,7 +68,7 @@ const renderSection8 = (data) => {
 <div style="margin-top:20px;">
   <b>3. การปรับปรุงการสอน</b>
   <!-- ✅ checkbox ด้านบน -->
-  <div style="margin-top:10px; margin-left:40px; line-height:1.8;">
+  <div style="margin-top:10px; margin-left:40px; line-height:1.4;">
     <div>☐ การประชุม/สัมมนาการจัดการเรียนการสอน</div>
     <div>☑ การประชุมทีมผู้สอน</div>
     <div>☐ การวิจัยในและนอกชั้นเรียน</div>
@@ -91,7 +91,7 @@ const renderSection8 = (data) => {
         ${revision_note || '-'}
       </td>
       <!-- ✅ checkbox ด้านขวา -->
-      <td style="border:1px solid #000; vertical-align:top; padding:10px; line-height:1.8;">
+      <td style="border:1px solid #000; vertical-align:top; padding:10px; line-height:1.4;">
         <div>☑ รายงานผลการดำเนินการของรายวิชา (มคอ.5)</div>
         <div>☐ ฝึกงาน/สหกิจศึกษา/แหล่งฝึก</div>
         <div>☐ ผู้มีส่วนได้ส่วนเสียอื่นๆ</div>
@@ -106,7 +106,7 @@ const renderSection8 = (data) => {
       <!-- ✅ ข้อ 4 -->
       <div>
         <b>4. การทวนสอบมาตรฐานผลสัมฤทธิ์ของนักศึกษา</b>
-        <div style="margin-top:10px; margin-left:40px; line-height:1.8;">
+        <div style="margin-top:10px; margin-left:40px; line-height:1.4;">
           <div>${box(true)} ประเมินรายละเอียดรายวิชาว่าผลการเรียนรู้ที่กำหนดสอดคล้องกับความรับผิดชอบในหลักสูตร</div>
           <div>${box(true)} ประเมินข้อสอบของรายวิชาว่าครอบคลุมผลการเรียนรู้ตามที่กำหนดไว้ในรายละเอียดวิชา</div>
           <div>${box(true)} คณะกรรมการวิชาการประจำสาขาวิชาพิจารณาความเหมาะสมของข้อสอบให้เป็นไปตามแผนการสอน และมีการประเมินข้อสอบโดยผู้ทรงคุณวุฒิภายนอก</div>
@@ -123,7 +123,7 @@ const renderSection8 = (data) => {
       <!-- ✅ ข้อ 5 -->
       <div>
         <b>5. การดำเนินการทบทวนและการวางแผนปรับปรุงประสิทธิผลของรายวิชา</b>
-        <div style="margin-top:10px; margin-left:40px; line-height:1.8;">
+        <div style="margin-top:10px; margin-left:40px; line-height:1.4;">
           <div>${box(false)} ปรับปรุงกระบวนวิชา ตามข้อเสนอแนะและผลการทวนสอบมาตรฐานผลสัมฤทธิ์ตามข้อ 4</div>
           <div>${box(true)} ปรับปรุงกระบวนวิชา ตามผลการประเมินผู้สอนโดยนักศึกษา</div>
           <div>${box(false)} การประชุมร่วมกับคณะกรรมการบริหารหลักสูตรเพื่อทบทวนกลยุทธ์การสอน วิธีการวัดและการประเมินผลการเรียนรู้</div>
@@ -142,7 +142,7 @@ const renderSection8 = (data) => {
     <!-- ✅ หมวดที่ 8 -->
     <div style="border: 1px solid #000; padding: 3px; margin: 30px 0 20px 0;">
       <div style="border: 4px solid #000; padding: 8px; text-align:center;">
-        <h2 style="margin:0; font-size:16px;">
+        <h2 style="margin:0; font-size:23px;">
           หมวดที่ 8 การบูรณาการของรายวิชา
         </h2>
       </div>

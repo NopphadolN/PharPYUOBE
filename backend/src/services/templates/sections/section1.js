@@ -8,7 +8,7 @@ const renderSection1 = (data) => {
     <div style="display: flex; justify-content: space-between;">
       <div>
       <b>1. รหัสรายวิชา:</b>
-      <span style="margin-left:20px;">${course.code_th} ${course.name_th}
+      <span style="margin-left:15px;">${course.code_th} ${course.name_th}
       </div>
 
       <div>

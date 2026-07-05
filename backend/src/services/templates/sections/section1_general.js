@@ -45,7 +45,7 @@ const labInstructors = [
   return `
     <div style="border: 1px solid #000000; padding: 3px; margin: 20px 0;">
       <div style="border: 4px solid #000000; padding: 8px 0; text-align: center;">
-        <h1 style="margin: 0; font-size: 18px;">รายละเอียดของรายวิชา</h1>
+        <h1 style="margin: 0; font-size: 25px;">รายละเอียดของรายวิชา</h1>
       </div>
     </div>
     <p><strong>ชื่อสถาบันอุดมศึกษา</strong>
@@ -55,7 +55,7 @@ const labInstructors = [
     
     <div style="border: 1px solid #000000; padding: 3px; margin: 20px 0;">
       <div style="border: 4px solid #000000; padding: 8px 0; text-align: center;">
-        <h2 style="margin: 0; font-size: 16px;">หมวดที่ 1 ข้อมูลทั่วไป</h2>
+        <h2 style="margin: 0; font-size: 23px;">หมวดที่ 1 ข้อมูลทั่วไป</h2>
       </div>
     </div>
     <p><strong>1. รหัสและชื่อรายวิชา</strong></p>

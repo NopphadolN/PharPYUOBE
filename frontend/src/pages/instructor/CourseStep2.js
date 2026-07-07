@@ -1332,6 +1332,7 @@ const isOwner = courses?.owner_id === user?.id;
         <label key={c.id} className="flex items-center gap-2">
           <input
             type="checkbox"
+            disabled={!isOwner}
             checked={checked}
             onChange={(e) => {
               let updated = [...currentEval.cloIds];
@@ -1438,7 +1439,6 @@ const isOwner = courses?.owner_id === user?.id;
   {/* ✅ BUTTON */}
   <div className="mt-4 flex justify-end">
     <Button   
-  disabled={!isOwner} 
   disabled={
     !currentEval.name ||
     !currentEval.type ||

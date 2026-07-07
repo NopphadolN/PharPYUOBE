@@ -680,18 +680,6 @@ const calculateEvaluationCLOWeights = useCallback((e) => {
   return cloScores;
 }, [contents]);
 
-const scores =
-  calculateEvaluationCLOWeights(e);
-if (
-  Object.keys(scores).length === 0
-) {
-  alert(
-    `${e.name}
-    ไม่สามารถกระจายคะแนนไปยัง CLO ได้`
-  );
-  return;
-}
-
 const planMatrix = useMemo(() => {
   const matrix = {};
   clos.forEach(clo => {

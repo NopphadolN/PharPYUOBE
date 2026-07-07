@@ -69,7 +69,7 @@ const labInstructors = [
         <p style="margin-left: 40px;">ชื่อหลักสูตร
         <span style="margin-left: 60px;">เภสัชศาสตรบัณฑิต สาขาวิชาการบริบาลทางเภสัชกรรม 
         </span></p>
-        <p style="margin-left: 160px;">(หลักสูตรปรับปรุง พ.ศ.2568)</p>
+        <p style="margin-left: 165px;">(หลักสูตรปรับปรุง พ.ศ.2568)</p>
         <p style="margin-left: 40px;">ประเภทของรายวิชา
         <span style="margin-left:10px;">${c.course_type || '-'}</span></p>
 

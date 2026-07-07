@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import api from '../../services/api';
 import { useLocation, useNavigate } from 'react-router-dom';
 import InstructorMenu from '../../components/InstructorMenu';
@@ -152,7 +152,9 @@ useEffect(() => {
           labIds: (e.content_ids_lab || []).map(String),          
           cloIds: Array.isArray(e.clo_ids)
               ? e.clo_ids.map(String)
-              : [] 
+              : [], 
+          cloPlanScoreMap: e.clo_plan_score_map || {},
+          cloActualScoreMap: e.clo_actual_score_map || {}
         }))
       );
 
@@ -238,12 +240,6 @@ const addTeacher = (t) => {
     setContents(prev => prev.filter(c => c.id !== id));
   };
 
-const applyEvalToContents = (baseContents, evalItem) => {
-  let updated = baseContents.map(c => ({
-    ...c,
-    examScore: Number(c.examScore || 0),
-    workScore: Number(c.workScore || 0)
-  }));
   const allIds = [
     ...(evalItem.lectureIds || []),
     ...(evalItem.labIds || [])
@@ -332,8 +328,9 @@ const distributeScores = (contents, evaluations) => {
       ...(e.lectureIds || []),
       ...(e.labIds || [])
     ];
-    const relatedContents = updated.filter(c =>
-      allIds.includes(String(c.id))
+    const relatedContents = updated.filter(c =>      
+      allIds.includes(String(c.id)) ||
+      allIds.includes(String(c.order))
     );
     if (!relatedContents.length) return;
 
@@ -379,7 +376,10 @@ const distributeScores = (contents, evaluations) => {
       ([cloId, score]) => {
         const cloContents =
           relatedContents.filter(c =>
-            allIds.includes(String(c.id)) &&
+            (
+            allIds.includes(String(c.id)) ||           
+            allIds.includes(String(c.order))
+            ) &&
             (c.cloIds || []).includes(String(cloId))
           );
         const totalHoursForClo =
@@ -558,7 +558,9 @@ console.log("✅ CONTENTS SAVED");
           labIds: (e.content_ids_lab || []).map(String),          
           cloIds: Array.isArray(e.clo_ids)
                 ? e.clo_ids.map(String)
-                : [] 
+                : [],
+          cloPlanScoreMap: e.clo_plan_score_map || {},
+          cloActualScoreMap: e.clo_actual_score_map || {} 
         }))
       );
       setInstructors(data.instructors || []);
@@ -621,8 +623,9 @@ console.log("✅ CONTENTS SAVED");
     ...(e.lectureIds || []),
     ...(e.labIds || [])
   ];
-  const relatedContents = contents.filter(c =>
-    allIds.includes(String(c.id))
+  const relatedContents = contents.filter(c =>   
+    allIds.includes(String(c.id)) ||
+    allIds.includes(String(c.order))
   );
   const cloHours = {};
   selectedClos.forEach(cloId => {
@@ -658,18 +661,21 @@ console.log("✅ CONTENTS SAVED");
   return cloScores;
 };
 
-const planMatrix = {};
-clos.forEach(clo => {
-  planMatrix[clo.id] = {};
-  evaluations.forEach(e => {
-    const scores =
-      calculateEvaluationCLOWeights(e);
-    planMatrix[clo.id][e.id] =
-      Number(
-        scores[String(clo.id)] || 0
-      );
+const planMatrix = useMemo(() => {
+  const matrix = {};
+  clos.forEach(clo => {
+    matrix[clo.id] = {};
+    evaluations.forEach(e => {
+      const scores =
+        calculateEvaluationCLOWeights(e);
+      matrix[clo.id][e.id] =
+        Number(
+          scores[String(clo.id)] || 0
+        );
+    });
   });
-});
+  return matrix;
+}, [clos, evaluations, contents]);
 
 /* =========================
    CALCULATE TABLE DATA

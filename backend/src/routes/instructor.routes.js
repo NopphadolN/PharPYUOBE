@@ -167,7 +167,7 @@ router.post(
         SET books = $1,
             grading = $2,
             note = $3,
-            revision_note = $4,
+            revision_note = $4
         WHERE id = $5
       `, [
         JSON.stringify(books || []),

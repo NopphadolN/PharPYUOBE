@@ -241,6 +241,41 @@ const addTeacher = (t) => {
   };
 
 const addEval = () => {
+  if (!currentEval.name) {
+  alert('กรุณาเลือกวิธีประเมิน');
+  return;
+}
+
+if (!currentEval.type) {
+  alert('กรุณาเลือกประเภทคะแนน');
+  return;
+}
+
+if (!currentEval.tool) {
+  alert('กรุณาเลือกเครื่องมือ');
+  return;
+}
+
+if (!currentEval.total) {
+  alert('กรุณาระบุคะแนน');
+  return;
+}
+
+if (
+  !currentEval.cloIds ||
+  currentEval.cloIds.length === 0
+) {
+  alert('กรุณาเลือก CLO อย่างน้อย 1 CLO');
+  return;
+}
+
+if (
+  (currentEval.lectureIds || []).length === 0 &&
+  (currentEval.labIds || []).length === 0
+) {
+  alert('กรุณาเลือกหัวข้อที่ใช้ประเมิน');
+  return;
+}
   let newEvaluations = [...evaluations];
   // ✅ UPDATE
   if (currentEval.id !== undefined && currentEval.id !== null) {
@@ -467,6 +502,23 @@ console.log("✅ CONTENTS SAVED");
 
 
     // ✅ 5. SAVE EVALUATIONS
+const invalidEval =
+  evaluations.find(e =>
+    !e.cloIds?.length ||
+    (
+      (e.lectureIds?.length || 0) === 0 &&
+      (e.labIds?.length || 0) === 0
+    )
+  );
+if (invalidEval) {
+  alert(
+    `รายการประเมิน "${invalidEval.name}"
+    ยังไม่ได้เลือก CLO หรือหัวข้อ`
+  );
+  setLoading(false);
+  return;
+}
+
     const cleanEvaluations = evaluations
   .filter(e => e && e.name && e.type) // ✅ ตัดตัวพัง
   .map(e => ({
@@ -627,6 +679,18 @@ const calculateEvaluationCLOWeights = useCallback((e) => {
   );
   return cloScores;
 }, [contents]);
+
+const scores =
+  calculateEvaluationCLOWeights(e);
+if (
+  Object.keys(scores).length === 0
+) {
+  alert(
+    `${e.name}
+    ไม่สามารถกระจายคะแนนไปยัง CLO ได้`
+  );
+  return;
+}
 
 const planMatrix = useMemo(() => {
   const matrix = {};
@@ -1385,9 +1449,23 @@ const isOwner = courses?.owner_id === user?.id;
 
   {/* ✅ BUTTON */}
   <div className="mt-4 flex justify-end">
-    <Button disabled={!isOwner} onClick={addEval}>
-      ➕ เพิ่มรายการประเมิน
-    </Button>
+    <Button   
+  disabled={!isOwner} 
+  disabled={
+    !currentEval.name ||
+    !currentEval.type ||
+    !currentEval.tool ||
+    !currentEval.total ||
+    currentEval.cloIds.length === 0 ||
+    (
+      currentEval.lectureIds.length === 0 &&
+      currentEval.labIds.length === 0
+    )   
+  }
+  onClick={addEval}
+>
+  ➕ เพิ่มรายการประเมิน
+</Button>
   </div>
 </Card>
 

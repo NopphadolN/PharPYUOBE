@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import api from '../../services/api';
 import { useLocation, useNavigate } from 'react-router-dom';
 import InstructorMenu from '../../components/InstructorMenu';
@@ -580,7 +580,7 @@ console.log("✅ CONTENTS SAVED");
   );
   };
 
-  const calculateEvaluationCLOWeights = (e) => {
+const calculateEvaluationCLOWeights = useCallback((e) => {
   const selectedClos = e.cloIds || [];
   if (!selectedClos.length) {
     return {};
@@ -589,7 +589,7 @@ console.log("✅ CONTENTS SAVED");
     ...(e.lectureIds || []),
     ...(e.labIds || [])
   ];
-  const relatedContents = contents.filter(c =>   
+  const relatedContents = contents.filter(c =>
     allIds.includes(String(c.id)) ||
     allIds.includes(String(c.order))
   );
@@ -613,6 +613,7 @@ console.log("✅ CONTENTS SAVED");
   const totalCloHours =
     Object.values(cloHours)
       .reduce((sum, h) => sum + h, 0);
+
   if (!totalCloHours) {
     return {};
   }
@@ -625,12 +626,12 @@ console.log("✅ CONTENTS SAVED");
     }
   );
   return cloScores;
-};
+}, [contents]);
 
 const planMatrix = useMemo(() => {
   const matrix = {};
   clos.forEach(clo => {
-    matrix[clo.id] = {};
+    matrix[String(clo.id)] = {};
     evaluations.forEach(e => {
       const scores =
         calculateEvaluationCLOWeights(e);
@@ -641,7 +642,11 @@ const planMatrix = useMemo(() => {
     });
   });
   return matrix;
-}, [clos, evaluations, contents]);
+}, [
+  clos,
+  evaluations,
+  calculateEvaluationCLOWeights
+]);
 
 /* =========================
    CALCULATE TABLE DATA
@@ -1551,7 +1556,7 @@ const isOwner = courses?.owner_id === user?.id;
               (sum, e) =>
                 sum +
                 Number(
-                  planMatrix?.[clo.id]?.[e.id]
+                  planMatrix?.[String(clo.id)]?.[String(e.id)]
                   || 0
                 ),
               0
@@ -1568,7 +1573,7 @@ const isOwner = courses?.owner_id === user?.id;
                   className="p-3 border text-center"
                 >
                   {(
-                    planMatrix?.[clo.id]?.[e.id]
+                    planMatrix?.[String(clo.id)]?.[String(e.id)]
                     || 0
                   ).toFixed(2)}
                 </td>
@@ -1592,7 +1597,7 @@ const isOwner = courses?.owner_id === user?.id;
                 (sum, clo) =>
                   sum +
                   Number(
-                    planMatrix?.[clo.id]?.[e.id]
+                    planMatrix?.[String(clo.id)]?.[String(e.id)]
                     || 0
                   ),
                 0

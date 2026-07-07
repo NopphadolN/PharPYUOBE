@@ -73,7 +73,7 @@ const getCLOCodes = (e) => {
     : [];
 
   return `
-  <div class="section page-break">
+  <div class="section">
     <p><strong>2. แผนการประเมินผลการเรียนรู้</strong></p>
     <table style="width:100%; border-collapse: collapse; font-size:21px;">
       <tr>

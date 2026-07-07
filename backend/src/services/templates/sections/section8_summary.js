@@ -6,7 +6,7 @@ const renderSection8 = (data) => {
   const box = (checked) => checked ? '☑' : '☐';
 
   return `
-  <div class="section page-break">
+  <div class="section">
 
     <!-- ✅ หมวดที่ 7 -->
     <div style="border: 1px solid #000; padding: 3px; margin: 20px 0;">

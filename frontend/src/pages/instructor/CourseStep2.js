@@ -240,30 +240,6 @@ const addTeacher = (t) => {
     setContents(prev => prev.filter(c => c.id !== id));
   };
 
-  const allIds = [
-    ...(evalItem.lectureIds || []),
-    ...(evalItem.labIds || [])
-  ];
-  const related = updated.filter(c =>
-    allIds.includes(String(c.id))
-  );
-  const totalHours = related.reduce(
-    (sum, c) => sum + Number(c.hours || 0), 0
-  );
-  if (!totalHours || !evalItem.total) return updated;
-  related.forEach(c => {
-    const ratio = Number(c.hours || 0) / totalHours;
-    const scorePart = evalItem.total * ratio;
-    if (evalItem.type === 'คะแนนสอบ') {
-      c.examScore += scorePart;
-    }
-    if (evalItem.type === 'คะแนนอื่นๆ') {
-      c.workScore += scorePart;
-    }
-  });
-  return updated;
-};
-
 const addEval = () => {
   let newEvaluations = [...evaluations];
   // ✅ UPDATE
@@ -276,17 +252,7 @@ const addEval = () => {
   else {
     newEvaluations = [...evaluations, currentEval];
   }
-  // ✅ ✅ RESET CONTENT ก่อนคำนวณใหม่ทั้งหมด
-  let baseContents = contents.map(c => ({
-    ...c,
-    examScore: 0,
-    workScore: 0
-  }));
-  // ✅ APPLY ทุก evaluation ใหม่ทั้งหมด
-  newEvaluations.forEach(e => {
-    baseContents = applyEvalToContents(baseContents, e);
-  });
-  setContents(baseContents);
+
   setEvaluations(newEvaluations);
   setCurrentEval({
     name: '',
@@ -516,7 +482,7 @@ console.log("✅ CONTENTS SAVED");
     clo_plan_score_map:
       calculateEvaluationCLOWeights(e),
     clo_actual_score_map:
-      e.clo_actual_score_map || {}
+      e.cloActualScoreMap || {}
   }));
 
   await api.post('/instructor/evaluations', {
@@ -668,7 +634,7 @@ const planMatrix = useMemo(() => {
     evaluations.forEach(e => {
       const scores =
         calculateEvaluationCLOWeights(e);
-      matrix[clo.id][e.id] =
+      matrix[String(clo.id)][String(e.id)] =
         Number(
           scores[String(clo.id)] || 0
         );

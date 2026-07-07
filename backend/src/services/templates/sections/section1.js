@@ -16,7 +16,7 @@ const renderSection1 = (data) => {
       </div>
     </div>
 
-    <div style="text-indent: 110px;">${course.code_en} 
+    <div style="text-indent: 117px;">${course.code_en} 
       ${course.name_en}</div>
 
     <p><b>2. เงื่อนไขที่ต้องผ่านก่อน:</b> ${course.prerequisite || '-'}</p>

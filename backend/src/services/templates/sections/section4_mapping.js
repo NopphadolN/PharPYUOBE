@@ -57,9 +57,9 @@ const renderSection4 = (data) => {
 
   return `
   <div class="section">
-
-    <p>Mapping CLO – PLO</p>
-
+  <div class="heading">
+    <p><strong>Mapping CLO – PLO</strong></p>
+  </div>
     <table style="width:100%; border-collapse:collapse; text-align:center;">
 
       ${header}

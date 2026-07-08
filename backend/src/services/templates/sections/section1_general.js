@@ -95,10 +95,14 @@ ${
       `).join('')
     : `<div style="text-indent: 120px;">-</div>`
 }
-    <p><strong>5. ภาคการศึกษา / ชั้นปีที่เรียน</strong> 
+<div class="heading">    
+<p><strong>5. ภาคการศึกษา / ชั้นปีที่เรียน</strong></p> 
+</div>
         <p style="margin-left: 40px;">ภาคการศึกษาที่ ${c.semester || '-'} ปีการศึกษา ${c.year || '-'}</p>
         <p style="margin-left: 40px;">ชั้นปีที่ ${getStudyYear(c.code_th || c.code_en)}</p>
-    <p><strong>6. รายวิชาที่ต้องเรียนมาก่อน (Pre-requisite) (ถ้ามี)</strong></p> 
+<div class="heading">     
+        <p><strong>6. รายวิชาที่ต้องเรียนมาก่อน (Pre-requisite) (ถ้ามี)</strong></p>
+        </div> 
         <p style="margin-left: 40px;">${c.prerequisite || '-'}</p>
     <p><strong>7. รายวิชาที่ต้องเรียนพร้อมกัน (Co-requisites) (ถ้ามี)</strong></p>
         <p style="margin-left: 40px;"> - </p>

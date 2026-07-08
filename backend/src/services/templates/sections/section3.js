@@ -160,29 +160,18 @@ ${sortedGrading.map(g => {
     text = `${Number(g.min).toFixed(2)} – ${Number(g.max).toFixed(2)} %`;
   }
   return `
-<table style="
+<div style="
+  display:grid;
+  grid-template-columns: 180px 60px;
+  width:240px;
   margin-left:120px;
-  border:none;
-  width:260px;
-  line-height: 1.2;
+  padding:2px 0;
 ">
-  <tr>
-    <td style="
-      border:none;
-      width:200px;
-    ">
-      ${text}
-    </td>
-
-    <td style="
-      border:none;
-      width:60px;
-      text-align:center;
-    ">
-      ${g.grade}
-    </td>
-  </tr>
-</table>
+  <div>${text}</div>
+  <div style="text-align:center;">
+    ${g.grade}
+  </div>
+</div>
   `;
 }).join('')}
 ${note ? `<div style="text-indent: 40px; margin-top: 10px;">${note}</div>` : ''}

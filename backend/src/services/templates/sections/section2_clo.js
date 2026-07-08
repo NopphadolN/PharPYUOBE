@@ -47,13 +47,17 @@ const profile = data.instructorProfile || {};
         </h2>
       </div>
     </div>
+    <div class="heading">
     <p><strong>1. คำอธิบายรายวิชา</strong></p>
+    </div>
     <p style="text-indent:40px; text-align: justify;">
       ${c.description || '-'}
     </p>
 
     <!-- ✅ ตารางชั่วโมง -->
+    <div class="heading">
     <p><strong>2. จำนวนชั่วโมงที่ใช้ต่อภาคการศึกษา</strong></p>
+    </div>
     <table style="width:100%; border-collapse: collapse; margin-top:10px; 
     font-size: 21px; text-align: center;">
       <tr>
@@ -85,8 +89,9 @@ const profile = data.instructorProfile || {};
         </td>
       </tr>
     </table>
-
+    <div class="heading">
     <p><strong>3. จำนวนชั่วโมงต่อสัปดาห์ที่อาจารย์ให้คำปรึกษาและแนะนำทางวิชาการแก่นักศึกษาเป็นรายบุคคล</strong></p>
+    </div>
 <p style="text-indent:10px;">นักศึกษาสามารถเข้าพบอาจารย์เพื่อขอคำปรึกษาและแนะนำในเนื้อหาที่เกี่ยวข้องกับรายวิชาได้ดังนี้
 <p>1. ห้องพักอาจารย์: ${profile.office || '-'}</p>
 <p>2. Email: ${profile.email || '-'}</p>

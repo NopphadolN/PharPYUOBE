@@ -74,7 +74,9 @@ const getCLOCodes = (e) => {
 
   return `
   <div class="section">
+  <div class="heading">
     <p><strong>2. แผนการประเมินผลการเรียนรู้</strong></p>
+  </div>
     <table style="width:100%; border-collapse: collapse; font-size:21px;">
       <tr>
         <th style="border:1px solid #000;">การประเมิน</th>
@@ -119,16 +121,26 @@ const getCLOCodes = (e) => {
       }
 
       return `
-      <div style="display:flex; justify-content:space-between; width:250px; margin-left:120px;">
-        <div>${text}</div>
-        <div>${g.grade}</div>
-      </div>
+<div style="
+  display:grid;
+  grid-template-columns: 180px 60px;
+  width:240px;
+  margin-left:120px;
+  padding:2px 0;
+">
+  <div>${text}</div>
+  <div style="text-align:center;">
+    ${g.grade}
+  </div>
+</div>
       `;
     }).join('')}
 
     ${note ? `<div style="text-indent: 40px;">${note}</div>` : ''}
+    
+    <div class="heading">
       <p><strong>แนวทางการอุทธรณ์ของนักศึกษา/ผู้เรียน Appeal procedure</strong></p>
-      </div>
+    </div>
       <p style="text-indent: 40px; text-align: justify;">
       นักศึกษาสามารถทำเรื่องอุทธรณ์ผลการเรียนโดย Download แบบคำร้อง (ใช้คำร้องทั่วไป) ได้ที่ระบบ
 e-registra และยื่นคำร้องได้ที่สำนักงานฝ่ายวิชาการและวิจัยภายใน 10 วันทำการ หลังจากประกาศผลการ
@@ -141,9 +153,9 @@ e-registra และยื่นคำร้องได้ที่สำนั
           <h2 style="margin:0; font-size: 23px;">หมวดที่ 6 ทรัพยากรประกอบการเรียนการสอน</h2>
         </div>
       </div>
-
+    <div class="heading">
       <p><strong>1. ตำราและเอกสารหลัก</strong></p>
-
+    </div>
       <div style="text-indent: 40px;">
         ${(Array.isArray(books) && books.length
           ? books

@@ -108,9 +108,9 @@ const getLLO = (c) => {
         </h2>
       </div>
     </div>
-
+<div class="heading">
     <p><strong>1. แผนการสอน</strong></p>
-
+</div>
     <table style="width:100%; border-collapse: collapse;">
 
       <thead>
@@ -156,7 +156,7 @@ const getLLO = (c) => {
               <p>- เอกสารประกอบการสอน</p>
             </td>
 
-            <td style="border:1px solid #000; text-align:center;">
+            <td style="border:1px solid #000; text-align:center; white-space: nowrap;">
               ${getInstructorName(c)}
             </td>
 

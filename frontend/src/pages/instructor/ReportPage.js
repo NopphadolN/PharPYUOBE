@@ -53,17 +53,14 @@ export default function ReportPage() {
   const [yloResults, setYloResults] = useState([]);
 
   /* ================= LOAD ================= */
-const courseRes =
-  await api.get('/instructor/courses');
-    setCourses(courseRes.data || []);
-
 useEffect(() => {
   (async () => {
     try {
       const stuRes = await api.get('/student/all');
       const ploRes = await api.get('/plos');
       const mapRes = await api.get('/mapping');
-      
+      const courseRes = await api.get('/instructor/courses');
+    
       let cloRes = { data: [] };
       let courseRes = { data: [] };
 
@@ -86,6 +83,7 @@ useEffect(() => {
       setMappings(mapRes.data);
       setCloResults(cloRes.data);
       setCourseResults(courseRes.data);
+      setCourses(courseRes.data || []);
 
     } catch (err) {
       console.log("MAIN ERROR:", err.message);

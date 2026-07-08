@@ -47,8 +47,9 @@ table {
   page-break-before: avoid;
 }
 
-tr {
-  page-break-after: auto;
+tr { 
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 th {
@@ -71,11 +72,17 @@ thead {
 }
 
 .heading {
-  page-break-after: avoid;      /* ✅ ห้ามทิ้งหัวข้อไว้ท้ายหน้า */
+  page-break-after: avoid;
+  break-after: avoid;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
-.heading + * {
-  page-break-inside: avoid;     /* ✅ ตัวถัดจากหัวข้อ ต้องไปด้วยกัน */
+.heading + p,
+.heading + table,
+.heading + div {
+  page-break-before: avoid;
+  break-before: avoid;
 }
 
 .section { 

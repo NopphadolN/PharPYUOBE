@@ -1209,7 +1209,7 @@ const isOwner = courses?.owner_id === user?.id;
     {/* BUTTON */}
     <div className="mt-4">
       <Button disabled={!isOwner} onClick={handleAddContent}>
-        ✅ เพิ่ม 
+        ✅ เพิ่ม/แก้ไข 
       </Button>
     </div>
 </Card>

@@ -123,14 +123,14 @@ const getCLOCodes = (e) => {
       return `
 <div style="
   display:grid;
-  grid-template-columns: 180px 60px;
-  width:240px;
+  grid-template-columns: 150px 150px;
+  width:300px;
   margin-left:120px;
   padding:2px 0;
 ">
   <div>${text}</div>
-  <div style="text-align:center;">
-    ${g.grade}
+  <div style="text-align:left;">
+    ได้อักษรระดับคะแนน ${g.grade}
   </div>
 </div>
       `;

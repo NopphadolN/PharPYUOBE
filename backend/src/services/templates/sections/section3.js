@@ -162,12 +162,12 @@ ${sortedGrading.map(g => {
   return `
 <div style="
   display:grid;
-  grid-template-columns: 180px 120px;
+  grid-template-columns: 150px 150px;
   width:300px;
   margin-left:120px;
   padding:2px 0;
 ">
-  <div>${text} คะแนน</div>
+  <div>${text}</div>
   <div style="text-align:left;">
     ได้อักษรระดับคะแนน  ${g.grade}
   </div>

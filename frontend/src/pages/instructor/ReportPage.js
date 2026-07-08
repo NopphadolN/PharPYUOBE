@@ -59,31 +59,34 @@ useEffect(() => {
       const stuRes = await api.get('/student/all');
       const ploRes = await api.get('/plos');
       const mapRes = await api.get('/mapping');
-      const courseRes = await api.get('/instructor/courses');
     
-      let cloRes = { data: [] };
-      let courseRes = { data: [] };
+let cloRes = { data: [] };
+let courseResultRes = { data: [] };
+let courseMasterRes = { data: [] };
 
-      try {
-        cloRes = await api.get('/instructor/clo-results');
-      } catch (e) {
-        console.log("CLO error", e.message);
-      }
-
-      try {
-        courseRes = await api.get('/instructor/course-results');
-      } catch (e) {
-        console.log("COURSE error", e.message);
-      }
-
+try {
+  cloRes = await api.get('/instructor/clo-results');
+} catch (e) {
+  console.log("CLO error", e.message);
+}
+try {
+  courseResultRes = await api.get('/instructor/course-results');
+} catch (e) {
+  console.log("COURSE RESULT error", e.message);
+}
+try {
+  courseMasterRes = await api.get('/instructor/courses');
+} catch (e) {
+  console.log("COURSE MASTER error", e.message);
+}
 
       // ✅ สำคัญ: set ก่อน แม้ API อื่นพัง
       setStudents(stuRes.data);
       setPlos(ploRes.data);
       setMappings(mapRes.data);
       setCloResults(cloRes.data);
-      setCourseResults(courseRes.data);
-      setCourses(courseRes.data || []);
+      setCourseResults(courseResultRes.data);
+      setCourses(courseMasterRes.data);
 
     } catch (err) {
       console.log("MAIN ERROR:", err.message);

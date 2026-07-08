@@ -139,7 +139,6 @@ useEffect(() => {
 
 const handleSave = async () => {
   let currentInstanceId = instanceId;
-  // ✅ ถ้ายังไม่มี instance → สร้างก่อน
   if (!currentInstanceId) {
     await api.post('/instructor/instance', {
       course_id: selectedCourse,
@@ -147,33 +146,60 @@ const handleSave = async () => {
       semester,
       prerequisite: prereq,
       course_type: courseType,
-      instructors: [{ id: user.id }], 
+      instructors: [{ id: user.id }],
       owner_id: ownerUser?.id,
       contents: [],
       evaluations: []
     });
-
-    // ✅ โหลด instance ใหม่
-    const newRes = await api.get('/instructor/instance', {
-      params: { course_id: selectedCourse, year, semester }
-    });
+    const newRes = await api.get(
+      '/instructor/instance',
+      {
+        params: {
+          course_id: selectedCourse,
+          year,
+          semester
+        }
+      }
+    );
     currentInstanceId = newRes.data.id;
     setInstanceId(currentInstanceId);
     setOwner(newRes.data.owner);
   }
-
-  // ✅ save CLO
   let updated = [...savedClos];
-  if (currentClo.id) {
-    updated = updated.map(c =>
-      c.id === currentClo.id ? currentClo : c
-    );
-  } else {
-    updated.push({
-      ...currentClo,
-      id: Date.now()
-    });
+  const hasData =
+    currentClo.code.trim() ||
+    currentClo.description.trim() ||
+    currentClo.indicators.length > 0;
+  if (hasData) {
+    if (!currentClo.code.trim()) {
+      alert('กรุณากรอก CLO Code');
+      return;
+    }
+    if (!currentClo.description.trim()) {
+      alert('กรุณากรอกคำอธิบาย CLO');
+      return;
+    }
+    if (currentClo.id) {
+      updated = updated.map(c =>
+        Number(c.id) === Number(currentClo.id)
+          ? currentClo
+          : c
+      );
+    } else {
+      updated.push({
+        ...currentClo,
+        id: `tmp_${Date.now()}`
+      });
+    }
   }
+  // กัน CLO ว่าง
+updated = updated.filter(c =>
+  c &&
+  c.code &&
+  c.code.trim() &&
+  c.description &&
+  c.description.trim()
+);
   await api.post('/instructor/clos', {
     course_instance_id: currentInstanceId,
     clos: updated
@@ -182,7 +208,6 @@ const handleSave = async () => {
   resetForm();
   alert('✅ save สำเร็จ');
 };
-  
 
 const addIndicator = () => {
   setCurrentClo({
@@ -222,7 +247,13 @@ const addMapping = () => {
 
 const handleDelete = (id) => {
   setSavedClos(prev =>
-    prev.filter(c => c.id !== id)
+    prev.filter(c => Number(c.id) !== Number(id))
+  );
+  // ลบ Mapping ทิ้งด้วย
+  setCloMappings(prev =>
+    prev.filter(
+      m => Number(m.cloId) !== Number(id)
+    )
   );
   if (currentClo.id === id) {
     resetForm();
@@ -743,9 +774,20 @@ if (loadingCourses) {
   <Button
     disabled={!isOwner}
     onClick={async () => {     
+
+const validCloIds =
+  savedClos.map(c =>
+    Number(c.id)
+  );
+const cleanedMappings =
+  cloMappings.filter(m =>
+    validCloIds.includes(
+      Number(m.cloId)
+    )
+  );
 await api.post('/instructor/clo-mapping', {
-  course_instance_id: instanceId, 
-  cloMappings
+  course_instance_id: instanceId,
+  cloMappings: cleanedMappings
 });
       alert('✅ บันทึก Mapping แล้ว');
     }}

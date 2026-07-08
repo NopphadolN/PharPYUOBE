@@ -12,15 +12,16 @@ export default function AdminYLOPage() {
   const [students, setStudents] = useState([]);
   const [ylos, setYlos] = useState([]);
   const [data, setData] = useState({});
+  const [selectedYLO, setSelectedYLO] = useState('');
+  const [selectedIndicator, setSelectedIndicator] = useState('');
+  const [pasteText, setPasteText] = useState('');
 
   /* LOAD */
   useEffect(() => {
     (async () => {
       const stu = await api.get('/student/all');
-      const ylo = await api.get('/admin/ylos');
-
-      setStudents(stu.data);
-
+      const ylo = await api.get('/admin/ylos');     
+            setStudents(stu.data);
       setYlos(
         ylo.data.map(y => ({
           ...y,
@@ -29,6 +30,38 @@ export default function AdminYLOPage() {
       );
     })();
   }, []);
+
+      const selectedYLOObj = ylos.find(
+            y => String(y.id) === String(selectedYLO)
+            );
+const handleBulkImport = () => {
+  if (!selectedIndicator) {
+    alert('กรุณาเลือก Indicator');
+    return;
+  }
+  const indicatorId = Number(selectedIndicator);
+  const lines = pasteText
+    .trim()
+    .split('\n')
+    .filter(Boolean);
+  const newData = { ...data };
+  lines.forEach(line => {
+    const cols = line.trim().split(/\t|,/);
+    if (cols.length < 2) return;
+    const studentCode = cols[0].trim();
+    const score = cols[1].trim();
+    const student = students.find(
+      s => String(s.user_code) === studentCode
+    );
+    if (!student) return;
+    if (!newData[student.id]) {
+      newData[student.id] = {};
+    }
+    newData[student.id][indicatorId] = score;
+  });
+  setData(newData);
+  alert(`นำเข้าข้อมูล ${lines.length} รายการเรียบร้อย`);
+};
 
   /* LOAD INPUT */
   useEffect(() => {
@@ -151,9 +184,7 @@ export default function AdminYLOPage() {
     <div className="flex min-h-screen bg-gray-50">
 
       <AdminMenu/>
-
       <div className="flex-1 p-6 space-y-6">
-
         <Card>
           <Select value={year} onChange={e=>setYear(e.target.value)}>
             <option value="">เลือกปี</option>
@@ -163,27 +194,64 @@ export default function AdminYLOPage() {
           </Select>
         </Card>
 
+<Card>
+  <div className="grid md:grid-cols-3 gap-4">
+    <Select
+      value={selectedYLO}
+      onChange={e => {
+        setSelectedYLO(e.target.value);
+        setSelectedIndicator('');
+      }}
+    >
+      <option value="">เลือก YLO</option>
+      {ylos.map(y => (
+        <option key={y.id} value={y.id}>
+          {y.code}
+        </option>
+      ))}
+    </Select>
+    <Select
+      value={selectedIndicator}
+      onChange={e => setSelectedIndicator(e.target.value)}
+      disabled={!selectedYLO}
+    >
+      <option value="">เลือก Indicator</option>
+      {selectedYLOObj?.indicators?.map((ind, idx) => (
+        <option key={ind.id} value={ind.id}>
+          {selectedYLOObj.code} - Indicator {idx + 1}
+        </option>
+      ))}
+    </Select>
+    <Button onClick={handleBulkImport}>
+      Import คะแนน
+    </Button>
+  </div>
+  <textarea
+    rows={10}
+    value={pasteText}
+    onChange={e => setPasteText(e.target.value)}
+    placeholder={`65010001\t85
+65010002\t90
+65010003\t78`}
+    className="w-full border rounded p-3 mt-4"
+  />
+</Card>
+
         <Card>
-
           {!year && <div>กรุณาเลือกปี</div>}
-
           {year && (
             <div className="overflow-x-auto">
-
               <table className="border w-full text-sm">
-
                 <thead>
                   <tr>
                     <th rowSpan="2">รหัส</th>
                     <th rowSpan="2">ชื่อ</th>
-
                     {ylos.map(y=>(
                       <th key={y.id} colSpan={y.indicators.length+1}>
                         {y.code}
                       </th>
                     ))}
                   </tr>
-
                   <tr>
                     {ylos.map(y=>(
                       <Fragment key={y.id}>
@@ -197,21 +265,15 @@ export default function AdminYLOPage() {
                     ))}
                   </tr>
                 </thead>
-
                 <tbody>
                   {filteredStudents.map((st,r)=>(
                     <tr key={st.id}>
-
                       <td>{st.user_code}</td>
                       <td>{st.name_th}</td>
-
                       {ylos.map(y=>(
                         <Fragment key={y.id}>
-
                           {y.indicators.map((ind,c)=>{
-
                             const val = data?.[st.id]?.[ind.id] || '';
-
                             if (ind.type==='boolean') {
                               return (
                                 <td key={ind.id}>
@@ -239,27 +301,20 @@ export default function AdminYLOPage() {
                               </td>
                             );
                           })}
-
                           <td>
                             {calculateYLOPercent(st.id,y).toFixed(2)}%
                           </td>
-
                         </Fragment>
                       ))}
-
                     </tr>
                   ))}
                 </tbody>
-
               </table>
-
             </div>
           )}
-
         </Card>
 
         {year && <Button onClick={handleSave}>💾 Save</Button>}
-
       </div>
     </div>
   );

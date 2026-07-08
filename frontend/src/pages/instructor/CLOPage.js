@@ -107,12 +107,12 @@ const actualMap = {};
 .forEach(e => {
   const scoreMap =
     e.clo_actual_score_map || {};
-  if (!actualMap[e.id]) {
-    actualMap[e.id] = {};
+  if (!actualMap[String(e.id)]) {
+    actualMap[String(e.id)] = {};
   }
   Object.keys(scoreMap)
-    .forEach(cloId => {
-      actualMap[e.id][cloId]
+    .forEach(cloId => {     
+    actualMap[String(e.id)][String(cloId)]
         = Number(scoreMap[cloId]);
     });
 });
@@ -346,7 +346,9 @@ const getEvalScoreForCLO = (
   cloId
 ) => {
   return Number(
-    e.cloScoreMap?.[cloId] || 0
+    e.cloActualScoreMap?.[String(cloId)] ||
+    e.cloPlanScoreMap?.[String(cloId)] ||
+    0
   );
 };
 

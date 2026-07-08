@@ -189,13 +189,6 @@ const getPloAvg = (studentId, plo) => {
 };
 
   /* ================= CLO LIST ================= */
-const getClosByCourse = (courseId) => {
-  return [...new Set(
-    cloResults
-      .filter(r => String(r.course_id) === String(courseId))
-      .map(r => r.clo_code)
-  )];
-};
 
   /* ================= CLO % ================= */
 const getStudentCLOPercent = (studentId, courseId, cloCode) => {

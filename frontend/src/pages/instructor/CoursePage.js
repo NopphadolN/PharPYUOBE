@@ -581,7 +581,7 @@ if (loadingCourses) {
 </div>
 <div className="mt-4">
   <Button disabled={!isOwner} onClick={handleSave}>
-    💾 Save CLOs
+    💾 Add CLOs
   </Button>
 </div>
 </Card>
@@ -616,6 +616,11 @@ if (loadingCourses) {
       </div>
     ))}
   </div>
+  <div className="mt-4">
+  <Button disabled={!isOwner} onClick={handleSave}>
+    💾 Save CLOs
+  </Button>
+</div>
 </Card>
 <Card>
   <h4 className="font-semibold mb-4">Mapping CLOs / SubPLOs</h4>

@@ -178,6 +178,22 @@ useEffect(() => {
   }
 }, [course_id, year, semester, user]);  
 
+useEffect(() => {
+  if (!clos.length) return;
+  setContents(prev =>
+    prev.map(c => ({
+      ...c,
+      cloIds:
+        (c.cloIds || []).filter(id =>
+          clos.some(
+            x =>
+              String(x.id) === String(id)
+          )
+        )
+    }))
+  );
+}, [clos]);
+
   /* =========================
      TEACHER
   ========================= */

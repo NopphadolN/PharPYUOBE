@@ -232,7 +232,7 @@ const addTeacher = (t) => {
     } else {
       setContents([
         ...contents,
-        { ...currentContent, id: Date.now() }
+        { ...currentContent, id: `tmp_${Date.now()}`}
       ]);
     }
     setCurrentContent({
@@ -488,7 +488,7 @@ const calculatedContents =
 let cleanContents = calculatedContents.map(c => {
 
   // ✅ identify new item
-  const isNew = !c.id || Number(c.id) > 2147483647;
+  const isNew = !c.id || String(c.id).startsWith('tmp_');
 
   let instructor_id = null;
   let guest_teacher_name = null;
@@ -523,10 +523,37 @@ await api.post('/instructor/instance/contents', {
   course_instance_id,
   contents: cleanContents
 });
-
 console.log("✅ CONTENTS SAVED");
 
+const contentReload = await api.get(
+  '/instructor/instance',
+  {
+    params: {
+      course_id,
+      year,
+      semester
+    }
+  }
+);
+const savedContents =
+  contentReload.data.contents || [];
 
+const tempToRealIdMap = {};
+contents.forEach(oldContent => {
+  const matched = savedContents.find(c =>
+    String(c.topic || '') ===
+      String(oldContent.topic || '') &&
+    String(c.type || '') ===
+      String(oldContent.type || '') &&
+    Number(c.order || 0) ===
+      Number(oldContent.order || 0)
+  );
+  if (matched) {
+    tempToRealIdMap[
+      String(oldContent.id)
+    ] = String(matched.id);
+  }
+});
     // ✅ 5. SAVE EVALUATIONS
 const invalidEval =
   evaluations.find(e =>
@@ -545,29 +572,52 @@ if (invalidEval) {
   return;
 }
 const validContentIds =
-  contents.map(c => String(c.id));
+  savedContents.map(
+    c => String(c.id)
+  );
 
-const cleanEvaluations = evaluations
-  .filter(e => e && e.name && e.type)
-  .map(e => ({
-    ...e,
-    clo_ids: Array.isArray(e.cloIds)
-      ? e.cloIds.map(id => Number(id))
-      : [],
-    content_ids_lecture:
-      (e.lectureIds || []).filter(id =>
-        validContentIds.includes(
-          String(id)
-        )
-      ),
-    content_ids_lab:
-      (e.labIds || []).filter(id =>
-        validContentIds.includes(
-          String(id)
-        )
-      )
-  }));
-  
+const cleanEvaluations =
+  evaluations
+    .filter(
+      e =>
+        e &&
+        e.name &&
+        e.type
+    )
+    .map(e => ({
+      ...e,
+      clo_ids:
+        Array.isArray(e.cloIds)
+          ? e.cloIds.map(
+              id => Number(id)
+            )
+          : [],
+      content_ids_lecture:
+        (e.lectureIds || [])
+          .map(id =>
+            tempToRealIdMap[
+              String(id)
+            ] || String(id)
+          )
+          .filter(id =>
+            validContentIds.includes(
+              String(id)
+            )
+          ),
+      content_ids_lab:
+        (e.labIds || [])
+          .map(id =>
+            tempToRealIdMap[
+              String(id)
+            ] || String(id)
+          )
+          .filter(id =>
+            validContentIds.includes(
+              String(id)
+            )
+          )
+    }));
+
     const evaluationsToSave = cleanEvaluations.map(e => ({
     ...e,
     clo_plan_score_map:
@@ -1531,7 +1581,7 @@ const isOwner = courses?.owner_id === user?.id;
         {evaluations.flatMap((e, index) => {
         const cloIds = e.cloIds || [];
           return cloIds.map((cloId, i) => {
-            const cloCode = clos.find(c => c.id === cloId)?.code;
+            const cloCode = clos.find(c => String(c.id) === String(cloId))?.code;
             return (
               <tr
                 key={`${index}_${i}`}

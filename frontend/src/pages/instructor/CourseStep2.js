@@ -783,7 +783,7 @@ evaluations.forEach(e => {
                 textAlign: 'center', whiteSpace: 'nowrap' }}>{c.order}</td>
               <td style={{ textAlign: 'center' }}>
                 {c.cloIds?.map(id => 
-                clos.find(x => x.id === id)?.code + ' '
+                clos.find(x => String(x.id) === String(id))?.code + ' '
                 )}
               </td>
               <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>

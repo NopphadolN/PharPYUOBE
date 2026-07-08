@@ -458,7 +458,7 @@ const getCourseInfo = (courseId) => {
       <button
         key={c}
         onClick={() => setSelectedCourse(c)}
-        className="px-3 py-1 border rounded-lg hover:bg-blue-50"
+        className="px-3 py-1 border rounded-lg hover:bg-blue-50 text-left"
       >
         {getCourseInfo(c)}
       </button>

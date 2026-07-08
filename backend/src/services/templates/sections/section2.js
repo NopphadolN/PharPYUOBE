@@ -57,7 +57,7 @@ const getInstructorName = (r) => {
             <td style="text-align:center">${r.order}</td>
             <td>${r.topic}</td>
             <td style="text-align:center">${r.hours}</td>
-            <td style="text-align:center">${getInstructorName(r)}</td>
+            <td style="text-align:center; white-space: nowrap;">${getInstructorName(r)}</td>
           </tr>
         `).join('')}
 

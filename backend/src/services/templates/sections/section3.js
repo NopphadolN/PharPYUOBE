@@ -164,6 +164,7 @@ ${sortedGrading.map(g => {
   margin-left:120px;
   border:none;
   width:260px;
+  line-height: 1.2;
 ">
   <tr>
     <td style="

@@ -443,7 +443,7 @@ if (loadingCourses) {
         onClick={handleImport}
         className="bg-purple-500 text-white"
     >
-      📥 นำเข้าปีเก่า
+      📥 นำเข้าจากปีอื่น
     </Button>
   </div>
   {courseDetail && (

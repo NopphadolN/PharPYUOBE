@@ -619,9 +619,10 @@ for (const c of contentRes.rows) {
   // ✅ parse clo_ids
   let oldCloIds = [];
   try {
-    oldCloIds = typeof c.clo_ids === 'string'
+    oldCloIds = (typeof c.clo_ids === 'string'
       ? JSON.parse(c.clo_ids)
-      : (c.clo_ids || []);
+      : (c.clo_ids || [])
+      ).map(String)
   } catch {
     oldCloIds = [];
   }

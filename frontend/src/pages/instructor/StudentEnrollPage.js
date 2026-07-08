@@ -175,7 +175,7 @@ const isOwner = selectedCourse?.is_owner
   <div className="flex flex-wrap gap-3 items-center">
     <Select value={year} onChange={e => setYear(e.target.value)}>
       <option value="">ปีการศึกษา</option>
-      {[2569,2570,2571,2572,2573,2574].map(y => (
+      {[2568,2569,2570,2571,2572,2573,2574].map(y => (
         <option key={y}>{y}</option>
       ))}
     </Select>

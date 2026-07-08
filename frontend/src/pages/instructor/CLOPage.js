@@ -501,7 +501,7 @@ console.log("BTN STATE:", {
 
     <Select onChange={e => setYear(e.target.value)}>
       <option value="">ปี</option>
-      {[2569,2570,2571,2572,2573].map(y => (
+      {[2568,2569,2570,2571,2572,2573].map(y => (
         <option key={y}>{y}</option>
       ))}
     </Select>

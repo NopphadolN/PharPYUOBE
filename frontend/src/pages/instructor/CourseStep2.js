@@ -140,7 +140,12 @@ useEffect(() => {
           order: c.order || '',
           examScore: c.exam_score || '',
           workScore: c.work_score || '',
-          cloIds: Array.isArray(c.clo_ids) ? c.clo_ids : [],
+          cloIds:
+            (
+            typeof c.clo_ids === 'string'
+            ? JSON.parse(c.clo_ids)
+            : (c.clo_ids || [])
+            ).map(String),
           llos: c.llos || ''
         }))
       );
@@ -253,8 +258,25 @@ const addTeacher = (t) => {
 });
 
   const deleteContent = (id) => {
-    setContents(prev => prev.filter(c => c.id !== id));
-  };
+  setContents(prev =>
+    prev.filter(c => c.id !== id)
+  );
+  setEvaluations(prev =>
+    prev.map(e => ({
+      ...e,
+      lectureIds:
+        (e.lectureIds || [])
+          .filter(
+            x => String(x) !== String(id)
+          ),
+      labIds:
+        (e.labIds || [])
+          .filter(
+            x => String(x) !== String(id)
+          )
+    }))
+  );
+};
 
 const addEval = () => {
   if (!currentEval.name) {
@@ -455,16 +477,7 @@ const handleSave = async () => {
       course_instance_id,
       instructors: selectedTeachers
     });
-    console.log("✅ INSTRUCTORS SAVED");
-
-const normalizeOrder = (list) => {
-  return list
-    .sort((a, b) => Number(a.order || 0) - Number(b.order || 0))
-    .map((item, index) => ({
-      ...item,
-      order: index + 1   // ✅ เรียงใหม่ 1..n
-    }));
-};    
+    console.log("✅ INSTRUCTORS SAVED");  
 
 // ✅ 3. CLEAN CONTENTS (FIX VERSION)
 // ✅ 1. เริ่มจาก contents เดิม
@@ -504,9 +517,6 @@ let cleanContents = calculatedContents.map(c => {
     llos: c.llos || ''
   };
 });
-
-// ✅ 4. normalize order
-cleanContents = normalizeOrder(cleanContents);
 
 // ✅ 5. SAVE
 await api.post('/instructor/instance/contents', {
@@ -580,7 +590,12 @@ if (invalidEval) {
           order: c.order || '',
           examScore: c.exam_score || '',
           workScore: c.work_score || '',
-          cloIds: Array.isArray(c.clo_ids) ? c.clo_ids : [],
+          cloIds:
+            (
+              typeof c.clo_ids === 'string'
+              ? JSON.parse(c.clo_ids)
+              : (c.clo_ids || [])
+            ).map(String),
           llos: c.llos || ''
         };  
         })
@@ -799,7 +814,7 @@ evaluations.forEach(e => {
                 textAlign: 'center', whiteSpace: 'nowrap' }}>{c.order}</td>
               <td style={{ textAlign: 'center' }}>
                 {c.cloIds?.map(id => 
-                clos.find(x => String(x.id) === String(id))?.code + ' '
+                clos.find(x => String(x.id) === String(id))?.code || ''
                 )}
               </td>
               <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
@@ -1133,7 +1148,7 @@ const isOwner = courses?.owner_id === user?.id;
       >
         {currentContent.cloIds.length > 0
           ? currentContent.cloIds
-              .map(id => clos.find(c => c.id === id)?.code)
+              .map(id => clos.find(c => String(c.id) === String(id))?.code)
               .join(', ')
           : 'เลือก CLO'}
       </div>

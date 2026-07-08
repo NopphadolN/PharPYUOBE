@@ -33,6 +33,7 @@ export default function PLOPage() {
   const [courseResults, setCourseResults] = useState([]);
   const [yloResults, setYloResults] = useState([]);
   const [viewMode, setViewMode] = useState('plo'); 
+  const [ylos, setYlos] = useState([]);
 
   /* ================= LOAD DATA ================= */
 useEffect(() => {
@@ -44,18 +45,14 @@ useEffect(() => {
       const mapRes = await api.get('/mapping');
       const cloRes = await api.get('/instructor/clo-results');
       const courseRes = await api.get('/instructor/course-results');
-
-      console.log("API STU:", stuRes.data);
-      console.log("API PLO:", ploRes.data);
-      console.log("API MAP:", mapRes.data);
-      console.log("API CLO:", cloRes.data);
-      console.log("API COURSE:", courseRes.data);
+      const yloRes = await api.get('/admin/ylos');
 
       setStudents(stuRes.data);
       setPlos(ploRes.data);
       setMappings(mapRes.data);
       setCloResults(cloRes.data);
       setCourseResults(courseRes.data);
+      setYlos(yloRes.data || []);
 
     } catch (err) {
       console.log("ERROR:", err.response?.data || err.message);
@@ -351,9 +348,9 @@ const barOptions = {
       <tr>
         <th className="px-2">รหัส</th>
         <th className="px-2">ชื่อ</th>
-        {[...new Set(yloResults.map(y => y.code))].map(code => (
-          <th key={code} className="px-2 text-center">
-            {code}
+        {ylos.map(y => (
+          <th key={y.id} className="px-2 text-center">
+            {y.code}
           </th>
         ))}
       </tr>
@@ -369,21 +366,19 @@ const barOptions = {
           <tr key={st.id}>
             <td className="border-t px-2">{st.user_code}</td>
             <td className="border-t px-2 text-left">{st.name_th}</td>
-            {[...new Set(yloResults.map(y => y.code))].map(code => {
-              const y = studentYLO.find(x => x.code === code);
+            {ylos.map(ylo => {
+              const y = studentYLO.find(x => String(x.code) === String(ylo.code));
               return (
-                <td key={code}                 
+                <td key={ylo.id}                
                     className={`border-t text-center ${
-                      y
-                      ? Number(y.percent) === 100
-                      ? 'text-green-600 font-semibold'
-                      : Number(y.percent) > 0
-                      ? 'text-red-600'
-                      : ''
-                      : ''
+                      Number(y?.percent || 0) === 100
+                        ? 'text-green-600 font-semibold'
+                      : Number(y?.percent || 0) > 0
+                        ? 'text-red-600'
+                        : 'text-gray-400'
                     }`}
                     >
-                  {y ? Number(y.percent).toFixed(2) + '%' : '-'}
+                  {y ? Number(y.percent).toFixed(2) + '%' : '0.00%'}
                 </td>
               );
             })}

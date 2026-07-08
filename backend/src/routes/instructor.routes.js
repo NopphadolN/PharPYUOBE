@@ -561,7 +561,7 @@ const usedInstructors = await pool.query(`
   FROM course_contents
   WHERE course_instance_id = $1
   AND instructor_id IS NOT NULL
-`, [newId]);
+`, [oldId]);
 
 for (const ins of usedInstructors.rows) {
   const exists = oldIns.rows.find(i => i.user_id === ins.instructor_id);
@@ -601,7 +601,7 @@ for (const ins of usedInstructors.rows) {
         await pool.query(`
           INSERT INTO clo_indicators (clo_id, description, target, course_instance_id)
           VALUES ($1,$2,$3, $4)
-        `, [newCloId, ind.description, ind.target, course_instance_id]);
+        `, [newCloId, ind.description, ind.target, newId]);
       }
     }
 
@@ -658,17 +658,85 @@ for (const c of contentRes.rows) {
     c.order,
     c.exam_score,
     c.work_score,
-    c.llos,
-    JSON.stringify(newCloIds)
+    JSON.stringify(newCloIds),
+    c.llos
   ]);
-
   contentMap[c.id] = insert.rows[0].id;
 }
 
     // =========================
     // ✅ 6. COPY EVALUATIONS
     // =========================
-
+const evalRes = await pool.query(`
+  SELECT *
+  FROM course_evaluations
+  WHERE course_instance_id = $1
+`, [oldId]);
+for (const e of evalRes.rows) {
+  const lectureIds =
+    (e.content_ids_lecture || [])
+      .map(id => contentMap[id])
+      .filter(Boolean);
+  const labIds =
+    (e.content_ids_lab || [])
+      .map(id => contentMap[id])
+      .filter(Boolean);
+  const cloIds =
+    (e.clo_ids || [])
+      .map(id => cloMap[id])
+      .filter(Boolean);
+  const planMap = {};
+  Object.entries(
+    e.clo_plan_score_map || {}
+  ).forEach(([oldCloId, score]) => {
+    const newCloId =
+      cloMap[oldCloId];
+    if (newCloId) {
+      planMap[newCloId] = score;
+    }
+  });
+  const actualMap = {};
+  Object.entries(
+    e.clo_actual_score_map || {}
+  ).forEach(([oldCloId, score]) => {
+    const newCloId =
+      cloMap[oldCloId];
+    if (newCloId) {
+      actualMap[newCloId] = score;
+    }
+  });
+  await pool.query(`
+    INSERT INTO course_evaluations (
+      course_instance_id,
+      name,
+      type,
+      tool,
+      week,
+      content_ids_lecture,
+      content_ids_lab,
+      clo_ids,
+      clo_plan_score_map,
+      clo_actual_score_map,
+      total
+    )
+    VALUES (
+      $1,$2,$3,$4,$5,
+      $6,$7,$8,$9,$10,$11
+    )
+  `, [
+    newId,
+    e.name,
+    e.type,
+    e.tool,
+    e.week,
+    JSON.stringify(lectureIds),
+    JSON.stringify(labIds),
+    JSON.stringify(cloIds),
+    JSON.stringify(planMap),
+    JSON.stringify(actualMap),
+    e.total
+  ]);
+}
     // =========================
     // ✅ 7. COPY CLO MAPPING
     // =========================

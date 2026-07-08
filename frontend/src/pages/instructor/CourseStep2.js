@@ -1244,10 +1244,13 @@ const isOwner = courses?.owner_id === user?.id;
         <option>สอบย่อย</option>
         <option>สอบกลางภาค</option>
         <option>สอบปลายภาค</option>
+        <option>สอบย่อย (ปฏิบัติการ)</option>
+        <option>สอบกลางภาค (ปฏิบัติการ)</option>
+        <option>สอบปลายภาค (ปฏิบัติการ)</option>
         <option>นำเสนอ</option>
         <option>งานมอบหมาย</option>
         <option>ปฏิบัติ</option>
-        <option>สอบปฏิบัติ</option>
+        <option>สมุดปฏิบัติการ</option>
         <option>คะแนนเข้าชั้นเรียน</option>
         <option>พฤติกรรม</option>
       </Select>
@@ -1286,9 +1289,11 @@ const isOwner = courses?.owner_id === user?.id;
       >
         <option value="">-- เครื่องมือ --</option>
         <option>ข้อสอบ</option>
+        <option>ข้อสอบ (ปฏิบัติการ)</option>
         <option>แบบบันทึกการเข้าชั้นเรียน</option>
         <option>แบบให้คะแนนงานมอบหมาย</option>
-        <option>แบบประเมิน</option>
+        <option>แบบประเมินกิจกรรม</option>
+        <option>แบบให้คะแนนสมุดปฏิบัติการ</option>
       </Select>
     </div>
 

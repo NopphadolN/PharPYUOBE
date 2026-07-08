@@ -156,7 +156,10 @@ const handleFile = async (e) => {
     setSelectedRows([]);
   };
 
-const isOwner = selectedCourse?.is_owner
+const isOwner =
+  owner &&
+  user &&
+  Number(owner.id) === Number(user.id);
 
   /* =========================
      UI

@@ -544,17 +544,30 @@ if (invalidEval) {
   setLoading(false);
   return;
 }
+const validContentIds =
+  contents.map(c => String(c.id));
 
-    const cleanEvaluations = evaluations
-  .filter(e => e && e.name && e.type) // ✅ ตัดตัวพัง
+const cleanEvaluations = evaluations
+  .filter(e => e && e.name && e.type)
   .map(e => ({
-    ...e, 
+    ...e,
     clo_ids: Array.isArray(e.cloIds)
-    ? e.cloIds.map(id => Number(id))
-    : [],
-    content_ids_lecture: e.lectureIds || [],
-    content_ids_lab: e.labIds || []
-  }));  
+      ? e.cloIds.map(id => Number(id))
+      : [],
+    content_ids_lecture:
+      (e.lectureIds || []).filter(id =>
+        validContentIds.includes(
+          String(id)
+        )
+      ),
+    content_ids_lab:
+      (e.labIds || []).filter(id =>
+        validContentIds.includes(
+          String(id)
+        )
+      )
+  }));
+  
     const evaluationsToSave = cleanEvaluations.map(e => ({
     ...e,
     clo_plan_score_map:

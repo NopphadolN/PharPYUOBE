@@ -28,7 +28,7 @@ api.interceptors.response.use(
       alert(
         'Session หมดอายุ กรุณา Login ใหม่'
       );
-      window.location.href = '/login';
+      window.location.href = '/';
     }
     return Promise.reject(error);
   }

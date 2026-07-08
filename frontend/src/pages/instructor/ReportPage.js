@@ -43,20 +43,23 @@ export default function ReportPage() {
   const [search, setSearch] = useState('');
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [courses, setCourses] = useState([]);
 
   const [clos, setClos] = useState([]);
   
   const [courseYear, setCourseYear] = useState('');
   const [courseSemester, setCourseSemester] = useState('');
 
-  
   const [yloResults, setYloResults] = useState([]);
 
   /* ================= LOAD ================= */
+const courseRes =
+  await api.get('/instructor/courses');
+    setCourses(courseRes.data || []);
+
 useEffect(() => {
   (async () => {
     try {
-
       const stuRes = await api.get('/student/all');
       const ploRes = await api.get('/plos');
       const mapRes = await api.get('/mapping');
@@ -217,10 +220,11 @@ const ploChartData = selectedStudent ? {
   }]
 } : null;
 
-  /* ================= CLO CHART ================= */
-  const cloList = selectedCourse
-    ? getClosByCourse(selectedCourse)
-    : [];
+  /* ================= CLO CHART ================= */  
+const cloList = clos
+    .sort((a, b) =>
+      a.code.localeCompare(b.code)
+    );
 const isStudentCLOPass = (studentId, courseId, cloCode) => {
   const result = cloResults.find(r =>
     String(r.student_id) === String(studentId) &&
@@ -229,41 +233,41 @@ const isStudentCLOPass = (studentId, courseId, cloCode) => {
   );
   return result?.is_pass ?? false;
 };
+
 const cloChartData = selectedCourse ? {
-  labels: cloList,
+  labels: cloList.map(c => c.code),
   datasets: [{
     label: 'CLO %',
     data: cloList.map(c => {
       const val = getStudentCLOPercent(
         selectedStudent.id,
         selectedCourse,
-        c
+        c.code
       );
       return Number((val ?? 0).toFixed(2));
     }),
-
     backgroundColor: 'rgba(168, 230, 207, 0.2)',
     borderColor: '#A8E6CF',
-
-    // ✅ ใช้ is_pass ตัดสินสี
     pointBackgroundColor: cloList.map(c => {
       const pass = isStudentCLOPass(
         selectedStudent.id,
         selectedCourse,
-        c
+        c.code
       );
-      return pass ? '#5af4bb' : '#ff6f61'; // coral red
+      return pass
+        ? '#5af4bb'
+        : '#ff6f61';
     }),
-
     pointBorderColor: cloList.map(c => {
       const pass = isStudentCLOPass(
         selectedStudent.id,
         selectedCourse,
-        c
+        c.code
       );
-      return pass ? '#5af4bb' : '#cc0000';
+      return pass
+        ? '#5af4bb'
+        : '#cc0000';
     }),
-
     pointRadius: 6
   }]
 } : null;
@@ -326,12 +330,16 @@ const yloBarOptions = {
 };
 
 const getCourseInfo = (courseId) => {
-  const m = mappings.find(m =>
-    String(m.course_id) === String(courseId)
-  );
-  return m
-    ? `${m.code_en} - ${m.name_th}`
-    : `Course ${courseId}`;
+  const course =
+    courses.find(
+      c =>
+        String(c.id) ===
+        String(courseId)
+    );
+  if (!course) {
+    return `Course ${courseId}`;
+  }
+  return `${course.code_en} - ${course.name_th}`;
 };
 
   /* ================= UI ================= */
@@ -451,7 +459,7 @@ const getCourseInfo = (courseId) => {
 )}
 
   {/* ✅ COURSE LIST */}
-  <div className="flex gap-2">
+  <div className="flex flex-col gap-2">
     {getCoursesOfStudent(selectedStudent.id).map(c => (
       <button
         key={c}

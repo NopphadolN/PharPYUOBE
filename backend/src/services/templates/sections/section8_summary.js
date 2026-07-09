@@ -9,6 +9,7 @@ const renderSection8 = (data) => {
   <div class="section">
 
     <!-- ✅ หมวดที่ 7 -->
+    <div class="heading">
     <div style="border: 1px solid #000; padding: 3px; margin: 20px 0;">
       <div style="border: 4px solid #000; padding: 8px; text-align:center;">
         <h2 style="margin:0; font-size:23px;">
@@ -16,13 +17,17 @@ const renderSection8 = (data) => {
         </h2>
       </div>
     </div>
-
+    </div>
     <!-- ✅ กล่องใหญ่ -->
-    <div style="border:1px solid #000; padding:15px;">
+    <div style="border:1px solid #000; padding:0px;">
 
       <!-- ✅ ข้อ 1 -->
       <div>
+      <div class="heading">
+      <div style="margin-top:15px; margin-left:15px;">
         <b>1. กลยุทธ์การประเมินประสิทธิผลของรายวิชาโดยนักศึกษา</b>
+      </div>
+      </div>
         <div style="margin-top:10px; margin-left:40px; line-height:1.4;">
           <div>${box(false)} การประเมินผลรายวิชา</div>
           <div>${box(true)} การประเมินการสอน</div>
@@ -43,7 +48,9 @@ const renderSection8 = (data) => {
 
       <!-- ✅ ข้อ 2 -->
       <div>
+      <div class="heading">
         <b>2. กลยุทธ์การประเมินการสอน</b>
+      </div>
         <div style="margin-top:10px; margin-left:40px; line-height:1.4;">
           <div>${box(false)} การประเมินการสอน</div>
           <div>${box(true)} ผลการสอบ/ ผลการเรียนรู้ของผู้เรียน</div>
@@ -66,7 +73,9 @@ const renderSection8 = (data) => {
 
 <!-- ✅ ข้อ 3 -->
 <div style="margin-top:20px;">
+  <div class="heading">
   <b>3. การปรับปรุงการสอน</b>
+  </div>
   <!-- ✅ checkbox ด้านบน -->
   <div style="margin-top:10px; margin-left:40px; line-height:1.4;">
     <div>☐ การประชุม/สัมมนาการจัดการเรียนการสอน</div>
@@ -77,6 +86,7 @@ const renderSection8 = (data) => {
   </div>
   <!-- ✅ ตารางด้านล่าง -->
   <table style="width:100%; border-collapse: collapse; margin-top:10px;">
+    <thead>
     <tr>
       <th style="border:1px solid #000; width:50%;">
         ประเด็นที่ทำการปรับปรุง
@@ -85,6 +95,7 @@ const renderSection8 = (data) => {
         ที่มาของข้อมูลที่นำมาปรับปรุง
       </th>
     </tr>
+    </thead>
     <tr>
       <!-- ✅ revision_note -->
       <td style="border:1px solid #000; vertical-align:top; padding:5px;">
@@ -105,7 +116,9 @@ const renderSection8 = (data) => {
 
       <!-- ✅ ข้อ 4 -->
       <div>
+      <div class="heading">
         <b>4. การทวนสอบมาตรฐานผลสัมฤทธิ์ของนักศึกษา</b>
+      </div>
         <div style="margin-top:10px; margin-left:40px; line-height:1.4;">
           <div>${box(true)} ประเมินรายละเอียดรายวิชาว่าผลการเรียนรู้ที่กำหนดสอดคล้องกับความรับผิดชอบในหลักสูตร</div>
           <div>${box(true)} ประเมินข้อสอบของรายวิชาว่าครอบคลุมผลการเรียนรู้ตามที่กำหนดไว้ในรายละเอียดวิชา</div>
@@ -122,7 +135,9 @@ const renderSection8 = (data) => {
 
       <!-- ✅ ข้อ 5 -->
       <div>
+      <div class="heading">
         <b>5. การดำเนินการทบทวนและการวางแผนปรับปรุงประสิทธิผลของรายวิชา</b>
+      </div>
         <div style="margin-top:10px; margin-left:40px; line-height:1.4;">
           <div>${box(false)} ปรับปรุงกระบวนวิชา ตามข้อเสนอแนะและผลการทวนสอบมาตรฐานผลสัมฤทธิ์ตามข้อ 4</div>
           <div>${box(true)} ปรับปรุงกระบวนวิชา ตามผลการประเมินผู้สอนโดยนักศึกษา</div>

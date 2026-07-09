@@ -49,12 +49,14 @@ const renderSection3 = (data) => {
 
   return `
   <div class="section">
+  <div class="heading">
     <div style="border: 1px solid #000; padding: 3px; margin: 20px 0;">
       <div style="border: 4px solid #000; padding: 8px 0; text-align: center;">
         <h2 style="margin: 0; font-size: 23px;">
           หมวดที่ 4 การพัฒนาผลการเรียนรู้ของนักศึกษา
         </h2>
       </div>
+    </div>
     </div>
     <table style="width:100%; border-collapse: collapse;">
       <!-- HEADER -->

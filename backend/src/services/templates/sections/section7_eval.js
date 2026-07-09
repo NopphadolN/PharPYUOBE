@@ -78,7 +78,8 @@ const getCLOCodes = (e) => {
     <p><strong>2. แผนการประเมินผลการเรียนรู้</strong></p>
   </div>
     <table style="width:100%; border-collapse: collapse; font-size:21px;">
-      <tr>
+    <thead>  
+    <tr>
         <th style="border:1px solid #000;">การประเมิน</th>
         <th style="border:1px solid #000;">CLOs</th>
         <th style="border:1px solid #000;">คะแนน</th>
@@ -87,7 +88,7 @@ const getCLOCodes = (e) => {
         <th style="border:1px solid #000;">เครื่องมือ</th>
         <th style="border:1px solid #000;">สัปดาห์</th>
       </tr>
-
+    </thead>
       ${evalList.map(e => `
         <tr style="vertical-align:top">
           <td style="border:1px solid #000;">${e.name || '-'}</td>
@@ -107,7 +108,9 @@ const getCLOCodes = (e) => {
     </table>
 
     <!-- ✅ เกณฑ์ -->
+  <div class="heading">
     <p style="margin-top:20px;"><strong>3. เกณฑ์การประเมินผล</strong></p>
+  </div>
     <p style="margin-left:40px;">เกณฑ์การประเมินผลใช้วิธีการตัดเกรดแบบอิงเกณฑ์ ดังนี้</p>
     ${sortedGrading.map(g => {
       let text = '';
@@ -136,27 +139,31 @@ const getCLOCodes = (e) => {
       `;
     }).join('')}
 
-    ${note ? `<div style="text-indent: 40px;">${note}</div>` : ''}
+    ${note ? `<div style="text-indent: 40px; 
+      text-align: justify; text-justify: inter-word;">
+      ${note}</div>` : ''}
     
     <div class="heading">
       <p><strong>แนวทางการอุทธรณ์ของนักศึกษา/ผู้เรียน Appeal procedure</strong></p>
     </div>
-      <p style="text-indent: 40px; text-align: justify;">
+      <p style="text-indent: 40px; 
+      text-align: justify; text-justify: inter-word;">
       นักศึกษาสามารถทำเรื่องอุทธรณ์ผลการเรียนโดย Download แบบคำร้อง (ใช้คำร้องทั่วไป) ได้ที่ระบบ
 e-registra และยื่นคำร้องได้ที่สำนักงานฝ่ายวิชาการและวิจัยภายใน 10 วันทำการ หลังจากประกาศผลการ
 เรียนในระบบ e-registra</p>
 
-    <!-- ✅ หมวดที่ 6 -->
+    <!-- ✅ หมวดที่ 6 -->   
     <div style="margin-top:30px;">
+    <div class="heading">
       <div style="border: 1px solid #000; padding: 3px;">
         <div style="border: 4px solid #000; padding: 8px; text-align:center;">
           <h2 style="margin:0; font-size: 23px;">หมวดที่ 6 ทรัพยากรประกอบการเรียนการสอน</h2>
         </div>
       </div>
-    <div class="heading">
       <p><strong>1. ตำราและเอกสารหลัก</strong></p>
     </div>
-      <div style="text-indent: 40px;">
+      <div style="text-indent: 40px; 
+      text-align: justify; text-justify: inter-word;">
         ${(Array.isArray(books) && books.length
           ? books
           : ['-']

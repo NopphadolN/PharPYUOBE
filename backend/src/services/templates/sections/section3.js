@@ -179,8 +179,8 @@ ${sortedGrading.map(g => {
   `;
 }).join('')}
 ${note ? `<div style="text-indent: 40px; margin-top: 10px;
-  text-align: justify; text-justify: inter-word;
-  ">${note}</div>` : ''}
+  text-align: justify; text-justify: inter-word;">
+  • ${note}</div>` : ''}
       <div class="heading">
       <p><b>แนวทางการอุทธรณ์ของนักศึกษา/ผู้เรียน Appeal procedure</b></p>
       </div>

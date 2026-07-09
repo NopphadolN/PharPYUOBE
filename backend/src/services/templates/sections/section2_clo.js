@@ -23,6 +23,7 @@ const profile = data.instructorProfile || {};
   return ` 
   <!-- ✅ หมวดที่ 2 -->
   <div class="section">
+    <div class="heading">
     <div style="border: 1px solid #000; padding: 3px; margin: 20px 0;">
       <div style="border: 4px solid #000; padding: 8px 0; text-align: center;">
         <h2 style="margin: 0; font-size: 23px;">
@@ -31,15 +32,17 @@ const profile = data.instructorProfile || {};
       </div>
     </div>
     <p>เมื่อสิ้นสุดการเรียนการสอนแล้ว นักศึกษาที่สำเร็จการศึกษาในรายวิชา สามารถ (CLOs)</p>
+    </div> 
     ${clos.length > 0
       ? clos.map((c, i) => `
-        <p style="text-indent:40px;">
+        <p style="text-indent:40px; 
+        text-align: justify; text-justify: inter-word;">
           ${i + 1}. ${c.description || '-'}
         </p>
       `).join('')
       : `<p style="text-indent:80px;">-</p>`
     }
-
+    <div class="heading">
     <div style="border: 1px solid #000; padding: 3px; margin: 20px 0;">
       <div style="border: 4px solid #000; padding: 8px 0; text-align: center;">
         <h2 style="margin: 0; font-size: 23px;">
@@ -47,10 +50,10 @@ const profile = data.instructorProfile || {};
         </h2>
       </div>
     </div>
-    <div class="heading">
-    <p><strong>1. คำอธิบายรายวิชา</strong></p>
+        <p><strong>1. คำอธิบายรายวิชา</strong></p>
     </div>
-    <p style="text-indent:40px; text-align: justify;">
+    <p style="text-indent:40px; 
+    text-align: justify; text-justify: inter-word;">
       ${c.description || '-'}
     </p>
 
@@ -60,6 +63,7 @@ const profile = data.instructorProfile || {};
     </div>
     <table style="width:100%; border-collapse: collapse; margin-top:10px; 
     font-size: 21px; text-align: center;">
+    <thead>
       <tr>
         <td style="border:1px solid #000; padding:6px;">
           <b>บรรยาย</b>
@@ -74,6 +78,7 @@ const profile = data.instructorProfile || {};
           <b>การศึกษาด้วยตนเอง</b>
         </td>
       </tr>
+    </thead>
       <tr>
         <td style="border:1px solid #000; padding:6px;">
           ${hours.lecture} ชั่วโมง/ภาคการศึกษา

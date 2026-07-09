@@ -100,7 +100,7 @@ const getLLO = (c) => {
 
   return `
   <div class="section">
-
+  <div class="heading">
     <div style="border: 1px solid #000; padding: 3px; margin: 20px 0;">
       <div style="border: 4px solid #000; padding: 8px 0; text-align: center;">
         <h2 style="margin: 0; font-size: 23px;">
@@ -108,11 +108,9 @@ const getLLO = (c) => {
         </h2>
       </div>
     </div>
-<div class="heading">
     <p><strong>1. แผนการสอน</strong></p>
-</div>
+  </div>
     <table style="width:100%; border-collapse: collapse;">
-
       <thead>
         <tr>
           <th style="border:1px solid #000;">ผลลัพธ์การเรียนรู้ที่คาดหวังของรายวิชา CLOs</th>
@@ -126,48 +124,34 @@ const getLLO = (c) => {
       </thead>
 
       <tbody>
-
         ${sorted.map(c => `
-
           <tr style="vertical-align:top">
-
             <td style="border:1px solid #000; text-align:center;">
               ${formatClos(c.clo_ids)}
             </td>
-
             <td style="border:1px solid #000; text-align:center;">
               ${getWeek(c.date)}
             </td>
-
             <td style="border:1px solid #000;">
               ${c.topic || '-'}
             </td>
-
             <td style="border:1px solid #000;">
               ${getLLO(c)}
             </td>
-
             <td style="border:1px solid #000; text-align:center;">
               ${c.hours || '-'}
             </td>
-
             <td style="border:1px solid #000;">
               ${getActivity(c)}
               <p>- เอกสารประกอบการสอน</p>
             </td>
-
             <td style="border:1px solid #000; text-align:center; white-space: nowrap;">
               ${getInstructorName(c)}
             </td>
-
           </tr>
-
         `).join('')}
-
       </tbody>
-
     </table>
-
   </div>
   `;
 };

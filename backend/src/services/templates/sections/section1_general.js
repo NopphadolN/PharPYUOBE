@@ -69,7 +69,7 @@ const labInstructors = [
         <p style="margin-left: 40px;">ชื่อหลักสูตร
         <span style="margin-left: 60px;">เภสัชศาสตรบัณฑิต สาขาวิชาการบริบาลทางเภสัชกรรม 
         </span></p>
-        <p style="margin-left: 165px;">(หลักสูตรปรับปรุง พ.ศ.2568)</p>
+        <p style="margin-left: 170px;">(หลักสูตรปรับปรุง พ.ศ.2568)</p>
         <p style="margin-left: 40px;">ประเภทของรายวิชา
         <span style="margin-left:10px;">${c.course_type || '-'}</span></p>
 
@@ -96,19 +96,25 @@ ${
     : `<div style="text-indent: 120px;">-</div>`
 }
 <div class="heading">    
-<p><strong>5. ภาคการศึกษา / ชั้นปีที่เรียน</strong></p> 
+        <p><strong>5. ภาคการศึกษา / ชั้นปีที่เรียน</strong></p> 
 </div>
         <p style="margin-left: 40px;">ภาคการศึกษาที่ ${c.semester || '-'} ปีการศึกษา ${c.year || '-'}</p>
         <p style="margin-left: 40px;">ชั้นปีที่ ${getStudyYear(c.code_th || c.code_en)}</p>
 <div class="heading">     
         <p><strong>6. รายวิชาที่ต้องเรียนมาก่อน (Pre-requisite) (ถ้ามี)</strong></p>
-        </div> 
+</div> 
         <p style="margin-left: 40px;">${c.prerequisite || '-'}</p>
-    <p><strong>7. รายวิชาที่ต้องเรียนพร้อมกัน (Co-requisites) (ถ้ามี)</strong></p>
+<div class="heading">     
+        <p><strong>7. รายวิชาที่ต้องเรียนพร้อมกัน (Co-requisites) (ถ้ามี)</strong></p>
+</div>         
         <p style="margin-left: 40px;"> - </p>
-    <p><strong>8. สถานที่เรียน</strong></p>
+<div class="heading">         
+        <p><strong>8. สถานที่เรียน</strong></p>
+</div> 
         <p style="margin-left: 40px;">คณะเภสัชศาสตร์ มหาวิทยาลัยพายัพ</p>
-    <p><strong>9. วันที่จัดทำหรือปรับปรุงรายละเอียดของรายวิชาครั้งล่าสุด</strong></p>
+<div class="heading">         
+        <p><strong>9. วันที่จัดทำหรือปรับปรุงรายละเอียดของรายวิชาครั้งล่าสุด</strong></p>
+</div>         
         <p style="margin-left: 40px;">${formatThaiDate()}</p>
   `;
 

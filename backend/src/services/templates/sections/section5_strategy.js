@@ -46,7 +46,7 @@ const renderSection5 = (data) => {
 
       <thead>
         <tr>
-          <th style="border:1px solid #000;">
+          <th style="border:1px solid #000; width:35%;">
             ผลลัพธ์การเรียนรู้ที่คาดหวังของรายวิชา (CLOs)
           </th>
           <th style="border:1px solid #000;">
@@ -136,7 +136,7 @@ clos.forEach(clo => {
         return `
           <tr>
 
-            <td style="border:1px solid #000; vertical-align:top;">
+            <td style="width:35%; max-width:35%; border:1px solid #000; vertical-align:top;">
               CLO ${index + 1}:${clo.description || '-'}
             </td>
 

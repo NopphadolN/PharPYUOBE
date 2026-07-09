@@ -16,6 +16,13 @@ const renderSection2 = (data) => {
     const year = date.getFullYear() + 543;
     return `${day}/${month}/${year}`;
   };
+
+  const formatTopic = (text = '') => {
+  return text
+    .replace(/(\d+\.\d+)/g, '<br>$1')
+    .replace(/^<br>/, '');
+};
+
 const shortName = (name) => {
   if (!name) return '-';
   return name.trim().split(/\s+/)[0];
@@ -53,12 +60,13 @@ const getInstructorName = (r) => {
 
       <tbody>
         ${rows.map(r => `
-          <tr style="vertical-align:top">
+          <tr style="vertical-align: top">
             <td>${formatDate(r.date)}</td>
-            <td style="text-align:center">${r.order}</td>
-            <td>${r.topic}</td>
-            <td style="text-align:center">${r.hours}</td>
-            <td style="text-align:center; white-space: nowrap;">${getInstructorName(r)}</td>
+            <td style="text-align: center">${r.order}</td>
+            <td style="text-align:justify; text-justify: inter-word;
+            ">${formatTopic(r.topic)}</td>
+            <td style="text-align: center">${r.hours}</td>
+            <td style="text-align: center; white-space: nowrap;">${getInstructorName(r)}</td>
           </tr>
         `).join('')}
 

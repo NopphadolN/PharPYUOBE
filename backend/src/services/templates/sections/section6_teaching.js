@@ -91,6 +91,12 @@ const getLLO = (c) => {
   return c.topic;
 };
 
+const formatTopic = (text = '') => {
+  return text
+    .replace(/(\d+\.\d+)/g, '<br>$1')
+    .replace(/^<br>/, '');
+};
+
   // ✅ activity
   const getActivity = (c) => {
     if (c.type === 'lecture') return '- บรรยาย';
@@ -132,10 +138,12 @@ const getLLO = (c) => {
             <td style="border:1px solid #000; text-align:center;">
               ${getWeek(c.date)}
             </td>
-            <td style="border:1px solid #000;">
-              ${c.topic || '-'}
+            <td style="border:1px solid #000; 
+            text-align:justify; text-justify: inter-word;">
+              ${formatTopic(c.topic || '-')}
             </td>
-            <td style="border:1px solid #000;">
+            <td style="border:1px solid #000;
+            text-align:justify; text-justify: inter-word;">
               ${getLLO(c)}
             </td>
             <td style="border:1px solid #000; text-align:center;">

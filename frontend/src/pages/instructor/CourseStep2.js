@@ -214,10 +214,19 @@ const addTeacher = (t) => {
 };
 
   const removeTeacher = (id) => {
-    setSelectedTeachers(prev =>
-      prev.filter(t => t.id !== id)
+  const usedInContent = contents.some(
+    c => Number(c.instructor) === Number(id)
+  );
+  if (usedInContent) {
+    alert(
+      'อาจารย์คนนี้ยังมีหัวข้อสอนอยู่ กรุณาแก้ไขที่หัวข้อสอนก่อน'
     );
-  };
+    return;
+  }
+  setSelectedTeachers(prev =>
+    prev.filter(t => t.id !== id)
+  );
+};
 
   /* =========================
      CONTENT CRUD

@@ -34,6 +34,7 @@ const generateTQF3 = async (data, res) => {
 
     `;
     html = html.replace('{{content}}', content);
+    html = html.replace('{{watermarkLogo}}', logoBase64);
 
     // ✅ launch browser (Render compatible)
     if (!browser) {
@@ -49,7 +50,7 @@ const generateTQF3 = async (data, res) => {
     await page.setCacheEnabled(true);
 
     // ✅ ใส่ HTML ลงไป
-    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    await page.setContent(html);
 
     // ✅ generate PDF
 // ✅ โหลด logo เป็น base64

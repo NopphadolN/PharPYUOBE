@@ -84,12 +84,26 @@ tr {
   h1, h2 {
     margin: 8px 0;
   }
+
+  .watermark {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform:
+    translate(-50%, -50%)
+    rotate(-35deg);
+  opacity: 0.05;
+  z-index: -1;
+  }
 </style>
 </head>
 
 <body>
-  <div class="document">
-    {{content}}
+
+  <div class="watermark">
+    data:image/png;base64,{{watermarkLogo}}"
+    />
   </div>
+    {{content}}
 </body>
 </html>

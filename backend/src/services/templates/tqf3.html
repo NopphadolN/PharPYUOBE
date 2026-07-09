@@ -85,29 +85,25 @@ tr {
     margin: 8px 0;
   }
 
-  .watermark {
+.watermark {
   position: fixed;
-  top: 50%;
+  top: 45%;
   left: 50%;
-  transform:
-    translate(-50%, -50%)
-    rotate(-35deg);
-  opacity: 0.08;
+  transform: translate(-50%, -50%) rotate(-35deg);
+  font-size: 80px;
+  font-weight: bold;
+  color: rgba(150,150,150,0.12);
   z-index: -1;
-  }
-
-  .watermark img {
-  width: 300px;
-  height: auto;
+  pointer-events: none;
+  white-space: nowrap;
 }
 </style>
 </head>
 
 <body>
-
-  <div class="watermark">
-    64,{{watermarkLogo}}" alt="watermark" />
-  </div>
+<div class="watermark">
+  PAYAP UNIVERSITY
+</div>
   {{content}}
 </body>
 

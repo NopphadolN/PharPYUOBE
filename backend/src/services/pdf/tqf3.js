@@ -20,10 +20,6 @@ const generateTQF3 = async (data, res) => {
     // ✅ โหลด template HTML
     const templatePath = path.join(__dirname, '../templates/tqf3.html');
     let html = fs.readFileSync(templatePath, 'utf8');
-
-    // ✅ โหลด logo เป็น base64
-const logoPath = path.join(__dirname, '../../assets/PayapLogo.png');
-const logoBase64 = fs.readFileSync(logoPath, { encoding: 'base64' });
     
     // ✅ รวม content
     const content = `
@@ -38,7 +34,6 @@ const logoBase64 = fs.readFileSync(logoPath, { encoding: 'base64' });
 
     `;
     html = html.replace('{{content}}', content);
-    html = html.replace('{{watermarkLogo}}', logoBase64);
 
     // ✅ launch browser (Render compatible)
     if (!browser) {
@@ -55,6 +50,10 @@ const logoBase64 = fs.readFileSync(logoPath, { encoding: 'base64' });
 
     // ✅ ใส่ HTML ลงไป
     await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    
+    // ✅ โหลด logo เป็น base64
+const logoPath = path.join(__dirname, '../../assets/PayapLogo.png');
+const logoBase64 = fs.readFileSync(logoPath, { encoding: 'base64' });
 
 // ✅ generate PDF
 let buffer = await page.pdf({

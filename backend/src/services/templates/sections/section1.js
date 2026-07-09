@@ -22,7 +22,7 @@ const renderSection1 = (data) => {
     <p><b>2. เงื่อนไขที่ต้องผ่านก่อน:</b> ${course.prerequisite || '-'}</p>
     <p><b>3. ประเภทของรายวิชา:</b> ${course.course_type || '-'}</p>
     <p><b>4. คำอธิบายลักษณะกระบวนวิชา:</b></p>   
-            <div style="text-indent: 40px; justify-content:space-between;">
+            <div style="text-indent: 40px; text-align: justify; text-justify: inter-word;">
             ${course.description || '-'}
             </div>
 
@@ -35,13 +35,13 @@ const renderSection1 = (data) => {
     
     <p style="margin-left: 40px;"><b>5.2 อาจารย์ผู้สอน</p></b></p>
     ${instructors.map(i => `
-      <div style="text-indent: 80px;">- ${i.name_th}</div>`).join('')}
+      <div style="text-indent: 120px;">${i.name_th}</div>`).join('')}
       <p style="margin-left: 120px;"><b>ประเภท</b>  อาจารย์ประจำ</p>
 
     ${(Array.isArray(guestTeachers) && guestTeachers.length > 0)
     ? `
     ${guestTeachers.map(g => `
-      <div style="text-indent: 80px; margin-top:15px;">- ${g}</div>`).join('')}
+      <div style="text-indent: 120px; margin-top:15px;">${g}</div>`).join('')}
       <p style="margin-left: 120px;"><b>ประเภท</b> อาจารย์พิเศษ</p>
       `
     : ''
@@ -52,8 +52,10 @@ const renderSection1 = (data) => {
     <p style="margin-left: 40px;">
     เมื่อสิ้นสุดการเรียนการสอนแล้ว นักศึกษาที่สำเร็จการศึกษาในรายวิชา สามารถ<p>
     ${clos.map((c, i) => `
-      <div style="text-indent: 40px;"><b>6.${i+1}. ${c.code}</b>
-      ${c.description}</div>
+      <div style="text-indent: 40px; 
+      text-align: justify; text-justify: inter-word;">
+      <b>6.${i+1}.</b>
+      ${c.description} (${c.code})</div>
     `).join('')}
 
   </div>

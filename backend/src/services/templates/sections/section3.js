@@ -91,7 +91,8 @@ const formatContentRange = (ids) => {
       <div class="heading">
       <p style="margin-top: 20px;"><b>8. รายชื่อหนังสือประกอบการสอน</b></p>
       </div>
-      <div style="text-indent: 40px;">
+      <div style="text-indent: 40px;
+      text-align: justify; text-justify: inter-word;">
       ${(Array.isArray(books) && books.length
   ? [...books].sort((a, b) => a.localeCompare(b, 'th'))
   : ['-']).map((b, i) => `
@@ -102,6 +103,7 @@ const formatContentRange = (ids) => {
       <p><b>9. สัดส่วนการให้คะแนน</b></p>
       </div>
 <table>
+<thead>
   <tr>
     <th>การประเมิน</th>
     <th>CLOs</th>
@@ -111,6 +113,7 @@ const formatContentRange = (ids) => {
     <th>เครื่องมือ</th>
     <th>สัปดาห์</th>
   </tr>
+</thead>
 
   ${evalList.map(e => `
     <tr style="vertical-align:top">
@@ -137,7 +140,8 @@ const formatContentRange = (ids) => {
       <div class="heading">
       <p style="margin-top: 20px;"><b>10. เกณฑ์การประเมินผล</b></p>
       </div>
-      <div style="text-indent: 40px; justify-content:space-between;">
+      <div style="text-indent: 40px;
+      text-align: justify; text-justify: inter-word;">
       <p>• ในกรณีที่ไม่สามารถมาเข้าชั้นเรียน นักศึกษาต้องแจ้งให้อาจารย์ประจำวิชาทราบ 
       <b>โดยมีใบรับรองแพทย์ หรือหนังสือยืนยันจากผู้ปกครองทุกครั้งที่ขาดเรียน หากไม่ปฏิบัติตาม 
       จะถูกนับว่าขาดเรียน</b>ครั้งนั้น</p>
@@ -174,11 +178,14 @@ ${sortedGrading.map(g => {
 </div>
   `;
 }).join('')}
-${note ? `<div style="text-indent: 40px; margin-top: 10px;">${note}</div>` : ''}
+${note ? `<div style="text-indent: 40px; margin-top: 10px;
+  text-align: justify; text-justify: inter-word;
+  ">${note}</div>` : ''}
       <div class="heading">
       <p><b>แนวทางการอุทธรณ์ของนักศึกษา/ผู้เรียน Appeal procedure</b></p>
       </div>
-      <p style="text-indent: 40px; text-align: justify;">
+      <p style="text-indent: 40px;
+      text-align: justify; text-justify: inter-word;">
       นักศึกษาสามารถทำเรื่องอุทธรณ์ผลการเรียนโดย Download แบบคำร้อง (ใช้คำร้องทั่วไป) ได้ที่ระบบ
 e-registra และยื่นคำร้องได้ที่สำนักงานฝ่ายวิชาการและวิจัยภายใน 10 วันทำการ หลังจากประกาศผลการ
 เรียนในระบบ e-registra</p>

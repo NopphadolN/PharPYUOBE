@@ -38,6 +38,7 @@ const getInstructorName = (r) => {
 };
 
   const renderTable = (rows, total, title) => `
+  
     <p><b>${title}</b></p>
     <table>
       <thead>

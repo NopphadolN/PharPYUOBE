@@ -54,9 +54,7 @@ const logoBase64 = fs.readFileSync(logoPath, { encoding: 'base64' });
     await page.setCacheEnabled(true);
 
     // ✅ ใส่ HTML ลงไป
-    await page.setContent(html);
-
-    // ✅ generate PDF
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
 
 // ✅ generate PDF
 let buffer = await page.pdf({

@@ -5,6 +5,23 @@ const renderSection8 = (data) => {
   // ✅ helper checkbox
   const box = (checked) => checked ? '☑' : '☐';
 
+  const formatRevisionNote = (text = '') => {
+  return text
+    .replace(/\s*-\s+/g, '\n- ')
+    .split('\n')
+    .map(x => x.trim())
+    .filter(Boolean)
+    .map(line => `
+      <div style="
+        margin-bottom:6px;
+        text-align:justify;
+      ">
+        ${line}
+      </div>
+    `)
+    .join('');
+};
+
   return `
   <div class="section">
 
@@ -105,8 +122,12 @@ const renderSection8 = (data) => {
     </thead>
     <tr>
       <!-- ✅ revision_note -->
-      <td style="border:1px solid #000; vertical-align:top; padding:5px;">
-        ${revision_note || '-'}
+      <td style="border:1px solid #000; 
+      vertical-align:top; padding:5px;">        
+      ${revision_note
+      ? formatRevisionNote(revision_note)
+      : '-'
+      }
       </td>
       <!-- ✅ checkbox ด้านขวา -->
       <td style="border:1px solid #000; vertical-align:top; padding:10px; line-height:1.4;">

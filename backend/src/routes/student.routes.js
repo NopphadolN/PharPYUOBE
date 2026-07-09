@@ -30,21 +30,25 @@ router.get('/courses-by-term', async (req, res) => {
 
       WHERE ci.year = $1
       AND ci.semester = $2
-
       AND (
+        ci.owner_id = $3
+        
+        OR
         EXISTS (
-          SELECT 1 FROM course_instructors ci2
+          SELECT 1
+          FROM course_instructors ci2
           WHERE ci2.course_instance_id = ci.id
           AND ci2.user_id = $3
         )
+
         OR
         EXISTS (
-          SELECT 1 FROM course_contents cc
+          SELECT 1
+          FROM course_contents cc
           WHERE cc.course_instance_id = ci.id
           AND cc.instructor_id = $3
         )
       )
-
       ORDER BY c.code_th
     `, [year, semester, userId]);
 

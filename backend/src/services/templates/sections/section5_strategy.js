@@ -136,7 +136,9 @@ clos.forEach(clo => {
         return `
           <tr>
 
-            <td style="width:35%; max-width:35%; border:1px solid #000; vertical-align:top;">
+            <td style="width:35%; max-width:35%; border:1px solid #000; 
+            vertical-align:top;
+            text-align:justify; text-justify: inter-word;">
               CLO ${index + 1}:${clo.description || '-'}
             </td>
 

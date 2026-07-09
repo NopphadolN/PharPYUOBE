@@ -138,12 +138,10 @@ const formatTopic = (text = '') => {
             <td style="border:1px solid #000; text-align:center;">
               ${getWeek(c.date)}
             </td>
-            <td style="border:1px solid #000; 
-            text-align:justify; text-justify: inter-word;">
+            <td style="border:1px solid #000;">
               ${formatTopic(c.topic || '-')}
             </td>
-            <td style="border:1px solid #000;
-            text-align:justify; text-justify: inter-word;">
+            <td style="border:1px solid #000;">
               ${getLLO(c)}
             </td>
             <td style="border:1px solid #000; text-align:center;">

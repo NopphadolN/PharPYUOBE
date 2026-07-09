@@ -92,18 +92,23 @@ tr {
   transform:
     translate(-50%, -50%)
     rotate(-35deg);
-  opacity: 0.05;
+  opacity: 0.08;
   z-index: -1;
   }
+
+  .watermark img {
+  width: 300px;
+  height: auto;
+}
 </style>
 </head>
 
 <body>
 
   <div class="watermark">
-    data:image/png;base64,{{watermarkLogo}}"
-    />
+    64,{{watermarkLogo}}" alt="watermark" />
   </div>
-    {{content}}
+  {{content}}
 </body>
+
 </html>

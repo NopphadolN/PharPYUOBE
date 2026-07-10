@@ -28,7 +28,7 @@ exports.getUsers = async () => {
 
 exports.getMe = async (userId) => {
   const result = await pool.query(`
-    SELECT id, name_th
+    SELECT id, name_th, can_edit_all_courses
     FROM users
     WHERE id = $1
   `, [userId]);

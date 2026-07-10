@@ -406,7 +406,12 @@ const ploGroups = subPlos.reduce((acc, p) => {
   return acc;
 }, {});
 
-const isOwner = ownerUser?.id === user?.id;
+const isOwner =
+  user &&
+  (
+    user.id === ownerUser?.id ||
+    user.can_edit_all_courses === true
+  );
 const hasOwner = !!ownerUser;
 
 if (loadingCourses) {

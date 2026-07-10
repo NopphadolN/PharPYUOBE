@@ -118,7 +118,6 @@ const formatContentRange = (ids) => {
   <th style="width:25%;">
     การวัดผลประเมินผล/<br>
     เครื่องมือที่ใช้ในการวัดผล<br>
-    (Formative/Summative/Diagnostic)
   </th>
   <th style="width:8%;">
     สัปดาห์ที่<br>
@@ -133,9 +132,7 @@ const formatContentRange = (ids) => {
 
 <tbody>
 ${evalList.map(e => {
-  const cloText = getCLOCodes(e)
-    ? getCLOCodes(e).split(',').join('<br>')
-    : '-';
+  const cloText = getCLOCodes(e) || '-';
   const lectureText = formatContentRange(
     e.content_ids_lecture || []
   );

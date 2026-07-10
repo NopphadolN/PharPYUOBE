@@ -228,67 +228,53 @@ const isStudentCLOPass = (studentId, courseId, cloCode) => {
   return result?.is_pass ?? false;
 };
 
-const cloChartData = selectedCourse ? {
+const cloBarData = selectedCourse ? {
   labels: cloList.map(c => c.code),
-  datasets: [{
-    label: 'CLO %',
-    data: cloList.map(c => {
-      const val = getStudentCLOPercent(
-        selectedStudent.id,
-        selectedCourse,
-        c.code
-      );
-      return Number((val ?? 0).toFixed(2));
-    }),
-    backgroundColor: 'rgba(168, 230, 207, 0.2)',
-    borderColor: '#A8E6CF',
-    pointBackgroundColor: cloList.map(c => {
-      const pass = isStudentCLOPass(
-        selectedStudent.id,
-        selectedCourse,
-        c.code
-      );
-      return pass
-        ? '#5af4bb'
-        : '#ff6f61';
-    }),
-    pointBorderColor: cloList.map(c => {
-      const pass = isStudentCLOPass(
-        selectedStudent.id,
-        selectedCourse,
-        c.code
-      );
-      return pass
-        ? '#5af4bb'
-        : '#cc0000';
-    }),
-    pointRadius: 6
-  }]
+  datasets: [
+    {
+      label: 'CLO Achievement (%)',
+      data: cloList.map(c =>
+        Number(
+          getStudentCLOPercent(
+            selectedStudent.id,
+            selectedCourse,
+            c.code
+          ) || 0
+        )
+      ),
+      backgroundColor: cloList.map(c => {
+        const pass =
+          isStudentCLOPass(
+            selectedStudent.id,
+            selectedCourse,
+            c.code
+          );
+        return pass
+          ? 'rgba(34,197,94,0.8)'
+          : 'rgba(239,68,68,0.8)';
+      })
+    }
+  ]
 } : null;
 
-const radarOptions = {
+const cloBarOptions = {
+  responsive: true,
   scales: {
-    r: {
+    y: {
       min: 0,
-      max: 100,
-      ticks: { stepSize: 20 }
+      max: 100
     }
   },
   plugins: {
+    legend: {
+      display: false
+    },
     tooltip: {
       callbacks: {
-        label: (ctx) => {
-          const ploCode = ctx.label;
-          const plo = plos.find(p => p.code === ploCode);
-          const desc = plo?.description || '';
-          return [
-            `ค่า: ${ctx.raw}%`,
-            desc
-          ];
-        }
+        label: (ctx) =>
+          `${ctx.raw}%`
       }
-    },
-    legend: { display: true }
+    }
   }
 };
 
@@ -474,8 +460,8 @@ const getCourseInfo = (courseId) => {
       <div className="w-auto items-center h-auto">
         <h4 className="font-medium mb-2">
           CLO ({getCourseInfo(selectedCourse)})
-        </h4>
-        <Radar data={cloChartData} options={radarOptions} />
+        </h4>        
+        <Bar data={cloBarData} options={cloBarOptions}/>
       </div>
 
       {/* ✅ CLO LIST */}

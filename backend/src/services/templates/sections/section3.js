@@ -91,8 +91,7 @@ const formatContentRange = (ids) => {
       <div class="heading">
       <p style="margin-top: 20px;"><b>8. รายชื่อหนังสือประกอบการสอน</b></p>
       </div>
-      <div style="text-indent: 40px;
-      text-align: justify; text-justify: inter-word;">
+      <div style="text-indent: 40px;">
       ${(Array.isArray(books) && books.length
   ? [...books].sort((a, b) => a.localeCompare(b, 'th'))
   : ['-']).map((b, i) => `

@@ -77,35 +77,106 @@ const getCLOCodes = (e) => {
   <div class="heading">
     <p><strong>2. แผนการประเมินผลการเรียนรู้</strong></p>
   </div>
-    <table style="width:100%; border-collapse: collapse; font-size:21px;">
-    <thead>  
-    <tr>
-        <th style="border:1px solid #000;">การประเมิน</th>
-        <th style="border:1px solid #000;">CLOs</th>
-        <th style="border:1px solid #000;">คะแนน</th>
-        <th style="border:1px solid #000;">หัวข้อบรรยาย</th>
-        <th style="border:1px solid #000;">หัวข้อปฏิบัติ</th>
-        <th style="border:1px solid #000;">เครื่องมือ</th>
-        <th style="border:1px solid #000;">สัปดาห์</th>
-      </tr>
-    </thead>
-      ${evalList.map(e => `
-        <tr style="vertical-align:top">
-          <td style="border:1px solid #000;">${e.name || '-'}</td>
-          <td style="border:1px solid #000; text-align:center;">${getCLOCodes(e) || '-'}</td>
-          <td style="border:1px solid #000; text-align:center;">${e.total ?? '-'}</td>
-          <td style="border:1px solid #000; text-align:center;">${formatContentRange(e.content_ids_lecture || [])}</td>
-          <td style="border:1px solid #000; text-align:center;">${formatContentRange(e.content_ids_lab || [])}</td>
-          <td style="border:1px solid #000;">${e.tool || '-'}</td>
-          <td style="border:1px solid #000; text-align:center;">${e.week || '-'}</td>
-        </tr>
-      `).join('')}
-      <tr style="font-weight:bold; text-align:center;">
-        <td colspan="2">รวม</td>
-        <td>${totalEval}</td>
-        <td></td><td></td><td></td><td></td>
-      </tr>
-    </table>
+<table style="table-layout:fixed;">
+<thead>
+<tr>
+  <th style="width:16%;">
+    วิธีการประเมิน
+  </th>
+  <th style="width:18%;">
+    ผลลัพธ์การเรียนรู้ที่คาดหวังของรายวิชา<br>
+    (CLOs)
+  </th>
+  <th style="width:22%;">
+    หัวข้อที่ประเมิน
+  </th>
+  <th style="width:25%;">
+    การวัดผลประเมินผล/<br>
+    เครื่องมือที่ใช้ในการวัดผล<br>
+  </th>
+  <th style="width:8%;">
+    สัปดาห์ที่<br>
+    ประเมิน
+  </th>
+  <th style="width:11%;">
+    สัดส่วนการ<br>
+    ประเมินผล (%)
+  </th>
+</tr>
+</thead>
+
+<tbody>
+${evalList.map(e => {
+  const cloText = getCLOCodes(e) || '-';
+  const lectureText = formatContentRange(
+    e.content_ids_lecture || []
+  );
+  const labText = formatContentRange(
+    e.content_ids_lab || []
+  );
+  let topicText = '-';
+  if (
+    lectureText !== '-' &&
+    labText !== '-'
+  ) {
+    topicText =
+      `${lectureText} (บรรยาย)<br>${labText} (ปฏิบัติ)`;
+  }
+  else if (lectureText !== '-') {
+    topicText = `${lectureText} (บรรยาย)`;
+  }
+  else if (labText !== '-') {
+    topicText = `${labText} (ปฏิบัติ)`;
+  }
+  return `
+
+  <tr style="vertical-align:top;">
+    <td style="
+      text-align:center;
+    ">
+      ${e.name || '-'}
+    </td>
+    <td style="
+      text-align:center;
+    ">
+      ${cloText}
+    </td>
+    <td style="
+      text-align:center;
+    ">
+      ${topicText}
+    </td>
+    <td style="
+      text-align:center;
+    ">
+      ${e.tool || '-'}
+    </td>
+    <td style="
+      text-align:center;
+    ">
+      ${e.week || '-'}
+    </td>
+    <td style="
+      text-align:center;
+    ">
+      ${e.total ?? '-'}
+    </td>
+  </tr>
+  `;
+}).join('')}
+<tr style="
+  font-weight:bold;
+  text-align:center;
+">
+  <td colspan="5">
+    รวม
+  </td>
+  <td>
+    ${totalEval}
+  </td>
+</tr>
+</tbody>
+</table>
 
     <!-- ✅ เกณฑ์ -->
   <div class="heading">
@@ -162,8 +233,7 @@ e-registra และยื่นคำร้องได้ที่สำนั
       </div>
       <p><strong>1. ตำราและเอกสารหลัก</strong></p>
     </div>
-      <div style="text-indent: 40px; 
-      text-align: justify; text-justify: inter-word;">
+      <div style="text-indent: 40px;">
         ${(Array.isArray(books) && books.length
           ? books
           : ['-']

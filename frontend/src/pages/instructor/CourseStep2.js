@@ -118,7 +118,7 @@ useEffect(() => {
       setCourseType(data.course_type || '');
       setGuestTeachers(data.guestTeachers || []);
       setOwner(data.owner);
-      setCourses(data);
+      
       setInstanceId(data.id);
       // ✅ owner check
       if (user && data.owner && user.id === data.owner.id) {

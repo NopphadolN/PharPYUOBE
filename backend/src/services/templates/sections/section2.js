@@ -63,8 +63,7 @@ const getInstructorName = (r) => {
           <tr style="vertical-align: top">
             <td>${formatDate(r.date)}</td>
             <td style="text-align: center">${r.order}</td>
-            <td style="text-align:justify; text-justify: inter-word;
-            ">${formatTopic(r.topic)}</td>
+            <td>${formatTopic(r.topic)}</td>
             <td style="text-align: center">${r.hours}</td>
             <td style="text-align: center; white-space: nowrap;">${getInstructorName(r)}</td>
           </tr>

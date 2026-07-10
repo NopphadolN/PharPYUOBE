@@ -256,7 +256,6 @@ const cloBarData = selectedCourse ? {
     }
   ]
 } : null;
-
 const cloBarOptions = {
   responsive: true,
   scales: {
@@ -275,6 +274,32 @@ const cloBarOptions = {
           `${ctx.raw}%`
       }
     }
+  }
+};
+
+const radarOptions = {
+  scales: {
+    r: {
+      min: 0,
+      max: 100,
+      ticks: { stepSize: 20 }
+    }
+  },
+  plugins: {
+    tooltip: {
+      callbacks: {
+        label: (ctx) => {
+          const ploCode = ctx.label;
+          const plo = plos.find(p => p.code === ploCode);
+          const desc = plo?.description || '';
+          return [
+            `ค่า: ${ctx.raw}%`,
+            desc
+          ];
+        }
+      }
+    },
+    legend: { display: true }
   }
 };
 
@@ -460,8 +485,8 @@ const getCourseInfo = (courseId) => {
       <div className="w-auto items-center h-auto">
         <h4 className="font-medium mb-2">
           CLO ({getCourseInfo(selectedCourse)})
-        </h4>        
-        <Bar data={cloBarData} options={cloBarOptions}/>
+        </h4>
+        <Bar data={cloBarData} options={cloBarOptions} />
       </div>
 
       {/* ✅ CLO LIST */}

@@ -459,23 +459,6 @@ const distributeScores = (contents, evaluations) => {
   return updated;
 };
 
-const duplicateLecture =
-  contents
-    .filter(c => c.type === 'lecture')
-    .some((c, i, arr) =>
-      arr.findIndex(x =>
-        Number(x.order) === Number(c.order)
-      ) !== i
-    );
-const duplicateLab =
-  contents
-    .filter(c => c.type === 'lab')
-    .some((c, i, arr) =>
-      arr.findIndex(x =>
-        Number(x.order) === Number(c.order)
-      ) !== i
-    );
-
 /* =========================
    SAVE (FULL VERSION)
 ========================= */
@@ -509,6 +492,38 @@ const handleSave = async () => {
 // ✅ 1. เริ่มจาก contents เดิม
 const calculatedContents =
   distributeScores(contents, evaluations);
+
+// ✅ 2. ตรวจสอบ order ซ้ำ  
+const duplicateLecture =
+  calculatedContents
+    .filter(c => c.type === 'lecture')
+    .some((c, i, arr) =>
+      arr.findIndex(x =>
+        Number(x.order) === Number(c.order)
+      ) !== i
+    );
+const duplicateLab =
+  calculatedContents
+    .filter(c => c.type === 'lab')
+    .some((c, i, arr) =>
+      arr.findIndex(x =>
+        Number(x.order) === Number(c.order)
+      ) !== i
+    );
+if (duplicateLecture) {
+  alert(
+    'พบลำดับหัวข้อบรรยายซ้ำ กรุณาตรวจสอบ order'
+  );
+  setLoading(false);
+  return;
+}
+if (duplicateLab) {
+  alert(
+    'พบลำดับหัวข้อปฏิบัติซ้ำ กรุณาตรวจสอบ order'
+  );
+  setLoading(false);
+  return;
+}
 
 // ✅ 3. map เพื่อ prepare data สำหรับ backend
 let cleanContents = calculatedContents.map(c => {

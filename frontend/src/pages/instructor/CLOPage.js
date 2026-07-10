@@ -424,6 +424,11 @@ const handleImport = () => {
   alert('✅ นำเข้าคะแนนแล้ว');
 };
 
+const cloDescMap = {};
+clos.forEach(clo => {
+  cloDescMap[clo.code] = clo.description || '';
+});
+
 // คำนวนกราฟ
 const getClassAvgCLO = () => {
   const result = {};
@@ -456,11 +461,26 @@ const barData = {
   ]
 };
 const barOptions = {
-  indexAxis: 'y', // ✅ แนวนอน
+  indexAxis: 'y',
   scales: {
     x: {
       min: 0,
       max: 100
+    }
+  },
+  plugins: {
+    tooltip: {
+      callbacks: {
+        title: (items) => {
+          return items[0].label;
+        },
+        label: (ctx) => {
+          return `ค่าเฉลี่ย: ${Number(ctx.raw).toFixed(2)}%`;
+        },
+        afterLabel: (ctx) => {
+          return cloDescMap[ctx.label] || '';
+        }
+      }
     }
   }
 };

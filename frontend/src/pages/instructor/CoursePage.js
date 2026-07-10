@@ -561,7 +561,7 @@ if (loadingCourses) {
     </div>
     <div className="col-span-10">
       <Input
-        placeholder="ระบุคำอธิบาย (เลข Sub PLO ที่เกี่ยวข้อง) (อักษร KSEC ที่เกี่ยวข้อง)"
+        placeholder="คำอธิบาย (เลข Sub PLO ที่เกี่ยวข้อง) (อักษร KSEC ที่เกี่ยวข้อง) ไม่ต้องใส่เลขหัวข้อ"
         value={currentClo.description}
         onChange={e =>
           setCurrentClo({ ...currentClo, description: e.target.value })
@@ -612,8 +612,9 @@ if (loadingCourses) {
 </div>
 <div className="mt-4">
   <Button disabled={!isOwner} onClick={handleSave}>
-    💾 Add CLOs
+    💾 Add/Edit/Save CLOs
   </Button>
+  กรณีเพิ่ม CLO ใหม่ หรือกดแก้ไข CLO ให้กดปุ่มบันทึกนี้ทุกครั้ง
 </div>
 </Card>
 
@@ -651,6 +652,7 @@ if (loadingCourses) {
   <Button disabled={!isOwner} onClick={handleSave}>
     💾 Save CLOs
   </Button>
+  กรณีลบ CLO ให้กดปุ่มบันทึกนี้ทุกครั้ง (ระวัง!หากลบ CLO ที่กรอกคะแนนไปแล้ว ต้องกรอกคะแนนใหม่)
 </div>
 </Card>
 <Card>

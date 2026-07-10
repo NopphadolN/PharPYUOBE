@@ -119,39 +119,39 @@ const formatTopic = (text = '') => {
     <table style="width:100%; border-collapse: collapse;">
       <thead>
         <tr>
-          <th style="border:1px solid #000;">ผลลัพธ์การเรียนรู้ที่คาดหวังของรายวิชา CLOs</th>
-          <th style="border:1px solid #000;">สัปดาห์</th>
-          <th style="border:1px solid #000;">หัวข้อ/รายละเอียด</th>
-          <th style="border:1px solid #000;">วัตถุประสงค์การสอน (เฉพาะบท) LLOs</th>
-          <th style="border:1px solid #000;">จำนวนชั่วโมง</th>
-          <th style="border:1px solid #000;">กิจกรรมการเรียนการสอน และสื่อที่ใช้</th>
-          <th style="border:1px solid #000;">อาจารย์ผู้สอน</th>
+          <th>ผลลัพธ์การเรียนรู้ที่คาดหวังของรายวิชา CLOs</th>
+          <th>สัปดาห์</th>
+          <th>หัวข้อ/รายละเอียด</th>
+          <th>วัตถุประสงค์การสอน (เฉพาะบท) LLOs</th>
+          <th>จำนวนชั่วโมง</th>
+          <th>กิจกรรมการเรียนการสอน และสื่อที่ใช้</th>
+          <th>อาจารย์ผู้สอน</th>
         </tr>
       </thead>
 
       <tbody>
         ${sorted.map(c => `
           <tr style="vertical-align:top">
-            <td style="border:1px solid #000; text-align:center;">
+            <td style="text-align:center">
               ${formatClos(c.clo_ids)}
             </td>
-            <td style="border:1px solid #000; text-align:center;">
+            <td style="text-align:center">
               ${getWeek(c.date)}
             </td>
-            <td style="border:1px solid #000;">
+            <td>
               ${formatTopic(c.topic || '-')}
             </td>
-            <td style="border:1px solid #000;">
+            <td>
               ${getLLO(c)}
             </td>
-            <td style="border:1px solid #000; text-align:center;">
+            <td style="text-align:center">
               ${c.hours || '-'}
             </td>
-            <td style="border:1px solid #000;">
+            <td>
               ${getActivity(c)}
               <p>- เอกสารประกอบการสอน</p>
             </td>
-            <td style="border:1px solid #000; text-align:center; white-space: nowrap;">
+            <td style="text-align:center; white-space: nowrap;">
               ${getInstructorName(c)}
             </td>
           </tr>

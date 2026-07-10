@@ -65,31 +65,31 @@ const profile = data.instructorProfile || {};
     font-size: 21px; text-align: center;">
     <thead>
       <tr>
-        <td style="border:1px solid #000; padding:6px;">
+        <td style="padding:6px">
           <b>บรรยาย</b>
         </td>
-        <td style="border:1px solid #000; padding:6px;">
+        <td style="padding:6px">
           <b>สอนเสริม</b>
         </td>
-        <td style="border:1px solid #000; padding:6px;">
+        <td style="padding:6px">
           <b>การฝึกปฏิบัติงาน ภาคสนาม/การฝึกงาน</b>
         </td>
-        <td style="border:1px solid #000; padding:6px;">
+        <td style="padding:6px">
           <b>การศึกษาด้วยตนเอง</b>
         </td>
       </tr>
     </thead>
       <tr>
-        <td style="border:1px solid #000; padding:6px;">
+        <td style="padding:6px">
           ${hours.lecture} ชั่วโมง/ภาคการศึกษา
         </td>
-        <td style="border:1px solid #000; padding:6px;">
+        <td style="padding:6px">
           ตามความต้องการของนักศึกษารายบุคคลและกลุ่มผู้เรียน
         </td>
-        <td style="border:1px solid #000; padding:6px;">
+        <td style="padding:6px">
           ${hours.lab} ชั่วโมง/ภาคการศึกษา
         </td>
-        <td style="border:1px solid #000; padding:6px;">
+        <td style="padding:6px">
           ${hours.self} ชั่วโมง/ภาคการศึกษา
         </td>
       </tr>

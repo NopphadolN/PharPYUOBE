@@ -14,7 +14,7 @@ export default function CourseStep2() {
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef(null);
 
-  const [courses, setCourses] = useState(null);
+  
   const { course_id, year, semester } = location.state || {};
   const [showDropdown, setShowDropdown] = useState(false);
   const [instanceId, setInstanceId] = useState(null);

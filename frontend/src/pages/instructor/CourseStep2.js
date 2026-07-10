@@ -459,6 +459,23 @@ const distributeScores = (contents, evaluations) => {
   return updated;
 };
 
+const duplicateLecture =
+  contents
+    .filter(c => c.type === 'lecture')
+    .some((c, i, arr) =>
+      arr.findIndex(x =>
+        Number(x.order) === Number(c.order)
+      ) !== i
+    );
+const duplicateLab =
+  contents
+    .filter(c => c.type === 'lab')
+    .some((c, i, arr) =>
+      arr.findIndex(x =>
+        Number(x.order) === Number(c.order)
+      ) !== i
+    );
+
 /* =========================
    SAVE (FULL VERSION)
 ========================= */

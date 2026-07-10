@@ -50,12 +50,16 @@ exports.getClos = async (course_instance_id) => {
 
 // ================= SAVE CLO =================
 exports.saveClos = async (course_instance_id, clos, userId) => {
-  // ✅ check owner
   const ownerId = await repo.getOwner(course_instance_id);
-  if (!ownerId || ownerId !== userId) {
+  const user = await repo.getUserById(userId);
+  const canEditAll =
+    user?.can_edit_all_courses === true;
+  if (
+    !canEditAll &&
+    (!ownerId || ownerId !== userId)
+  ) {
     throw new Error("No permission");
   }
-  // ✅ upsert CLO
   await repo.upsertClos(course_instance_id, clos);
 };
 
@@ -65,12 +69,25 @@ exports.getEvaluations = async (course_instance_id) => {
 };
 
 // ================= SAVE Evaluations =================
-exports.saveEvaluations = async (course_instance_id, evaluations, userId) => {
+exports.saveEvaluations = async (
+  course_instance_id,
+  evaluations,
+  userId
+) => {
   const ownerId = await repo.getOwner(course_instance_id);
-  if (!ownerId || ownerId !== userId) {
+  const user = await repo.getUserById(userId);
+  const canEditAll =
+    user?.can_edit_all_courses === true;
+  if (
+    !canEditAll &&
+    (!ownerId || ownerId !== userId)
+  ) {
     throw new Error("No permission");
   }
-  await repo.upsertEvaluations(course_instance_id, evaluations);
+  await repo.upsertEvaluations(
+    course_instance_id,
+    evaluations
+  );
 };
 
 // ================= SAVE CloScores =================

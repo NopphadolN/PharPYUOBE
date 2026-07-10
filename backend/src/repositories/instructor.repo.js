@@ -26,13 +26,23 @@ exports.getUsers = async () => {
   return result.rows;
 };
 
+exports.getUserById = async (userId) => {
+  const result = await pool.query(`
+    SELECT
+      id,
+      can_edit_all_courses
+    FROM users
+    WHERE id = $1
+  `, [userId]);
+  return result.rows[0];
+};
+
 exports.getMe = async (userId) => {
   const result = await pool.query(`
     SELECT id, name_th, can_edit_all_courses
     FROM users
     WHERE id = $1
   `, [userId]);
-
   return result.rows[0];
 };
 

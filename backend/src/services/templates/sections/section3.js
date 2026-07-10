@@ -102,41 +102,110 @@ const formatContentRange = (ids) => {
       <div class="heading">  
       <p><b>9. สัดส่วนการให้คะแนน</b></p>
       </div>
-<table>
+<table style="table-layout:fixed;">
 <thead>
-  <tr>
-    <th>การประเมิน</th>
-    <th>CLOs</th>
-    <th>คะแนน</th>
-    <th>หัวข้อบรรยาย</th>
-    <th>หัวข้อปฏิบัติ</th>
-    <th>เครื่องมือ</th>
-    <th>สัปดาห์</th>
-  </tr>
+<tr>
+  <th style="width:16%;">
+    วิธีการประเมิน
+  </th>
+  <th style="width:18%;">
+    ผลลัพธ์การเรียนรู้ที่คาดหวังของรายวิชา<br>
+    (CLOs)
+  </th>
+  <th style="width:22%;">
+    หัวข้อที่ประเมิน
+  </th>
+  <th style="width:25%;">
+    การวัดผลประเมินผล/<br>
+    เครื่องมือที่ใช้ในการวัดผล<br>
+    (Formative/Summative/Diagnostic)
+  </th>
+  <th style="width:8%;">
+    สัปดาห์ที่<br>
+    ประเมิน
+  </th>
+  <th style="width:11%;">
+    สัดส่วนการ<br>
+    ประเมินผล (%)
+  </th>
+</tr>
 </thead>
 
-  ${evalList.map(e => `
-    <tr style="vertical-align:top">
-      <td>${e.name || '-'}</td>
-      <td style="text-align:center">${getCLOCodes(e) || '-'}</td>
-      <td style="text-align:center">${e.total ?? '-'}</td>
-      <td style="text-align:center">${formatContentRange(e.content_ids_lecture || [])}</td>
-      <td style="text-align:center">${formatContentRange(e.content_ids_lab || [])}</td>
-      <td>${e.tool || '-'}</td>
-      <td style="text-align:center">${e.week || '-'}</td>
-    </tr>
-  `).join('')}
+<tbody>
+${evalList.map(e => {
+  const cloText = getCLOCodes(e)
+    ? getCLOCodes(e).split(',').join('<br>')
+    : '-';
+  const lectureText = formatContentRange(
+    e.content_ids_lecture || []
+  );
+  const labText = formatContentRange(
+    e.content_ids_lab || []
+  );
+  let topicText = '-';
+  if (
+    lectureText !== '-' &&
+    labText !== '-'
+  ) {
+    topicText =
+      `${lectureText} (บรรยาย)<br>${labText} (ปฏิบัติ)`;
+  }
+  else if (lectureText !== '-') {
+    topicText = `${lectureText} (บรรยาย)`;
+  }
+  else if (labText !== '-') {
+    topicText = `${labText} (ปฏิบัติ)`;
+  }
+  return `
 
-  <!-- ✅ ✅ ✅ TOTAL ROW -->
-  <tr style="font-weight:bold; text-align:center;">
-    <td colspan="2">รวม</td>
-    <td >${totalEval}</td>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
+  <tr style="vertical-align:top;">
+    <td style="
+      text-align:center;
+    ">
+      ${e.name || '-'}
+    </td>
+    <td style="
+      text-align:center;
+    ">
+      ${cloText}
+    </td>
+    <td style="
+      text-align:center;
+    ">
+      ${topicText}
+    </td>
+    <td style="
+      text-align:center;
+    ">
+      ${e.tool || '-'}
+    </td>
+    <td style="
+      text-align:center;
+    ">
+      ${e.week || '-'}
+    </td>
+    <td style="
+      text-align:center;
+    ">
+      ${e.total ?? '-'}
+    </td>
   </tr>
+  `;
+}).join('')}
+<tr style="
+  font-weight:bold;
+  text-align:center;
+">
+  <td colspan="5">
+    รวม
+  </td>
+  <td>
+    ${totalEval}
+  </td>
+</tr>
+</tbody>
 </table>
+
       <div class="heading">
       <p style="margin-top: 20px;"><b>10. เกณฑ์การประเมินผล</b></p>
       </div>

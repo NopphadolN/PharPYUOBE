@@ -964,7 +964,12 @@ evaluations.forEach(e => {
   );
 };
 
-const isOwner = courses?.owner_id === user?.id;
+const isOwner =
+  user &&
+  (
+    user.id === ownerUser?.id ||
+    user.can_edit_all_courses === true
+  );
 
   /* =========================
      UI

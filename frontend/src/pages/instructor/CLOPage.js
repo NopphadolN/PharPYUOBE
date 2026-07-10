@@ -485,7 +485,12 @@ const barOptions = {
   }
 };
 
-const isOwner = user && owner && user.id === owner.id;
+const isOwner =
+  user &&
+  (
+    user.id === ownerUser?.id ||
+    user.can_edit_all_courses === true
+  );
 
 console.log("BTN STATE:", {
   loading,

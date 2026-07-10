@@ -270,13 +270,13 @@ const cloBarOptions = {
     },
     tooltip: {
       callbacks: {
-        label: (ctx) =>
-          `${ctx.raw}%`
+        label: (ctx) => {
+          return `${Number(ctx.raw).toFixed(2)}%`;
+        }
       }
     }
   }
-};
-
+}
 const radarOptions = {
   scales: {
     r: {
@@ -293,7 +293,7 @@ const radarOptions = {
           const plo = plos.find(p => p.code === ploCode);
           const desc = plo?.description || '';
           return [
-            `ค่า: ${ctx.raw}%`,
+            `ค่า: ${Number(ctx.raw).toFixed(2)}%`,
             desc
           ];
         }

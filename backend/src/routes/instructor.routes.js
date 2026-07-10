@@ -42,16 +42,34 @@ const checkOwner = async (req, res, next) => {
     }
     const ownerId = result.rows[0].owner_id;
 
-    // ✅ ถ้ายังไม่มี owner → block
-    if (!ownerId) {
-      return next(); 
-    }
-    if (ownerId !== userId) {
-      return res.status(403).json({
-        error: "You are not the owner"
-      });
-    }
-        next();
+// ✅ เช็ก flag ก่อน
+const userRes = await pool.query(`
+  SELECT can_edit_all_courses
+  FROM users
+  WHERE id = $1
+`, [userId]);
+
+const canEditAll =
+  userRes.rows[0]?.can_edit_all_courses === true;
+
+// ✅ คนที่มีสิทธิ์พิเศษ ผ่านได้เลย
+if (canEditAll) {
+  return next();
+}
+
+// ✅ ถ้ายังไม่มี owner
+if (!ownerId) {
+  return next();
+}
+
+// ✅ owner ปกติ
+if (ownerId !== userId) {
+  return res.status(403).json({
+    error: "You are not the owner"
+  });
+}
+
+next();
   } catch (err) {
     console.error(err);
     res.status(500).send("owner check error");

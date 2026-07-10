@@ -41,7 +41,7 @@ export default function CLOPage() {
   const [scores, setScores] = useState({});
   const [inputScores, setInputScores] = useState({});
   const [pasteText, setPasteText] = useState('');
-
+  
   const [owner, setOwner] = useState(null);
   const [user, setUser] = useState(null);
   const [actualScores, setActualScores] = useState({});
@@ -488,7 +488,7 @@ const barOptions = {
 const isOwner =
   user &&
   (
-    user.id === ownerUser?.id ||
+    user.id === owner?.id ||
     user.can_edit_all_courses === true
   );
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, Fragment, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import api from '../../services/api';
 import InstructorMenu from '../../components/InstructorMenu';
 import Card from '../../components/ui/Card';
@@ -34,6 +34,7 @@ export default function PLOPage() {
   const [yloResults, setYloResults] = useState([]);
   const [viewMode, setViewMode] = useState('plo'); 
   const [ylos, setYlos] = useState([]);
+  const [selectedPlo, setSelectedPlo] = useState(null);
 
   /* ================= LOAD DATA ================= */
 useEffect(() => {
@@ -173,6 +174,20 @@ const barOptions = {
   }
 };
 
+const getPloColor = (value) => {
+  const v = Number(value);
+  if (v >= 80) {
+    return 'bg-green-500';
+  }
+  if (v >= 50) {
+    return 'bg-yellow-400';
+  }
+  if (v > 0) {
+    return 'bg-orange-400';
+  }
+  return 'bg-red-500';
+};
+
   /* ================= UI ================= */
   return (
 <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-white">
@@ -240,12 +255,30 @@ const barOptions = {
 {viewMode === 'plo' && (
 <Card>
   <h3 className="font-semibold mb-3">PLO Results</h3>
+{/* Legend */}    
+<div className="flex gap-5 mb-4 text-sm">
+  <div className="flex items-center gap-2">
+    <div className="w-4 h-4 rounded-full bg-green-500"></div>
+    <span>≥ 80%</span>
+  </div>
+  <div className="flex items-center gap-2">
+    <div className="w-4 h-4 rounded-full bg-yellow-400"></div>
+    <span>50.0 - 79.9%</span>
+  </div>
+  <div className="flex items-center gap-2">
+    <div className="w-4 h-4 rounded-full bg-orange-400"></div>
+    <span>1.0 - 49.9%</span>
+  </div>
+  <div className="flex items-center gap-2">
+    <div className="w-4 h-4 rounded-full bg-red-500"></div>
+    <span>0%</span>
+  </div>
+</div>
+
   <div className="overflow-x-auto">
     <table className="text-sm border border-gray-400 border-collapse min-w-max">
-           
             {/* HEADER 1 */}
 <thead className="bg-gray-100 text-gray-700">
-
 <tr>
   <th rowSpan="2" className="border px-3">รหัส</th>
   <th rowSpan="2" className="border px-3">ชื่อ-สกุล</th>
@@ -253,37 +286,12 @@ const barOptions = {
   {plos.map(plo => (
     <th
       key={plo.id}
-      colSpan={plo.indicators.length + 1}
       className="border text-center bg-blue-50"
     >
       {plo.code}
     </th>
   ))}
 </tr>
-
-<tr>
-  {plos.map(plo => (
-    <Fragment key={plo.id}>
-
-      {plo.indicators.map(ind => (
-        <th key={ind.id} className="border text-xs 
-        text-center cursor-help hover:bg-yellow-100"          
-  title={`${ind.description || ''}${
-    ind.target ? ` (เป้า: ${ind.target})` : ''
-  }`}
->
-          {ind.code}
-        </th>
-      ))}
-
-      <th className="border text-blue-600 text-xs">
-        avg
-      </th>
-
-    </Fragment>
-  ))}
-</tr>
-
 </thead>
 
 <tbody>
@@ -292,45 +300,33 @@ const barOptions = {
   hover:bg-gray-50">
     <td className="px-3 py-2">{st.user_code}</td>
     <td className="px-3 py-2 text-left">{st.name_th}</td>
-    {plos.map(plo => {
-      const avg = getPloAvg(st.id, plo);
-      return (
-        <>
-          {plo.indicators.map(ind => {
-            const percent = getIndicatorPercent(st.id, ind.code);
-            let val = percent;
-              if (val === null) {
-                val = manualChecks?.[st.id]?.[ind.id]
-                ? 100
-                : 0;
-            }
-            return (
-              <td key={ind.id} 
-                className={`border-t text-center ${
-                      val
-                      ? Number(val) === 100
-                      ? 'text-green-600'
-                      : ''
-                      : ''
-                    }`}
-                    >
-                {val.toFixed(2)}%
-              </td>
-            );
-          })}
-          {/* AVG */}
-          <td
-            className={`text-center font-semibold ${
-              avg === 100
-                ? 'text-green-600'
-                : 'text-red-500'
-            }`}
-          >
-            {avg.toFixed(2)}%
-          </td>
-        </>
-      );
-    })}
+{plos.map((plo) => {
+  const avg = getPloAvg(st.id, plo);
+  return (
+    <td
+      key={plo.id}
+      className="text-center border px-3 py-2"
+    >
+      <button
+        onClick={() =>
+          setSelectedPlo({
+            student: st,
+            plo,
+            avg
+          })
+        }
+        className={`
+          w-5 h-5 rounded-full
+          mx-auto
+          transition
+          hover:scale-125
+          ${getPloColor(avg)}
+        `}
+        title={`${plo.code} : ${avg.toFixed(2)}%`}
+      />
+    </td>
+  );
+})}
   </tr>
 ))}
 </tbody>
@@ -389,6 +385,81 @@ const barOptions = {
   </table>
 </Card>
 )}
+
+{selectedPlo && (
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">    
+    <div className="bg-white rounded-xl shadow-lg p-6 w-[500px] max-w-[95vw]">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="font-bold text-lg">
+          {selectedPlo.student.name_th}
+        </h3>
+        <button
+          onClick={() => setSelectedPlo(null)}
+          className="text-gray-500 hover:text-red-500"
+        >
+          ✕
+        </button>
+      </div>
+      <div className="mb-4">
+        <div className="text-gray-600">
+          รหัส : {selectedPlo.student.user_code}
+        </div>
+        <div className="font-semibold">
+          {selectedPlo.plo.code}
+        </div>
+        <div className="text-blue-600">
+          Average : {selectedPlo.avg.toFixed(2)}%
+        </div>
+      </div>
+      <div className="space-y-2">
+        {selectedPlo.plo.indicators.map((ind) => {
+          let percent = getIndicatorPercent(
+            selectedPlo.student.id,
+            ind.code
+          );
+          if (percent === null) {
+            percent =
+              manualChecks?.[selectedPlo.student.id]?.[ind.id]
+                ? 100
+                : 0;
+          }
+          return (
+            <div
+              key={ind.id}
+              className="border rounded-lg p-3"
+            >
+  <div className="flex justify-between items-start gap-4">
+    <div>
+      <div className="font-medium">
+        {ind.description || ind.code}
+      </div>
+    </div>
+    <span className="font-semibold whitespace-nowrap">
+      {percent.toFixed(2)}%
+    </span>
+  </div>
+              <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                <div
+                  className={`h-2 rounded-full ${
+                    percent >= 80
+                      ? 'bg-green-500'
+                      : percent >= 50
+                      ? 'bg-yellow-400'
+                      : percent > 0
+                      ? 'bg-orange-400'
+                      : 'bg-red-500'
+                  }`}
+                  style={{ width: `${percent}%` }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   );

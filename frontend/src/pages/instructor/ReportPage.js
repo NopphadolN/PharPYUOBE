@@ -44,13 +44,11 @@ export default function ReportPage() {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [courses, setCourses] = useState([]);
-
   const [clos, setClos] = useState([]);
-  
   const [courseYear, setCourseYear] = useState('');
   const [courseSemester, setCourseSemester] = useState('');
-
   const [yloResults, setYloResults] = useState([]);
+  const [indicatorScores, setIndicatorScores] = useState([]);
 
   /* ================= LOAD ================= */
 useEffect(() => {
@@ -63,6 +61,7 @@ useEffect(() => {
 let cloRes = { data: [] };
 let courseResultRes = { data: [] };
 let courseMasterRes = { data: [] };
+let indicatorRes = { data: [] };
 
 try {
   cloRes = await api.get('/instructor/clo-results');
@@ -79,6 +78,11 @@ try {
 } catch (e) {
   console.log("COURSE MASTER error", e.message);
 }
+try {
+  indicatorRes = await api.get('/instructor/clo-indicator-scores-all');
+} catch(e){
+  console.log('INDICATOR ERROR', e.message);
+}
 
       // ✅ สำคัญ: set ก่อน แม้ API อื่นพัง
       setStudents(stuRes.data);
@@ -87,6 +91,7 @@ try {
       setCloResults(cloRes.data);
       setCourseResults(courseResultRes.data);
       setCourses(courseMasterRes.data);
+      setIndicatorScores(indicatorRes.data);
 
     } catch (err) {
       console.log("MAIN ERROR:", err.message);
@@ -188,17 +193,23 @@ const getPloAvg = (studentId, plo) => {
     .filter((v, i, arr) => arr.indexOf(v) === i);
 };
 
-  /* ================= CLO LIST ================= */
+const getStudentIndicatorPercent = (studentId, indicatorId) => {
+  const rows = indicatorScores.filter(r =>
+    String(r.student_id) === String(studentId) &&
+    String(r.indicator_id) === String(indicatorId)
+    );
+  if (!rows.length) {
+    return 0;
+  }
+  const totalScore = rows.reduce((sum,row) => sum + Number(row.score || 0), 0);
+  const totalFull = rows.reduce((sum,row) => sum + Number(row.full_score || 0), 0);
+  if (totalFull === 0) {
+    return 0;
+  }
+  return (totalScore / totalFull) * 100;
+};
 
   /* ================= CLO % ================= */
-const getStudentCLOPercent = (studentId, courseId, cloCode) => {
-  const result = cloResults.find(r =>
-    String(r.student_id) === String(studentId) &&
-    String(r.course_id) === String(courseId) &&
-    String(r.clo_code) === String(cloCode)
-  );
-  return Number(result?.percent ?? 0);
-};
 
   /* ================= PLO CHART ================= */
 const ploChartData = selectedStudent ? {
@@ -215,47 +226,39 @@ const ploChartData = selectedStudent ? {
 } : null;
 
   /* ================= CLO CHART ================= */  
-const cloList = clos
-    .sort((a, b) =>
-      a.code.localeCompare(b.code)
-    );
-const isStudentCLOPass = (studentId, courseId, cloCode) => {
-  const result = cloResults.find(r =>
-    String(r.student_id) === String(studentId) &&
-    String(r.course_id) === String(courseId) &&
-    String(r.clo_code) === String(cloCode)
-  );
-  return result?.is_pass ?? false;
-};
-
-const cloBarData = selectedCourse ? {
-  labels: cloList.map(c => c.code),
+const indicatorBarData = selectedCourse? {
+labels:
+  clos.flatMap(clo =>
+    (clo.indicators || [])
+      .map(
+        (ind,idx) => [
+          clo.code,
+          `ID${idx + 1}`
+        ]
+      )
+  ),
   datasets: [
     {
-      label: 'CLO Achievement (%)',
-      data: cloList.map(c =>
-        Number(
-          getStudentCLOPercent(
-            selectedStudent.id,
-            selectedCourse,
-            c.code
-          ) || 0
+      label: 'Indicator Achievement (%)',
+      data: clos.flatMap(clo =>
+          (clo.indicators || [])
+          .map(ind => Number(getStudentIndicatorPercent
+            (selectedStudent.id, ind.id)
+            ))),
+      backgroundColor: clos.flatMap(clo =>
+          (clo.indicators || [])
+            .map(ind => getStudentIndicatorPercent(
+            selectedStudent.id, ind.id) >=
+              Number( ind.target || 50)
+              ? 'rgba(34,197,94,0.8)'
+              : 'rgba(239,68,68,0.8)'
+            )
         )
-      ),
-      backgroundColor: cloList.map(c => {
-        const pass =
-          isStudentCLOPass(
-            selectedStudent.id,
-            selectedCourse,
-            c.code
-          );
-        return pass
-          ? 'rgba(34,197,94,0.8)'
-          : 'rgba(239,68,68,0.8)';
-      })
     }
   ]
-} : null;
+}
+: null;
+
 const cloBarOptions = {
   responsive: true,
   scales: {
@@ -486,7 +489,7 @@ const getCourseInfo = (courseId) => {
         <h4 className="font-medium mb-2">
           CLO ({getCourseInfo(selectedCourse)})
         </h4>
-        <Bar data={cloBarData} options={cloBarOptions} />
+        <Bar data={indicatorBarData} options={cloBarOptions} />
       </div>
 
       {/* ✅ CLO LIST */}

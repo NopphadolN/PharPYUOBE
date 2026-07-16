@@ -256,6 +256,95 @@ router.get('/clo-mapping', async (req, res) => {
   }
 });
 
+// GET /clo-indicator-scores-all
+router.get('/clo-indicator-scores-all', verifyToken, 
+  async (req,res) => {
+    const result = await pool.query(`
+        SELECT *
+        FROM clo_indicator_scores
+      `);
+    res.json(
+      result.rows
+    );
+  }
+);
+
+// GET /instructor/clo-indicator-scores
+router.get('/clo-indicator-scores', verifyToken, 
+  async (req, res) => {
+    const {course_instance_id} = req.query;
+    const result = await pool.query(`
+        SELECT *
+        FROM clo_indicator_scores
+        WHERE course_instance_id = $1
+      `, [
+        course_instance_id
+      ]);
+    res.json(result.rows);
+});
+
+// POST /instructor/clo-indicator-scores
+router.post('/clo-indicator-scores', verifyToken, checkOwner,
+  async (req,res) => {
+    const {course_instance_id, scores} = req.body;
+    const client = await pool.connect();
+    try {
+      await client.query(
+        'BEGIN'
+      );
+      await client.query(`
+        DELETE FROM
+        clo_indicator_scores
+        WHERE course_instance_id = $1
+      `, [
+        course_instance_id
+      ]);
+      for (const row of scores) {
+        await client.query(`
+          INSERT INTO clo_indicator_scores (
+            course_instance_id,
+            student_id,
+            clo_id,
+            indicator_id,
+            evaluation_id,
+            score,
+            full_score,
+            percent,
+            is_pass
+          )
+          VALUES (
+            $1,$2,$3,$4,$5,$6,$7,$8,$9
+          )
+        `, [
+          row.course_instance_id,
+          row.student_id,
+          row.clo_id,
+          row.indicator_id,
+          row.evaluation_id,
+          row.score,
+          row.full_score,
+          row.percent,
+          row.is_pass
+        ]);
+      }
+      await client.query(
+        'COMMIT'
+      );
+      res.json({
+        ok:true
+      });
+    }
+    catch(err){
+      await client.query(
+        'ROLLBACK'
+      );
+      throw err;
+    }
+    finally{
+      client.release();
+    }
+});
+
 // SAVE CLO scores //
 router.post('/clo-scores', verifyToken, checkOwner, controller.saveCloScores);
 router.get('/clo-scores', controller.getCloScores);
@@ -268,14 +357,26 @@ router.post('/save-course-results', verifyToken, checkOwner, async (req, res) =>
     const params = [];
     let idx = 1;
     for (const r of results) {
-      values.push(`($${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++})`);
+      values.push(`(
+        $${idx++}, 
+        $${idx++}, 
+        $${idx++}, 
+        $${idx++}, 
+        $${idx++},
+        $${idx++}, 
+        $${idx++},  
+        $${idx++}
+        )`);
       params.push(
         Number(r.course_instance_id),
         Number(r.student_id),
         Number(r.course_id),
         r.year,
         r.semester,
-        !!r.is_pass
+        !!r.is_pass,              
+        Number(r.passed_clos || 0),
+        Number(r.total_clos || 0)
+
       );
     }
     if (values.length === 0) {
@@ -286,13 +387,23 @@ router.post('/save-course-results', verifyToken, checkOwner, async (req, res) =>
     }
     await pool.query(`
       INSERT INTO course_results
-      (course_instance_id, student_id, course_id, year, semester, is_pass)
+      (course_instance_id, 
+      student_id, 
+      course_id, 
+      year, 
+      semester, 
+      is_pass,      
+      passed_clos,
+      total_clos
+      )
       VALUES ${values.join(', ')}
       ON CONFLICT (course_instance_id, student_id)
       DO UPDATE SET
         is_pass = EXCLUDED.is_pass,
         year = EXCLUDED.year,
-        semester = EXCLUDED.semester
+        semester = EXCLUDED.semester,               
+        passed_clos = EXCLUDED.passed_clos,
+        total_clos = EXCLUDED.total_clos
     `, params);
     res.json({ message: "Course result saved ✅" });
   } catch (err) {
@@ -365,7 +476,16 @@ for (const r of data) {
     throw new Error('invalid percent');
   }
 
-  values.push(`($${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++}, $${idx++})`);
+  values.push(`(
+    $${idx++}, 
+    $${idx++}, 
+    $${idx++}, 
+    $${idx++}, 
+    $${idx++},
+    $${idx++}, 
+    $${idx++}, 
+    $${idx++}
+    )`);
 
   params.push(
     Number(r.course_instance_id),
@@ -373,17 +493,30 @@ for (const r of data) {
     Number(r.course_id),
     Number(r.clo_id),
     percent,
-    !!r.is_pass
+    !!r.is_pass,  
+    Number(r.passed_indicators || 0),
+    Number(r.total_indicators || 0)
   );
 }
     await client.query(`
       INSERT INTO clo_results
-      (course_instance_id, student_id, course_id, clo_id, percent, is_pass)
+      (
+      course_instance_id, 
+      student_id, 
+      course_id, 
+      clo_id, 
+      percent, 
+      is_pass,     
+      passed_indicators,
+      total_indicators
+      )
       VALUES ${values.join(', ')}
       ON CONFLICT (course_instance_id, student_id, clo_id)
       DO UPDATE SET
         percent = EXCLUDED.percent,
-        is_pass = EXCLUDED.is_pass
+        is_pass = EXCLUDED.is_pass,   
+        passed_indicators = EXCLUDED.passed_indicators,
+        total_indicators = EXCLUDED.total_indicators
     `, params);
     await client.query('COMMIT');
     console.log("✅ RESPONSE SENT");

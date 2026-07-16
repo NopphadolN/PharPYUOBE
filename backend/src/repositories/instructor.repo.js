@@ -188,6 +188,8 @@ exports.getClos = async (course_instance_id) => {
       COALESCE(
         json_agg(
           json_build_object(
+            'id', ci.id,
+            'clo_id', ci.clo_id,
             'description', ci.description,
             'target', ci.target
           )
@@ -195,7 +197,8 @@ exports.getClos = async (course_instance_id) => {
         '[]'
       ) AS indicators
     FROM clos c
-    LEFT JOIN clo_indicators ci ON ci.clo_id = c.id
+    LEFT JOIN clo_indicators ci
+      ON ci.clo_id = c.id
     WHERE c.course_instance_id = $1
     GROUP BY c.id
   `, [course_instance_id]);

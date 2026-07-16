@@ -48,6 +48,7 @@ export default function CLOPage() {
   const [selectedFullScore, setSelectedFullScore] = useState('');
   const [evaluations, setEvaluations] = useState([]);
   const [selectedEvaluationId, setSelectedEvaluationId] = useState('');
+  const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
   api.get('/instructor/me')
@@ -254,6 +255,8 @@ const saveIndicatorScores = async (course_instance_id) => {
     }
 
     alert('✅ บันทึกครบ (คะแนน + CLO + PASS)');
+    setEditMode(false);
+
   } catch (err) {
     console.error("❌ SAVE ERROR:", err.response?.data);
     alert(
@@ -356,7 +359,12 @@ updated[student.id][indicatorId][evaluationId] = {
   fullScore
 };
   });
-  setIndicatorScores(updated);
+  setIndicatorScores(updated); 
+  setSelectedCloId('');
+  setSelectedIndicatorId('');
+  setSelectedEvaluationId('');
+  setSelectedFullScore('');
+  setPasteText('');
   alert(
     '✅ นำเข้าคะแนนตัวชี้วัดแล้ว'
   );
@@ -732,7 +740,31 @@ onChange={(e) => {
 
 {/* ================= TABLE ================= */}
 <Card>
-  <h3 className="font-semibold mb-4">ตารางคะแนน</h3>
+  <div className="flex justify-between items-center mb-4">
+  <h3 className="font-semibold">
+    ตารางคะแนน
+  </h3>
+  {isOwner && (
+    <button
+      onClick={() =>
+        setEditMode(!editMode)
+      }
+      className={`
+        px-4 py-2 rounded text-white
+        ${
+          editMode
+            ? 'bg-orange-500'
+            : 'bg-blue-500'
+        }
+      `}
+    >
+      {editMode
+        ? '🔒 ล็อกคะแนน'
+        : '✏️ แก้ไขคะแนน'}
+    </button>
+  )}
+</div>
+
   {!clos.length && (
     <div className="text-red-500 mb-3">
       ❌ ยังไม่มีข้อมูล CLO
@@ -821,17 +853,20 @@ colSpan={
           );
         }
         return evs.map(ev => (
-          <th
-            key={`ev_${ev.id}`}
-            className="
-              border
-              text-xs
-            "
-          >
-            {ev.name}
-            ({evaluationFullScoreMap
-            [`${ind.id}_${ev.id}`] ?? '-'})
-          </th>
+<th
+  key={`ev_${ev.id}`}
+  className="
+    border
+    text-xs
+    cursor-help
+    hover:bg-yellow-50
+  "
+  title={ev.name}
+>
+  {evaluationFullScoreMap[
+    `${ind.id}_${ev.id}`
+  ] ?? '-'}
+</th>
         ));
       })
     }
@@ -871,22 +906,39 @@ colSpan={
             </td>
           );
         }
-        return evs.map(ev => {
-          const data = indicatorScores?.[st.id]?.[ind.id]?.[ev.id];
-          return (
-<td
-  key={`${st.id}_${ind.id}_${ev.id}`}
-  className="border text-center"
->
-  <input
-    type="number"
-    value={data?.score ?? ''}
-    className=" w-20 text-center border rounded px-1 "
-    onChange={e => handleScoreEdit( st.id, ind.id, ev.id, e.target.value)}
-  />
-</td>
-          );
-        });
+return evs.map(ev => {
+  const data = indicatorScores?.[st.id]?.[ind.id]?.[ev.id];
+  const indicatorPercent = getIndicatorPercent(st.id, ind.id);
+  const isPass = indicatorPercent >= Number(ind.target || 50);
+  return (
+    <td
+      key={`${st.id}_${ind.id}_${ev.id}`}
+      className="border text-center"
+    >
+      <input
+        type="number"
+        value={data?.score ?? ''}
+        disabled={!editMode || !isOwner}
+        className={`
+          w-20 text-center border rounded px-1
+          ${
+            !isPass
+              ? 'bg-red-50 text-red-600 font-semibold'
+              : ''
+          }
+        `}
+        onChange={e =>
+          handleScoreEdit(
+            st.id,
+            ind.id,
+            ev.id,
+            e.target.value
+          )
+        }
+      />
+    </td>
+  );
+});
       })
     }
     <td className="border text-center font-bold">

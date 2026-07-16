@@ -346,9 +346,6 @@ const handleIndicatorImport = () => {
     const student = students.find(s => s.user_code === studentCode);
     if (!student)
       return;
-    const indicator = selectedClo
-      ?.indicators
-      ?.find (x => String(x.id) === String(selectedIndicatorId));
     const indicatorId = Number(selectedIndicatorId);
     const evaluationId = Number(selectedEvaluationId);
 
@@ -385,13 +382,6 @@ const getIndicatorPercent = (studentId, indicatorId) => {
     return 0;
   }
   return (totalScore / totalFullScore) * 100;
-};
-
-const getEvaluationScore = (studentId, indicatorId, evaluationId
-) => {
-  return (
-    indicatorScores?.[studentId]?.[indicatorId]?.[evaluationId]?.score || ''
-  );
 };
 
 const isIndicatorPass = (studentId, indicator) => {

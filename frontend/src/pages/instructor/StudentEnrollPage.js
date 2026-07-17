@@ -75,6 +75,7 @@ useEffect(() => {
           }
         );
       if (!inst.data) {
+        alert('❌ ยังไม่มีการบันทึกวิชานี้ กรุณาสร้างวิชาก่อน');
         setSelectedCourse(null);
         setInstanceId(null);
         setStudents([]);
@@ -140,6 +141,25 @@ const handleFile = async (e) => {
   const workbook = XLSX.read(data);
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(sheet);
+  const codes = rows.map(r =>String(r.usercode || '').trim()).filter(Boolean);
+  const duplicateCodes = codes.filter((code, index, arr) =>arr.indexOf(code) !== index);
+    if (duplicateCodes.length > 0) {
+    const uniqueDup = [...new Set(duplicateCodes)];
+  alert(`❌ พบรหัสซ้ำในไฟล์ 
+      ${uniqueDup.join('\n')} 
+      กรุณาแก้ไขไฟล์ก่อน`
+      );
+    return;
+  }
+  const existingCodes = students.map(s =>String(s.usercode));
+  const alreadyAdded = codes.filter(code =>existingCodes.includes(code));
+    if (alreadyAdded.length > 0) {
+  alert(`❌ นักศึกษาต่อไปนี้อยู่ในรายวิชาแล้ว
+        ${alreadyAdded.join('\n')}
+        กรุณาลบออกจากไฟล์ก่อน`
+        );
+    return;
+  }
   if (!rows.length) {
     return alert('❌ ไฟล์ว่าง');
   }
@@ -255,24 +275,12 @@ const isOwner = user &&
 
         {/* ✅ PART 2 */}
 <Card>
-{selectedCourse && (
-  <div className="mb-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
-    <div className="font-medium">
-      {selectedCourse.code_th}
-    </div>
-    <div>
-      {selectedCourse.name_th}
-    </div>
-  </div>
-)}
-
   <h3 className="font-semibold mb-3">➕ เพิ่มนักศึกษา</h3>
     {owner && (
     <div className="text-sm mb-2">
       👑 {owner.name_th}
     </div>
   )}
-
   {!isOwner && (
     <div className="text-red-500 text-sm mb-2">
       🔒 ไม่มีสิทธิ์
@@ -329,26 +337,25 @@ const isOwner = user &&
 
 {/* ✅ PART 3: ตารางนักศึกษา */}
 <Card>
-  <h3 className="font-semibold mb-3">👨‍🎓 นักศึกษา</h3>
-  {selectedCourse && (
-    <div className="text-sm text-gray-600 mb-2">
-      {selectedCourse.code_th} - {selectedCourse.name_th}
-    </div>
-  )}
+  <h3 className="font-semibold">👨‍🎓 นักศึกษา</h3>
+    จำนวน {students.length} คน
+
   <div className="overflow-x-auto">
     <table className="text-sm border w-auto min-w-max">
       <thead className="bg-gray-100">
-        <tr>
-          <th className="px-3 py-2"></th>
-          <th className="px-3 py-2">รหัส</th>
-          <th className="px-3 py-2">ชื่อ</th>
+        <tr>          
+          <th className="border px-2 py-1">#</th>
+          <th className="border px-2 py-1">เลือก</th>
+          <th className="border px-2 py-1">รหัส</th>
+          <th className="border px-2 py-1">ชื่อ</th>
         </tr>
       </thead>
       <tbody>
         {[...students]
   .sort((a, b) => String(a.user_code).localeCompare(String(b.user_code)))
-  .map(s => (
+  .map((s, index) => (
           <tr key={s.id} className="border-t hover:bg-gray-50">
+            <td className="border text-center">{index + 1}</td>
             <td className="px-3 py-2 text-center">
               <input
                 type="checkbox"                
@@ -364,7 +371,7 @@ const isOwner = user &&
     </table>
   </div>
   <div className="mt-3">
-    <button disabled={!isOwner}     
+    <button disabled={!isOwner || selectedRows.length === 0}     
       onClick={deleteSelected}
       className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
     >

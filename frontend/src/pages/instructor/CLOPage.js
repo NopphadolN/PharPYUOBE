@@ -702,7 +702,7 @@ onChange={(e) => {
   type="number"
   min="0"
   step="0.01"
-  placeholder="คะแนนเต็มตัวชี้วัด"
+  placeholder="คะแนนเต็มรายการประเมิน"
   value={selectedFullScore}
   onChange={e =>
     setSelectedFullScore(

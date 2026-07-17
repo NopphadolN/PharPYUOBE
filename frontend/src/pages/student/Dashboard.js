@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { Radar } from 'react-chartjs-2';
+import { Radar, Bar } from 'react-chartjs-2';
 import Card from '../../components/ui/Card';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,6 +15,9 @@ export default function StudentDashboard() {
   const [clos, setClos] = useState([]);
   const [courseYear, setCourseYear] = useState('');
   const [courseSemester, setCourseSemester] = useState('');
+  const [indicatorScores, setIndicatorScores] = useState([]);
+  const [yloResults, setYloResults] = useState([]);
+  const [courses, setCourses] = useState([]);
   const navigate = useNavigate();
 
   /* ================= LOAD ================= */
@@ -26,13 +29,21 @@ export default function StudentDashboard() {
       const mapRes = await api.get('/mapping');
       const cloRes = await api.get('/instructor/clo-results');
       const courseRes = await api.get('/instructor/course-results');
-
+      const coursesRes = await api.get('/instructor/courses');
+      const indicatorRes = await api.get('/instructor/clo-indicator-scores-all');
+      const yloRes = await api.get('/admin/ylo-results',
+        {
+          params:{student_id: meRes.data.id}
+        }
+        );
       setMe(meRes.data); // ✅ ตัวเองเท่านั้น
       setPlos(ploRes.data);
       setMappings(mapRes.data);
       setCloResults(cloRes.data);
       setCourseResults(courseRes.data);
-
+      setCourses(coursesRes.data);
+      setIndicatorScores(indicatorRes.data);
+      setYloResults(yloRes.data);
     })();
   }, []);
 
@@ -113,17 +124,13 @@ const myCourses = courseResults
     const mappedCourses = mappings.filter(m =>
       m.indicator_code === indicatorCode
     );
-
     if (mappedCourses.length === 0) return 0;
-
     let pass = 0;
-
     mappedCourses.forEach(m => {
       if (passedCourses.some(c => c.course_id === m.course_id)) {
         pass++;
       }
     });
-
     return (pass / mappedCourses.length) * 100;
   };
 
@@ -131,42 +138,67 @@ const myCourses = courseResults
     const values = plo.indicators.map(ind =>
       getIndicatorPercent(ind.code)
     );
-
     if (!values.length) return 0;
-
     return values.reduce((a, b) => a + b, 0) / values.length;
   };
 
   /* ✅ summary */
   const ploPassed = plos.filter(p => getPloAvg(p) >= 50).length;
 
+  /* ================= YLO ================= */
+const yloMap = {}; yloResults.forEach(r => {
+  if (!yloMap[r.code]) {
+    yloMap[r.code] = Number(r.percent);
+  }
+});  
+const sortedYLO = Object.keys(yloMap)
+    .sort((a, b) => {
+      const numA = parseInt(a.replace('YLO', ''));
+      const numB = parseInt(b.replace('YLO', ''));
+      return numB - numA;
+    });
+
+const yloBarData = {
+  labels: sortedYLO,
+  datasets:[{
+      label:'YLO (%)',      
+      data: sortedYLO.map(code => yloMap[code]),
+      backgroundColor:
+        'rgba(75,192,192,0.8)'
+    }
+  ]
+};
+
   /* ================= CLO ================= */
-
-  const getClosByCourse = (courseId) => {
-    return [...new Set(
-      cloResults
-        .filter(r => r.course_id === courseId)
-        .map(r => r.clo_code)
-    )];
-  };
-
-  const getStudentCLOPercent = (courseId, cloCode) => {
-    const r = cloResults.find(r =>
-      r.student_id === me?.id &&
-      r.course_id === courseId &&
-      r.clo_code === cloCode
+const getStudentIndicatorPercent = (indicatorId) => {
+  const rows = indicatorScores.filter(r =>
+        String(r.student_id) === String(me?.id)
+        &&
+        String(r.indicator_id) === String(indicatorId)
     );
-    return Number(r?.percent || 0);
-  };
+  if (!rows.length) {
+    return 0;
+  }
+  const totalScore = rows.reduce((sum,row) =>sum + Number(row.score || 0), 0);
+  const totalFull = rows.reduce((sum,row) =>sum + Number(row.full_score || 0), 0);
+  if (totalFull === 0) {
+    return 0;
+  }
+  return (totalScore / totalFull) * 100;
+};
 
-  const getCourseInfo = (courseId) => {
-  const m = mappings.find(m =>
-    String(m.course_id) === String(courseId)
-  );
-  return m
-    ? `${m.code_en} - ${m.name_th}`
-    : `Course ${courseId}`;
-  };
+const getCourseInfo = (courseId) => {
+  const course =
+    courses.find(c =>
+      String(c.id) ===
+      String(courseId)
+    );
+  if (!course) {
+    return `Course ${courseId}`;
+  }
+  return `${course.code_en} - ${course.name_th}`;
+};
+  
   /* ================= CHART ================= */
 
   const ploChartData = {
@@ -182,19 +214,29 @@ const myCourses = courseResults
     }]
   };
 
-  const cloList = selectedCourse
-    ? getClosByCourse(selectedCourse)
-    : [];
-
-  const cloChartData = {
-    labels: cloList,
-    datasets: [{
-      label: 'CLO %',
-      data: cloList.map(c => getStudentCLOPercent(selectedCourse, c)),
-      backgroundColor: 'rgba(168,230,207,0.2)',
-      borderColor: '#A8E6CF'
-    }]
-  };
+const indicatorChartData = selectedCourse? {
+  labels:
+    clos.flatMap(clo =>(clo.indicators || [])
+        .map((ind,index) => [clo.code, `ID${index+1}`])
+    ),
+  datasets:[
+    {
+      label: 'Indicator Achievement (%)',
+      data: clos.flatMap(clo =>(clo.indicators || [])
+            .map(ind =>Number(getStudentIndicatorPercent(ind.id).toFixed(2)))
+        ),
+      backgroundColor: clos.flatMap(clo =>
+          (clo.indicators || []).map(ind =>
+              getStudentIndicatorPercent(ind.id)>=
+              Number(ind.target || 50)
+              ? 'rgba(34,197,94,0.8)'
+              : 'rgba(239,68,68,0.8)'
+            )
+        )
+    }
+  ]
+}
+: null;
 
 const radarOptions = {
   scales: {
@@ -226,19 +268,16 @@ const handleLogout = () => {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-white">
-
       <div className="flex-1 p-6 space-y-6">
 
         {/* ✅ HEADER */}
 <Card>
   {/* ✅ header row */}
   <div className="flex justify-between items-start">
-
     <div>
       <h2 className="text-xl font-bold">
         {me.user_code} - {me.name_th}
       </h2>
-
       <div className="mt-2 text-m text-gray-600">
         ✅ PLOs ผ่าน: {ploPassed} / {plos.length}<br />
         ✅ รายวิชาที่ลงทะเบียน ผ่าน: {allPassedCourses.length} / {allCourses.length}
@@ -262,13 +301,10 @@ const handleLogout = () => {
         {/* ✅ PLO */}
         <Card>
           <h3 className="font-semibold mb-3">PLOs Achievement</h3>
-
           <div className="flex gap-6">
-
             <div className="w-full max-w-md">
               <Radar data={ploChartData} options={radarOptions}/>
             </div>
-
             <div className="flex-1 space-y-2">
               {plos.map(p => (
                 <div key={p.code} className="border p-2 rounded">
@@ -279,20 +315,27 @@ const handleLogout = () => {
           </div>
         </Card>
 
+        {/* ✅ YLO */}
+        <Card>
+          <h3 className="font-semibold mb-3">YLO Achievement</h3>
+            <div className="w-full max-w-l">
+            <Bar
+            data={yloBarData}
+            options={{indexAxis:'y'}}
+            />
+            </div>
+        </Card>
+
         {/* ✅ COURSE */}
 <Card>
-
   {/* ✅ HEADER + FILTER */}
   <div className="flex justify-between items-center mb-3">
-
     <div>
       <h3 className="font-semibold">📚 รายวิชา</h3>
-
       <div className="text-m px-3 py-1 text-gray-500">
         จำนวน {myCourses.length} วิชา
       </div>
     </div>
-
     <div className="flex gap-2">
 
       <select
@@ -315,14 +358,11 @@ const handleLogout = () => {
         <option value="1">เทอม 1</option>
         <option value="2">เทอม 2</option>
       </select>
-
     </div>
-
   </div>
 
   {/* ✅ COURSE LIST */}
   <div className="flex flex-wrap gap-2">
-
     {myCourses.length > 0 ? (
       myCourses.map(c => (
         <button
@@ -346,9 +386,18 @@ const handleLogout = () => {
           <Card>
             <div className="flex gap-6">
               <div className="w-full max-w-md">
-                <Radar data={cloChartData} options={radarOptions}/>
+              <Bar
+                data={indicatorChartData}
+                options={{
+                  responsive:true,
+                  scales:{y:{min:0, max:100}
+                  },
+                  plugins:{
+                    legend:{display:false}
+                  }
+                }}
+              />
               </div>
-
               <div className="flex-1 space-y-2">
                 {clos.map(clo => (
                   <div key={clo.id} className="border p-2 rounded">

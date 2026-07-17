@@ -171,7 +171,7 @@ const barOptions = {
   indexAxis: 'y',
   scales: {
     x: { min: 0, max: 100 }
-  }
+    }
 };
 
 const getPloColor = (value) => {

@@ -317,7 +317,7 @@ const sortedYLO = Object.keys(yloMap)
   .sort((a, b) => {
     const numA = parseInt(a.replace('YLO', ''));
     const numB = parseInt(b.replace('YLO', ''));
-    return numA - numB;
+    return numB - numA ;
   });
 
 /* ================= YLO CHART ================= */

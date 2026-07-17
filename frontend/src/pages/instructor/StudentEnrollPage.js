@@ -13,7 +13,9 @@ export default function StudentEnrollPage() {
   const [semester, setSemester] = useState('');
 
   const [courses, setCourses] = useState([]);
+  const [selectedCourseId, setSelectedCourseId] = useState('');
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [instanceId, setInstanceId] = useState(null);
 
   const [students, setStudents] = useState([]);
   const [inputCode, setInputCode] = useState('');
@@ -42,17 +44,59 @@ export default function StudentEnrollPage() {
   /* =========================
      LOAD COURSES
   ========================= */
-  const loadCourses = async () => {
-  if (!year || !semester) return;
-  const res = await api.get('/student/courses-by-term', {
-    params: {
-      year,
-      semester,
-      userId: user.id
-    }
+useEffect(() => {
+  if (!year || !semester || !user) {
+    return;
+  }
+  api.get('/instructor/courses')
+  .then(res => {
+    setCourses(res.data);
   });
-  setCourses(res.data);
-  };
+}, [year, semester, user
+]);
+
+useEffect(() => {
+  if (
+    !selectedCourseId ||
+    !year ||
+    !semester
+  ) {
+    return;
+  }
+  (async () => {
+    try {
+      const inst = await api.get('/instructor/instance',
+          {
+            params: {
+              course_id: selectedCourseId,
+              year,
+              semester
+            }
+          }
+        );
+      if (!inst.data) {
+        setSelectedCourse(null);
+        setInstanceId(null);
+        setStudents([]);
+        return;
+      }
+      setSelectedCourse(inst.data);
+      setOwner(inst.data.owner);
+      setInstanceId(inst.data.id);
+      const stuRes = await api.get('/student/course-students',
+          {
+            params: {
+              course_instance_id: inst.data.id
+            }
+          }
+        );
+      setStudents(stuRes.data);
+    }
+    catch(err){
+      console.error(err);
+    }
+  })();
+}, [selectedCourseId, year, semester]);
 
   /* =========================
      LOAD STUDENTS
@@ -78,7 +122,7 @@ const loadStudents = async (course) => {
     });
     if (!res.data) return alert('ไม่พบ');
     await api.post('/student/course-students', {
-      course_instance_id: selectedCourse.id,
+      course_instance_id: instanceId,
       studentIds: [res.data.id]
     });
     setInputCode('');
@@ -117,7 +161,7 @@ const handleFile = async (e) => {
       return alert('❌ ไม่พบรหัสนักศึกษา');
     }
     await api.post('/student/course-students', {
-      course_instance_id: selectedCourse.id,
+      course_instance_id: instanceId,
       studentIds: ids
     });
     alert(`✅ เพิ่ม ${ids.length} คน จาก ${rows.length} รายการ`);
@@ -148,7 +192,7 @@ const handleFile = async (e) => {
     if (!selectedCourse) return;
     await api.delete('/student/course-students', {
       data: {
-        course_instance_id: selectedCourse.id,
+        course_instance_id: instanceId,
         studentIds: selectedRows
       }
     });
@@ -156,10 +200,9 @@ const handleFile = async (e) => {
     setSelectedRows([]);
   };
 
-const isOwner =
-  owner &&
-  user &&
-  Number(owner.id) === Number(user.id);
+const isOwner = user &&
+  (Number(owner?.id) === Number(user.id) ||
+    user.can_edit_all_courses === true);
 
   /* =========================
      UI
@@ -176,46 +219,53 @@ const isOwner =
         {/* ✅ YEAR DROPDOWN */}
 <Card>
   <div className="flex flex-wrap gap-3 items-center">
+
     <Select value={year} onChange={e => setYear(e.target.value)}>
       <option value="">ปีการศึกษา</option>
       {[2568,2569,2570,2571,2572,2573,2574].map(y => (
         <option key={y}>{y}</option>
       ))}
     </Select>
+
     <Select value={semester} onChange={e => setSemester(e.target.value)}>
       <option value="">เทอม</option>
       <option value="1">1</option>
       <option value="2">2</option>
     </Select>
-    <Button onClick={loadCourses}>
-      🔍 ค้นหา
-    </Button>
-  </div>
-</Card>
+       
 
-{/* ✅ PART 1: รายวิชา */}
-<Card>
-  <h3 className="font-semibold mb-3">📚 รายวิชา</h3>
-  <div className="grid grid-cols-2 gap-3">
-    {courses.map(c => (
-      <div
-        key={c.id}
-        onClick={() => loadStudents(c)}
-        className="cursor-pointer border rounded-lg p-3 hover:bg-blue-50 transition"
-      >
-        <div className="font-medium">
-          {c.code_th}
-        </div>
-        <div className="text-sm text-gray-600">
-          {c.name_th}
-        </div>
-      </div>
-    ))}
+    <Select
+      value={selectedCourseId}
+      onChange={e => setSelectedCourseId(e.target.value)
+      }
+    >
+      <option value="">เลือกวิชา</option>
+      {courses.map(c => (
+        <option
+          key={c.id}
+          value={c.id}
+        >
+         {c.code_en} {' - '} {c.name_th}
+        </option>
+      ))}
+    </Select>
+
   </div>
 </Card>
 
         {/* ✅ PART 2 */}
 <Card>
+{selectedCourse && (
+  <div className="mb-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+    <div className="font-medium">
+      {selectedCourse.code_th}
+    </div>
+    <div>
+      {selectedCourse.name_th}
+    </div>
+  </div>
+)}
+
   <h3 className="font-semibold mb-3">➕ เพิ่มนักศึกษา</h3>
     {owner && (
     <div className="text-sm mb-2">

@@ -6,18 +6,32 @@ const { verifyToken } = require('../middleware/auth.middleware');
 
 router.get('/subplos', async (req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT 
-          id,
-          code,
-          description
-      FROM sub_plos
-      ORDER BY code
+    const plos = await pool.query(`
+      SELECT *
+      FROM plos
+      ORDER BY id
     `);
-    res.json(result.rows);
+    const result = [];
+    for (const plo of plos.rows) {
+      const subPlos = await pool.query(`
+        SELECT *
+        FROM sub_plos
+        WHERE plo_id = $1
+        ORDER BY id
+      `, [plo.id]);
+      result.push({
+        id: plo.id,
+        code: plo.code,
+        description: plo.description,
+        children: subPlos.rows
+      });
+    }
+    res.json(result);
   } catch (err) {
-    console.error('subplos error:', err);
-    res.status(500).json({ error: 'server error' });
+    console.error(err);
+    res.status(500).json({
+      error: 'load subplo error'
+    });
   }
 });
 

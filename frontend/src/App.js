@@ -9,6 +9,7 @@ import ImportCourses from './pages/admin/ImportCourses';
 import PLOPage from './pages/admin/PLOPage';
 import MappingPage from './pages/admin/MappingPage';
 import AdminPLOPage from './pages/admin/AdminPLOPage';
+import SubPLOMappingPage from './pages/admin/SubPLOMappingPage';
 
 import YLOSetupPage from './pages/admin/YLOSetupPage';
 import AdminYLOPage from './pages/admin/AdminYLOEvaluation';
@@ -79,6 +80,13 @@ function App() {
               <MappingPage />
             </ProtectedRoute>}/>
 
+          <Route
+            path="/admin/subploMapping"
+          element={
+            <ProtectedRoute role="admin">
+              <SubPLOMappingPage />
+            </ProtectedRoute>}/>
+
           <Route path="/admin/Admin-PLO" 
           element={
             <ProtectedRoute role="admin">
@@ -130,7 +138,6 @@ function App() {
 <Route path="/instructor/print" element={<PrintPage />} />
 <Route path="/admin/ylo-setup" element={<YLOSetupPage />} />
 <Route path="/admin/ylo-eval" element={<AdminYLOPage />} />
-
 
       </Routes>
     </BrowserRouter>

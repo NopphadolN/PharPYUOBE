@@ -23,9 +23,17 @@ app.use('/api/admin', adminRoutes);
 const ploRoutes = require('./routes/plo.routes');
 app.use('/api/plos', ploRoutes);
 
-// map
+// map indicator
 const mappingRoutes = require('./routes/mapping.routes');
 app.use('/api/mapping', mappingRoutes);
+
+// map subPlo
+const subploMappingRoutes = require('./routes/subploMapping.routes');
+app.use('/api/subplo-mapping', subploMappingRoutes);
+
+// ksec
+const ksecRoutes = require('./routes/ksec.routes');
+app.use('/api/ksecs', ksecRoutes);
 
 // instructor
 const instructorRoutes = require('./routes/instructor.routes');

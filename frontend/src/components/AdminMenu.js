@@ -7,11 +7,12 @@ const menus = [
   { name: 'Import Courses', path: '/admin/import-courses' },
 
   { name: 'PLO Setup', path: '/admin/plos' },
+
   { name: 'Mapping PLO-Course', path: '/admin/mapping' },
+  { name: 'Mapping SubPLO-Course', path: '/admin/subploMapping' },
 
   { name: 'PLO Evaluation', path: '/admin/Admin-PLO' },
 
-  // ✅ YLO
   { name: 'YLO Setup', path: '/admin/ylo-setup' },
   { name: 'YLO Evaluation', path: '/admin/ylo-eval' }
 ];
@@ -52,23 +53,16 @@ export default function AdminMenu() {
             {m.icon && `${m.icon} `}{m.name}
           </NavLink>
         ))}
-
-      </div>
-
-      {/* ✅ LOGOUT SECTION */}
-      <div className="mt-4 border-t pt-3">
-
         <button
           onClick={handleLogout}
           className="
             w-full text-left px-3 py-2 rounded-lg
-            bg-red-100 text-red-600
+            bg-red-600 text-white
             hover:bg-red-200 transition
           "
         >
           🚪 Logout
         </button>
-
       </div>
 
     </div>

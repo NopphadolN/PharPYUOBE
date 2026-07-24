@@ -256,6 +256,33 @@ router.get('/clo-mapping', async (req, res) => {
   }
 });
 
+// load course-subplos
+router.get('/course-subplos',
+  async (req, res) => {
+    const { course_id } = req.query;
+    try {
+      const result = await pool.query(`
+        SELECT DISTINCT
+          sp.id,
+          sp.code,
+          sp.description
+        FROM course_subplo_mapping csm
+        JOIN sub_plos sp
+          ON sp.id = csm.sub_plo_id
+        WHERE csm.course_id = $1
+        ORDER BY sp.code
+      `, [course_id]);
+      res.json(result.rows);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({
+        error: 'load subplo failed'
+      });
+    }
+  }
+);
+
+
 // GET /clo-indicator-scores-all
 router.get('/clo-indicator-scores-all', verifyToken, 
   async (req,res) => {

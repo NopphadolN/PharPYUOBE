@@ -35,6 +35,27 @@ router.get('/subplos', async (req, res) => {
   }
 });
 
+router.get('/subplos/list', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        sp.id,
+        sp.code,
+        p.code AS plo_code
+      FROM sub_plos sp
+      JOIN plos p
+      ON p.id = sp.plo_id
+      ORDER BY sp.code
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: 'load subplo list failed'
+    });
+  }
+});
+
 router.get('/summary', verifyToken, async (req, res) => {
   const pool = require('../db');
 

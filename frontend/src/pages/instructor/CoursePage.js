@@ -59,11 +59,23 @@ export default function CoursePage() {
 }, []);
   
   // Load SubPLO
-  useEffect(() => {
-  api.get('/admin/subplos')    
-    .then(res => setSubPlos(res.data || []))
-    .catch(err => console.error(err));
-  }, []);
+useEffect(() => {
+  if (!selectedCourse) return;
+  api.get(
+    '/instructor/course-subplos',
+    {
+      params: {
+        course_id: selectedCourse
+      }
+    }
+  )
+  .then(res => {
+    setSubPlos(res.data || []);
+  })
+  .catch(err => {
+    console.error(err);
+  });
+}, [selectedCourse]);
 
   /* =========================
      LOAD COURSES

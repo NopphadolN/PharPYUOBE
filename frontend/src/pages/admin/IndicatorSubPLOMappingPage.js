@@ -1,7 +1,7 @@
 import AdminMenu from '../../components/AdminMenu';
 import MappingManager from '../../components/MappingManager';
 
-export default function IndicatorMappingPage() {
+export default function IndicatorSubPLOMappingPage() {
 
   return (
 
@@ -13,30 +13,31 @@ export default function IndicatorMappingPage() {
 
         <MappingManager
 
-          title="PLO Indicator Mapping"
+          title="Indicator ↔ SubPLO Mapping"
 
           itemApi="/plos"
-          mappingApi="/mapping"
+          mappingApi="/indicatorSubploMapping"
 
           itemKey="plo_indicator_id"
-          codeField="indicator_code"
           childField="indicators"
+
+          codeField="subplo_code"
 
           addPayloadKey="plo_indicator_id"
           removePayloadKey="plo_indicator_id"
 
-          targetPayloadKey="course_id"
+          targetPayloadKey="sub_plo_id"
 
-          popupApi="/mapping/courses"
+          popupApi="/admin/subplos/list"
           popupIdField="id"
-          popupLabelField="code_en"
+          popupLabelField="code"
 
-          mappedLabelField="code_en"
+          mappedLabelField="subplo_code"
 
-          matrixRowField="course_id"
-          matrixRowLabel="code_en"
+          matrixRowField="sub_plo_id"
+          matrixRowLabel="subplo_code"
 
-          showMatrix={true}
+          showMatrix={false}
 
         />
 

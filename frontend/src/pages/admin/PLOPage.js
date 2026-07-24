@@ -239,7 +239,7 @@ export default function PLOPage() {
                 "
               >
 
-                <div className="grid md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-[120px_1fr] gap-3">
 
                   <input
                     className="

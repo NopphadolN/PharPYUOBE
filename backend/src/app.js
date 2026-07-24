@@ -31,6 +31,10 @@ app.use('/api/mapping', mappingRoutes);
 const subploMappingRoutes = require('./routes/subploMapping.routes');
 app.use('/api/subplo-mapping', subploMappingRoutes);
 
+// map indicator-subPlo
+const indicatorSubploMappingRoutes = require('./routes/indicatorSubploMapping.routes');
+app.use('/api/indicatorSubploMapping', indicatorSubploMappingRoutes);
+
 // ksec
 const ksecRoutes = require('./routes/ksec.routes');
 app.use('/api/ksecs', ksecRoutes);

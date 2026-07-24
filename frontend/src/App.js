@@ -10,6 +10,7 @@ import PLOPage from './pages/admin/PLOPage';
 import MappingPage from './pages/admin/MappingPage';
 import AdminPLOPage from './pages/admin/AdminPLOPage';
 import SubPLOMappingPage from './pages/admin/SubPLOMappingPage';
+import IndicatorSubPLOMappingPage from './pages/admin/IndicatorSubPLOMappingPage';
 
 import YLOSetupPage from './pages/admin/YLOSetupPage';
 import AdminYLOPage from './pages/admin/AdminYLOEvaluation';
@@ -85,6 +86,13 @@ function App() {
           element={
             <ProtectedRoute role="admin">
               <SubPLOMappingPage />
+            </ProtectedRoute>}/>
+
+          <Route
+            path="/admin/indicatorSubploMapping"
+          element={
+            <ProtectedRoute role="admin">
+            <IndicatorSubPLOMappingPage />
             </ProtectedRoute>}/>
 
           <Route path="/admin/Admin-PLO" 

@@ -91,7 +91,12 @@ useEffect(() => {
             }
           }
         );
-      setStudents(stuRes.data);
+      const uniqueStudents = [...new Map(
+            stuRes.data.map(s => [s.id, s])
+      ).values()
+      ];
+      setStudents(uniqueStudents);
+
     }
     catch(err){
       console.error(err);
@@ -122,6 +127,14 @@ const loadStudents = async (course) => {
       params: { code: inputCode }
     });
     if (!res.data) return alert('ไม่พบ');
+  const exists = students.some(
+  s => String(s.id) === String(res.data.id)
+    );
+    if (exists) {
+  alert('❌ นักศึกษาอยู่ในรายวิชาแล้ว');
+  return;
+  }
+
     await api.post('/student/course-students', {
       course_instance_id: instanceId,
       studentIds: [res.data.id]

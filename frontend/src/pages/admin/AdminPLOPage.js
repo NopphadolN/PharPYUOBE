@@ -12,7 +12,6 @@ export default function AdminPLOPage() {
   const [students, setStudents] = useState([]);
   const [plos, setPlos] = useState([]);
   const [indicatorResults, setIndicatorResults] = useState([]);
-  const [courseResults, setCourseResults] = useState([]);
   const [manual, setManual] = useState({});
 
   /* ================= LOAD ================= */
@@ -26,7 +25,6 @@ export default function AdminPLOPage() {
       setStudents(stu.data);
       setPlos(plo.data);
       setIndicatorResults(indicatorRes.data);
-      setCourseResults(course.data);
     })();
   }, []);
 

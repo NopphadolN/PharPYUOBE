@@ -20,7 +20,6 @@ export default function AdminPLOPage() {
       const stu = await api.get('/student/all');
       const plo = await api.get('/plos');
       const indicatorRes = await api.get('/admin/indicator-results');
-      const course = await api.get('/instructor/course-results');
 
       setStudents(stu.data);
       setPlos(plo.data);

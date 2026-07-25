@@ -11,7 +11,7 @@ export default function AdminPLOPage() {
   const [year, setYear] = useState('');
   const [students, setStudents] = useState([]);
   const [plos, setPlos] = useState([]);
-  const [mappings, setMappings] = useState([]);
+  const [indicatorResults, setIndicatorResults] = useState([]);
   const [courseResults, setCourseResults] = useState([]);
   const [manual, setManual] = useState({});
 
@@ -20,12 +20,12 @@ export default function AdminPLOPage() {
     (async () => {
       const stu = await api.get('/student/all');
       const plo = await api.get('/plos');
-      const map = await api.get('/mapping');
+      const indicatorRes = await api.get('/admin/indicator-results');
       const course = await api.get('/instructor/course-results');
 
       setStudents(stu.data);
       setPlos(plo.data);
-      setMappings(map.data);
+      setIndicatorResults(indicatorRes.data);
       setCourseResults(course.data);
     })();
   }, []);
@@ -58,32 +58,23 @@ export default function AdminPLOPage() {
     : [];
 
   /* ================= LOGIC ================= */
-
-  const checkStudentPassCourse = (studentId, courseId) => {
-    return courseResults.some(r =>
-      r.student_id === studentId &&
-      r.course_id === courseId &&
-      r.is_pass === true
+const getIndicatorPercent = (
+  studentId,
+  indicatorId
+) => {
+  const row =
+    indicatorResults.find(
+      r =>
+        Number(r.student_id)
+          === Number(studentId)
+      &&
+        Number(r.indicator_id)
+          === Number(indicatorId)
     );
-  };
-
-  const getIndicatorPercent = (studentId, indicatorCode) => {
-    const mappedCourses = mappings.filter(m =>
-      String(m.indicator_code) === String(indicatorCode)
-    );
-
-    if (mappedCourses.length === 0) return null;
-
-    let pass = 0;
-
-    mappedCourses.forEach(m => {
-      if (checkStudentPassCourse(studentId, m.course_id)) {
-        pass++;
-      }
-    });
-
-    return (pass / mappedCourses.length) * 100;
-  };
+  return row
+    ? Number(row.percent)
+    : null;
+};
 
   /* ================= SAVE ================= */
   const handleSave = async () => {
@@ -176,24 +167,17 @@ export default function AdminPLOPage() {
 
         return (
           <Fragment key={plo.id}>
-
             {/* ✅ indicator ของ PLO นี้ */}
             {plo.indicators.map(ind => {
 
-              const percent = getIndicatorPercent(st.id, ind.code);
-
-              const hasMapping = mappings.some(m =>
-                String(m.indicator_code) === String(ind.code)
-              );
-
+              const percent = getIndicatorPercent(st.id, ind.id);
+              const hasResult = percent !== null;
               let val;
-
-              if (hasMapping && percent !== null) {
+              if (hasResult) {
                 val = percent;
               } else {
                 val = manual?.[st.id]?.[ind.id] ? 100 : 0;
               }
-
               ploValues.push(val);
 
               return (
@@ -201,7 +185,7 @@ export default function AdminPLOPage() {
                   key={ind.id}
                   className="border text-center px-2"
                 >
-                  {hasMapping
+                  {hasResult
                     ? val.toFixed(2) + '%'
                     : (
                       <input

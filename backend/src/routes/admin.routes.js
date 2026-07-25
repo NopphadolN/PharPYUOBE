@@ -107,6 +107,143 @@ router.get('/summary', verifyToken, async (req, res) => {
   }
 });
 
+router.get('/indicator-results', verifyToken, async (req, res) => {
+    try {
+      const indicatorSubplo = await pool.query(`
+          SELECT
+            plo_indicator_id,
+            sub_plo_id
+          FROM plo_indicator_subplo_mapping
+        `);
+      const indicatorCourse = await pool.query(`
+          SELECT
+            plo_indicator_id,
+            course_id
+          FROM plo_course_mapping
+        `);
+      const courseSubplo = await pool.query(`
+          SELECT
+            course_id,
+            sub_plo_id
+          FROM course_subplo_mapping
+        `);
+      const cloSubplo = await pool.query(`
+          SELECT
+            clo_id,
+            sub_plo_id
+          FROM clo_subplo_mapping
+        `);
+      const cloResults = await pool.query(`
+          SELECT
+            student_id,
+            course_id,
+            clo_id,
+            is_pass
+          FROM clo_results
+        `);
+      const results = [];
+      const studentIds = [...new Set(
+          cloResults.rows.map(
+            r => r.student_id
+          )
+        )
+      ];
+      const indicatorIds = [...new Set(
+          indicatorSubplo.rows.map(
+            r => r.plo_indicator_id
+          )
+        )
+      ];
+      for (const studentId of studentIds) {
+        for (const indicatorId of indicatorIds) {
+          const mappedCourses =
+            indicatorCourse.rows.filter(
+              r =>
+                Number(r.plo_indicator_id)
+                === Number(indicatorId)
+            );
+          const totalCourses = mappedCourses.length;
+          if (!totalCourses) {
+            continue;
+          }
+          let passedCourses = 0;
+
+          for (const course of mappedCourses) {
+            const courseId = course.course_id;
+            const indicatorSubplos = indicatorSubplo.rows
+                .filter(
+                  r => Number(r.plo_indicator_id) === Number(indicatorId)
+                )
+                .map(r => r.sub_plo_id);
+            const relatedSubplos = courseSubplo.rows
+                .filter(
+                  r => Number(r.course_id) === Number(courseId)
+                    &&
+                    indicatorSubplos.includes(r.sub_plo_id)
+                )
+                .map(
+                  r => r.sub_plo_id
+                );
+            if (
+              relatedSubplos.length === 0
+            ) {
+              continue;
+            }
+            const cloIds = [...new Set(
+                cloSubplo.rows
+                  .filter(
+                    r =>
+                      relatedSubplos.includes(
+                        r.sub_plo_id
+                      )
+                  )
+                  .map(r => r.clo_id)
+              )
+            ];
+            if (!cloIds.length) {
+              continue;
+            }
+            const courseClos = cloResults.rows.filter(
+                r =>
+                  Number(r.student_id) === Number(studentId)
+                  &&
+                  Number( r.course_id) === Number(courseId)
+                  &&
+                  cloIds.includes(r.clo_id)
+              );
+            if (
+              !courseClos.length
+            ) {
+              continue;
+            }
+            const allPass = courseClos.every(
+                r => r.is_pass === true
+              );
+            if (allPass) {
+              passedCourses++;
+            }
+          }
+          results.push({
+            student_id: studentId,
+            indicator_id: indicatorId,
+            percent:
+              Number(
+                (passedCourses / totalCourses * 100).toFixed(2)
+              )
+          });
+        }
+      }
+      res.json(results);
+
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({
+        error: err.message
+      });
+    }
+  }
+);
+
 router.post('/plo-manual', verifyToken, async (req, res) => {
   const { year, data } = req.body;
 

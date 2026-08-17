@@ -191,7 +191,9 @@ exports.getClos = async (course_instance_id) => {
             'id', ci.id,
             'clo_id', ci.clo_id,
             'description', ci.description,
-            'target', ci.target
+            'target', ci.target,
+            'course_instance_id',
+            ci.course_instance_id
           )
         ) FILTER (WHERE ci.id IS NOT NULL),
         '[]'
@@ -202,7 +204,35 @@ exports.getClos = async (course_instance_id) => {
     WHERE c.course_instance_id = $1
     GROUP BY c.id
   `, [course_instance_id]);
-  return result.rows;
+
+for (const clo of result.rows) {
+  // SubPLO
+  const subploRes = await pool.query(`
+      SELECT sub_plo_id
+      FROM clo_subplo_mapping
+      WHERE clo_id = $1
+    `,[clo.id]);
+  clo.subPloIds = subploRes.rows.map(r => r.sub_plo_id);
+
+  // KSEC
+  const ksecRes = await pool.query(`
+      SELECT ksec_id
+      FROM clo_ksec_mapping
+      WHERE clo_id = $1
+    `,[clo.id]);
+  clo.ksecIds = ksecRes.rows.map(r => r.ksec_id);
+
+  // Indicator Mapping
+for (const indicator of clo.indicators) {
+    const mapRes = await pool.query(`
+        SELECT plo_indicator_id
+        FROM clo_indicator_plo_indicator_mapping
+        WHERE clo_indicator_id = $1
+      `,[indicator.id]);
+    indicator.ploIndicatorIds = mapRes.rows.map(r => r.plo_indicator_id);
+  }
+}
+return result.rows;
 };
 
 // ================= UPSERT CLO =================
@@ -224,6 +254,14 @@ exports.upsertClos = async (course_instance_id, clos) => {
       `DELETE FROM clo_subplo_mapping WHERE clo_id = ANY($1::int[])`,
       [idsToDelete]
     );
+    await pool.query(`
+  DELETE FROM clo_indicator_plo_indicator_mapping
+  WHERE clo_indicator_id IN (
+    SELECT id
+    FROM clo_indicators
+    WHERE clo_id = ANY($1::int[])
+  )
+`, [idsToDelete]);
     await pool.query(
       `DELETE FROM clo_indicators WHERE clo_id = ANY($1::int[])`,
       [idsToDelete]
@@ -234,65 +272,196 @@ exports.upsertClos = async (course_instance_id, clos) => {
     );
   }
   // ✅ 4. update + insert
-  for (const c of clos) {
+for (const c of clos) {
 
-    // ===== UPDATE =====
-    if (c.id && existingIds.includes(c.id)) {
+// ===== UPDATE =====
+if (c.id && existingIds.includes(Number(c.id))) {
+
+  await pool.query(`
+    UPDATE clos
+    SET code = $1,
+        description = $2
+    WHERE id = $3
+  `, [
+    c.code,
+    c.description,
+    c.id
+  ]);
+
+  const currentIndicators = await pool.query(`
+    SELECT id
+    FROM clo_indicators
+    WHERE clo_id = $1
+  `, [c.id]);
+
+  const existingIndicatorIds =
+    currentIndicators.rows.map(
+      r => Number(r.id)
+    );
+
+  const sentIndicatorIds =
+    (c.indicators || [])
+      .filter(ind => ind.id)
+      .map(ind => Number(ind.id));
+
+  const indicatorsToDelete =
+    existingIndicatorIds.filter(
+      id => !sentIndicatorIds.includes(id)
+    );
+
+  if (indicatorsToDelete.length > 0) {
+await pool.query(`
+  DELETE FROM
+  clo_indicator_plo_indicator_mapping
+  WHERE clo_indicator_id = ANY($1::int[])
+`, [indicatorsToDelete]);
+    await pool.query(`
+      DELETE FROM clo_indicators
+      WHERE id = ANY($1::int[])
+    `, [indicatorsToDelete]);
+  }
+
+  for (const ind of (c.indicators || [])) {
+    if (
+      ind.id &&
+      existingIndicatorIds.includes(
+        Number(ind.id)
+        )
+      ) {
       await pool.query(`
-        UPDATE clos
-        SET code = $1,
-            description = $2
+        UPDATE clo_indicators
+        SET
+          description = $1,
+          target = $2
         WHERE id = $3
       `, [
-        c.code,
-        c.description,
-        c.id
+        ind.description,
+        ind.target,
+        ind.id
       ]);
-
-      // ✅ clear indicators
-      await pool.query(
-        `DELETE FROM clo_indicators WHERE clo_id = $1`,
-        [c.id]
-      );
-      for (const ind of (c.indicators || [])) {
-        await pool.query(`
-          INSERT INTO clo_indicators (clo_id, description, target, course_instance_id)
-          VALUES ($1,$2,$3, $4)
-        `, [
-          c.id,
-          ind.description,
-          ind.target,
+      await pool.query(`
+        DELETE FROM
+        clo_indicator_plo_indicator_mapping
+        WHERE clo_indicator_id = $1
+        `, [ind.id]);
+      for (const ploId of (ind.ploIndicatorIds || [])) 
+        {
+      await pool.query(`
+        INSERT INTO
+        clo_indicator_plo_indicator_mapping
+        (
+          clo_indicator_id,
+          plo_indicator_id
+        )
+        VALUES ($1,$2)
+        `, [ind.id, ploId]);
+        }
+    } else {
+      await pool.query(`
+        INSERT INTO clo_indicators
+        (
+          clo_id,
+          description,
+          target,
           course_instance_id
-        ]);
-      }
-    }
-
-    // ===== INSERT =====
-    else {
-      const insert = await pool.query(`
-        INSERT INTO clos (course_instance_id, code, description)
-        VALUES ($1,$2,$3)
-        RETURNING id
+        )
+        VALUES ($1,$2,$3,$4)
       `, [
-        course_instance_id,
-        c.code,
-        c.description
+        c.id,
+        ind.description,
+        ind.target,
+        course_instance_id
       ]);
-      const newId = insert.rows[0].id;
-      for (const ind of (c.indicators || [])) {
-        await pool.query(`
-          INSERT INTO clo_indicators (clo_id, description, target, course_instance_id)
-          VALUES ($1,$2,$3, $4)
-        `, [
-          newId,
-          ind.description,
-          ind.target,
-          course_instance_id
-        ]);
-      }
     }
   }
-};
+// save subplo
+await pool.query(`
+  DELETE FROM clo_subplo_mapping
+  WHERE clo_id = $1
+`, [c.id]);
+for (const subPloId of (c.subPloIds || [])) {
+  await pool.query(`
+    INSERT INTO clo_subplo_mapping
+    (
+      clo_id,
+      sub_plo_id
+    )
+    VALUES ($1,$2)
+  `, [
+    c.id,
+    subPloId
+  ]);
+}
+// save ksec
+await pool.query(`
+  DELETE FROM clo_ksec_mapping
+  WHERE clo_id = $1
+`, [c.id]);
+for (const ksecId of (c.ksecIds || [])) {
+  await pool.query(`
+    INSERT INTO clo_ksec_mapping
+    (
+      clo_id,
+      ksec_id
+    )
+    VALUES ($1,$2)
+  `, [
+    c.id,
+    ksecId
+  ]);
+}
+ 
+}
+
+// ===== INSERT =====
+else {
+  const insert = await pool.query(`
+    INSERT INTO clos
+    (
+      course_instance_id,
+      code,
+      description
+    )
+    VALUES ($1,$2,$3)
+    RETURNING id
+  `, [
+    course_instance_id,
+    c.code,
+    c.description
+  ]);
+
+  const newId = insert.rows[0].id;
+  for (const ind of (c.indicators || [])) 
+  {
+  const indicatorInsert = await pool.query(`
+      INSERT INTO clo_indicators
+      (
+        clo_id,
+        description,
+        target,
+        course_instance_id
+      )
+      VALUES ($1,$2,$3,$4)
+    `, [
+      newId,
+      ind.description,
+      ind.target,
+      course_instance_id
+    ]);
+  const indicatorId = indicatorInsert.rows[0].id;  
+
+  for (const ploId of (ind.ploIndicatorIds || []))  
+    await pool.query(`
+      INSERT INTO clo_indicator_plo_indicator_mapping
+      (
+        clo_indicator_id,
+        plo_indicator_id
+      )
+      VALUES ($1,$2)
+      `, [indicatorId, ploId]);
+  }
+
+}}};
 
 // ================= GET Evaluations =================
 exports.getEvaluations = async (course_instance_id) => {
@@ -597,11 +766,10 @@ exports.upsertContents = async (course_instance_id, contents) => {
           instructor_id=$5,
           guest_teacher_name=$6,
           "order"=$7,
-          exam_score=$8,
-          work_score=$9,
-          clo_ids=$10,
-          llos=$11
-        WHERE id=$12
+          clo_ids=$8,
+          activities=$9,
+          llos=$10
+        WHERE id=$11
       `, [
         c.type,
         c.date || null,
@@ -610,9 +778,8 @@ exports.upsertContents = async (course_instance_id, contents) => {
         c.instructor_id,
         c.guest_teacher_name,
         Number(c.order || 0),
-        Number(c.examScore || 0),
-        Number(c.workScore || 0),
         JSON.stringify(c.clo_ids || []),
+        JSON.stringify(c.activities || []),
         c.llos || '',
         Number(c.id)
       ]);
@@ -625,7 +792,7 @@ exports.upsertContents = async (course_instance_id, contents) => {
 const values = [];
 const params = [];
 insertList.forEach((c, i) => {
-  const base = i * 12;   // ✅ 1 row = 12 columns
+  const base = i * 11;   // ✅ 1 row = 12 columns
   values.push(`(
     $${base + 1}, 
     $${base + 2}, 
@@ -637,8 +804,7 @@ insertList.forEach((c, i) => {
     $${base + 8}, 
     $${base + 9}, 
     $${base + 10},
-    $${base + 11}, 
-    $${base + 12}
+    $${base + 11} 
   )`);
   params.push(
     course_instance_id,
@@ -649,9 +815,8 @@ insertList.forEach((c, i) => {
     c.instructor_id,
     c.guest_teacher_name,
     Number(c.order || 0),
-    Number(c.examScore || 0),
-    Number(c.workScore || 0),
     JSON.stringify(c.clo_ids || []),
+    JSON.stringify(c.activities || []),
     c.llos || ''
   );
 });
@@ -665,9 +830,8 @@ insertList.forEach((c, i) => {
           instructor_id,
           guest_teacher_name,
           "order",
-          exam_score,
-          work_score,
           clo_ids,
+          activities,
           llos
         )
         VALUES ${values.join(', ')}

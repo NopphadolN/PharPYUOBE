@@ -72,16 +72,18 @@ const contents = courseContents.filter(c =>
 console.log("MATCH CONTENT:", contents.map(c => c.id));
         const contentIds = contents.map(c => String(c.id));
 
-        // ✅ 2. teaching strategy
-        const hasLecture = contents.some(c => c.type === 'lecture');
-        const hasLab = contents.some(c => c.type === 'lab');
-
-        let teaching = [];
-        if (hasLecture) teaching.push('บรรยาย');
-        if (hasLab) teaching.push('ปฏิบัติการ');
-        if (teaching.length === 0) teaching.push('-');
-
-        const teachingHtml = teaching.map(t => `- ${t}`).join('<br>');
+// ✅ 2. teaching strategy จาก activities
+const teachingSet = new Set();
+contents.forEach(c => {
+  (c.activities || []).forEach(a => {
+    teachingSet.add(a);
+  });
+});
+const teachingHtml = teachingSet.size > 0
+    ? [...teachingSet]
+        .map(a => `- ${a}`)
+        .join('<br>')
+    : '-';
 
         // ✅ 3. indicator
 const indicators = cloIndicators.filter(i =>

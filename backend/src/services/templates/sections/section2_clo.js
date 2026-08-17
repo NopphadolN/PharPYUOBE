@@ -13,12 +13,37 @@ const calculateHours = (creditFormat = "0-0-0") => {
 };
 
 const renderSection2 = (data) => {
-  const { clos = [] } = data;
+  const { clos = [], subPlos, cloMappings, cloKsecMappings } = data;
   const c = data.course || {};
   // ✅ คำนวณชั่วโมง
   const hours = calculateHours(c.credit_format);
 
 const profile = data.instructorProfile || {};
+
+const getPLOCodes = (cloId) => {
+  const mapping = cloMappings.find(
+    m => String(m.cloId) === String(cloId)
+  );
+  if (!mapping) return '';
+  return mapping.subPloIds
+    .map(id => {
+      const subPlo = subPlos.find(
+        p => String(p.id) === String(id)
+      );
+      if (!subPlo) return null;
+      return subPlo.code.replace(/^SubPLO/i, 'PLO');
+    })
+    .filter(Boolean)
+    .join(', ');
+};
+
+  const getKSECCodes = (cloId) => {
+  const mapping = cloKsecMappings.find(
+    m => String(m.cloId) === String(cloId)
+  );
+  if (!mapping) return '';
+  return mapping.ksecCodes.join(', ');
+};
 
   return ` 
   <!-- ✅ หมวดที่ 2 -->
@@ -33,15 +58,23 @@ const profile = data.instructorProfile || {};
     </div>
     <p>เมื่อสิ้นสุดการเรียนการสอนแล้ว นักศึกษาที่สำเร็จการศึกษาในรายวิชา สามารถ (CLOs)</p>
     </div> 
-    ${clos.length > 0
-      ? clos.map((c, i) => `
-        <p style="text-indent:40px; 
-        text-align: justify; text-justify: inter-word;">
-          ${i + 1}. ${c.description || '-'}
-        </p>
-      `).join('')
-      : `<p style="text-indent:80px;">-</p>`
-    }
+    ${clos.map((c, i) => {
+    const ploText = getPLOCodes(c.id);
+    const ksecText = getKSECCodes(c.id);
+    return `
+      <div style="
+        text-indent:40px;
+        text-align:justify;
+        text-justify:inter-word;
+      ">
+      <b>6.${i+1}.</b>${c.description}
+      (${c.code})
+      ${ploText ? `(${ploText})` : ''}
+      ${ksecText ? `(${ksecText})` : ''}
+    </div>
+    `;
+    }).join('')}
+    
     <div class="heading">
     <div style="border: 1px solid #000; padding: 3px; margin: 20px 0;">
       <div style="border: 4px solid #000; padding: 8px 0; text-align: center;">

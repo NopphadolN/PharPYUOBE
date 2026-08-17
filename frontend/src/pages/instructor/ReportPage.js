@@ -37,7 +37,6 @@ export default function ReportPage() {
 
   const [students, setStudents] = useState([]);
   const [plos, setPlos] = useState([]);
-  const [mappings, setMappings] = useState([]);
   const [cloResults, setCloResults] = useState([]);
   const [courseResults, setCourseResults] = useState([]);
   const [search, setSearch] = useState('');
@@ -49,6 +48,15 @@ export default function ReportPage() {
   const [courseSemester, setCourseSemester] = useState('');
   const [yloResults, setYloResults] = useState([]);
   const [indicatorScores, setIndicatorScores] = useState([]);
+  const [indicatorResults, setIndicatorResults] = useState([]);
+  const getStudentYear = (student) => {
+  if (!student?.user_code) {
+    return null;
+  }
+  const prefix = String(student.user_code)
+      .substring(0,2);
+  return `25${prefix}`;
+  };
 
   /* ================= LOAD ================= */
 useEffect(() => {
@@ -56,12 +64,12 @@ useEffect(() => {
     try {
       const stuRes = await api.get('/student/all');
       const ploRes = await api.get('/plos');
-      const mapRes = await api.get('/mapping');
     
 let cloRes = { data: [] };
 let courseResultRes = { data: [] };
 let courseMasterRes = { data: [] };
 let indicatorRes = { data: [] };
+let ploIndicatorRes = { data: [] };
 
 try {
   cloRes = await api.get('/instructor/clo-results');
@@ -87,11 +95,15 @@ try {
       // ✅ สำคัญ: set ก่อน แม้ API อื่นพัง
       setStudents(stuRes.data);
       setPlos(ploRes.data);
-      setMappings(mapRes.data);
       setCloResults(cloRes.data);
       setCourseResults(courseResultRes.data);
       setCourses(courseMasterRes.data);
       setIndicatorScores(indicatorRes.data);
+
+      console.log(
+  'indicatorResults',
+  ploIndicatorRes.data.slice(0,10)
+);
 
     } catch (err) {
       console.log("MAIN ERROR:", err.message);
@@ -147,38 +159,55 @@ useEffect(() => {
   .catch(err => console.log(err.message));
 }, [selectedStudent]);
 
-  /* ================= PASS COURSE ================= */
-  const checkStudentPassCourse = (studentId, courseId) => {
-    return courseResults.some(r =>
-      String(r.student_id) === String(studentId) &&
-      String(r.course_id) === String(courseId) &&
-      r.is_pass === true
-    );
-  };
+useEffect(() => {
+  if (!selectedStudent) {
+    setIndicatorResults([]);
+    return;
+  }
+  const year = getStudentYear(selectedStudent);
+  (async () => {
+    try {
+      const res = await api.get('/admin/indicator-results',
+          {params: { year }}
+        );
 
-  /* ================= INDICATOR % ================= */
-  const getIndicatorPercent = (studentId, indicatorCode) => {
-    const mappedCourses = mappings.filter(m =>
-      String(m.indicator_code).toLowerCase() === String(indicatorCode).toLowerCase()
-    );
-    if (mappedCourses.length === 0) return null;
-    let pass = 0;
-    mappedCourses.forEach(m => {
-      if (checkStudentPassCourse(studentId, m.course_id)) {
-        pass++;
-      }
-    });
-    return (pass / mappedCourses.length) * 100;
-  };
+      console.log(
+        'PLO RESULTS',
+        res.data.length
+      );
+
+      setIndicatorResults(res.data);
+
+    } catch(err) {
+
+      console.log(
+        'PLO RESULT ERROR',
+        err.message
+      );
+
+    }
+  })();
+}, [selectedStudent]);
 
   /* ================= PLO AVG ================= */
+const getPloIndicatorResult = (studentId, indicatorId) => {
+  return indicatorResults.find(
+    r =>
+      Number(r.student_id) === Number(studentId)
+      &&
+      Number(r.indicator_id) === Number(indicatorId)
+  );
+};
+
 const getPloAvg = (studentId, plo) => {
   const values = plo.indicators.map(ind => {
-    const val = getIndicatorPercent(studentId, ind.code);
-    return val !== null ? val : 0;   // ✅ เอาทุก indicator
-  });
-  if (values.length === 0) return 0;
-  return values.reduce((a, b) => a + b, 0) / values.length;
+      const result = getPloIndicatorResult( studentId, ind.id);
+      if (!result) {return 0;}
+      return Number(result.progress || 0);
+    });
+  if (!values.length) {return 0;}
+
+  return (values.reduce((a,b)=>a+b, 0)/values.length);
 };
 
   /* ================= COURSES ================= */
@@ -209,11 +238,12 @@ const getStudentIndicatorPercent = (studentId, indicatorId) => {
   return (totalScore / totalFull) * 100;
 };
 
-  /* ================= CLO % ================= */
-
   /* ================= PLO CHART ================= */
 const ploChartData = selectedStudent ? {
-  labels: plos.map(p => p.code),
+  labels: plos.map(p => {
+  const avg = getPloAvg(selectedStudent.id, p);
+  return `${p.code} (${avg.toFixed(2)}%)`;
+  }),
   datasets: [{
     label: 'PLO %',
     data: plos.map(p => {
@@ -289,19 +319,7 @@ const radarOptions = {
     }
   },
   plugins: {
-    tooltip: {
-      callbacks: {
-        label: (ctx) => {
-          const ploCode = ctx.label;
-          const plo = plos.find(p => p.code === ploCode);
-          const desc = plo?.description || '';
-          return [
-            `ค่า: ${Number(ctx.raw).toFixed(2)}%`,
-            desc
-          ];
-        }
-      }
-    },
+    tooltip: {enabled: false},
     legend: { display: true }
   }
 };
@@ -352,9 +370,9 @@ const getCourseInfo = (courseId) => {
 
   /* ================= UI ================= */
   return (
-<div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-white">
+<div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
   <InstructorMenu />
-  <div className="flex-1 p-6 space-y-6">    
+  <div className="p-6 space-y-6">   
     {/* HEADER */}
     <div className="bg-white rounded-2xl shadow p-5">
       <h2 className="text-xl font-bold">
@@ -417,7 +435,19 @@ const getCourseInfo = (courseId) => {
         <h4 className="font-medium mb-2">PLO Achievement</h4>
         <Radar data={ploChartData} options={radarOptions} />
       </div>
-
+<div className="mt-4 space-y-2 text-sm">
+  {plos.map(p => (
+    <div
+      key={p.id}
+      className="border-b pb-2"
+    >
+      <span className="font-semibold text-blue-600">
+        {p.code}
+      </span>
+      {' : '} {p.description}
+    </div>
+  ))}
+</div>
     {/* YLO */}
     <div>
       <h4 className="text-sm font-semibold mb-2">YLO</h4>

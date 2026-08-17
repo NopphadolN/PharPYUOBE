@@ -123,8 +123,6 @@ setIndicatorScores(loadedIndicators);
 
 }, [courseId, year, semester]);
 
-  /* ================= APPLY SCORE ================= */
-
   /* ================= PASS ================= */
 const isStudentPassAllCLO = (studentId) => {
   return clos.every(
@@ -316,16 +314,12 @@ const handleIndicatorImport = () => {
     !selectedIndicatorId ||
     !selectedEvaluationId
   ) {
-    alert(
-      'เลือก CLO ตัวชี้วัด และรายการประเมินก่อน'
-    );
+    alert('เลือก CLO ตัวชี้วัด และรายการประเมินก่อน');
     return;
   }
   const fullScore = Number(selectedFullScore);
   if (!fullScore) {
-    alert(
-      'กรุณาระบุคะแนนเต็ม'
-    );
+    alert('กรุณาระบุคะแนนเต็ม');
     return;
   }
   const rows = pasteText
@@ -560,11 +554,9 @@ const isOwner = user &&
 
   /* ================= UI ================= */
   return (
-<div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-white">
-
+<div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
   <InstructorMenu />
-
-  <div className="flex-1 p-6 space-y-6">
+  <div className="p-6 space-y-6">
 
     {/* HEADER */}
     <div className="bg-white rounded-2xl shadow p-5">
@@ -702,7 +694,7 @@ onChange={(e) => {
   type="number"
   min="0"
   step="0.01"
-  placeholder="คะแนนเต็มรายการประเมิน"
+  placeholder="คะแนนเต็มตัวชี้วัด"
   value={selectedFullScore}
   onChange={e =>
     setSelectedFullScore(

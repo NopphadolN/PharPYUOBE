@@ -203,10 +203,9 @@ exports.getInstance = async (req, res) => {
   hours,
   instructor_id,
   guest_teacher_name,
-  "order",
-  exam_score,
-  work_score,
+  "order",   
   clo_ids,
+  activities,
   llos
       FROM course_contents
       WHERE course_instance_id=$1

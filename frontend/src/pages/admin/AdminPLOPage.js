@@ -19,13 +19,21 @@ export default function AdminPLOPage() {
     (async () => {
       const stu = await api.get('/student/all');
       const plo = await api.get('/plos');
-      const indicatorRes = await api.get('/admin/indicator-results');
-
       setStudents(stu.data);
-      setPlos(plo.data);
-      setIndicatorResults(indicatorRes.data);
+      setPlos(plo.data);     
     })();
   }, []);
+
+  useEffect(() => {
+  if (!year) return;
+  (async () => {
+    const indicatorRes = await api.get('/admin/indicator-results',
+        {params:{ year }});
+    setIndicatorResults(
+      indicatorRes.data
+    );
+  })();
+  }, [year]);
 
   /* ✅ load manual */
   useEffect(() => {
@@ -55,22 +63,15 @@ export default function AdminPLOPage() {
     : [];
 
   /* ================= LOGIC ================= */
-const getIndicatorPercent = (
-  studentId,
-  indicatorId
+const getIndicatorResult = (
+  studentId, indicatorId
 ) => {
-  const row =
-    indicatorResults.find(
-      r =>
-        Number(r.student_id)
-          === Number(studentId)
+  return indicatorResults.find(
+    r =>
+      Number(r.student_id) === Number(studentId)
       &&
-        Number(r.indicator_id)
-          === Number(indicatorId)
-    );
-  return row
-    ? Number(row.percent)
-    : null;
+      Number(r.indicator_id) === Number(indicatorId)
+  );
 };
 
   /* ================= SAVE ================= */
@@ -101,7 +102,8 @@ const getIndicatorPercent = (
 
       {/* TABLE */}
       <Card>
-        <h3 className="font-semibold mb-3">PLO Manual Assessment</h3>
+        <h3 className="font-semibold mb-3">PLO Manual Assessment</h3> 
+        * ร้อยละการผ่าน = ผลผ่านทั้งหลักสูตร (ผลผ่านเฉพาะวิชาที่ลงเรียน)
 
         {!year && (
           <div className="text-gray-400">กรุณาเลือกปี</div>
@@ -167,39 +169,38 @@ const getIndicatorPercent = (
             {/* ✅ indicator ของ PLO นี้ */}
             {plo.indicators.map(ind => {
 
-              const percent = getIndicatorPercent(st.id, ind.id);
-              const hasResult = percent !== null;
-              let val;
-              if (hasResult) {
-                val = percent;
-              } else {
-                val = manual?.[st.id]?.[ind.id] ? 100 : 0;
-              }
-              ploValues.push(val);
-
+              const result = getIndicatorResult(st.id, ind.id);
+              const hasResult = !!result;
+              let progress = 0;
+              if (hasResult) {progress = result?.progress ?? 0;}
+                else {progress = manual?.[st.id]?.[ind.id]
+                      ? 100
+                      : 0;
+                    }
+              ploValues.push(progress);
               return (
                 <td
                   key={ind.id}
                   className="border text-center px-2"
                 >
-                  {hasResult
-                    ? val.toFixed(2) + '%'
-                    : (
-                      <input
-                        type="checkbox"
-                        checked={val === 100}
-                        onChange={(e) => {
-                          setManual({
-                            ...manual,
-                            [st.id]: {
-                              ...manual[st.id],
-                              [ind.id]: e.target.checked
-                            }
-                          });
-                        }}
-                      />
-                    )
-                  }
+{hasResult
+  ? `${progress.toFixed(2)}%`
+  : (
+      <input
+        type="checkbox"
+        checked={progress === 100}
+        onChange={(e) => {
+          setManual({
+            ...manual,
+            [st.id]: {
+              ...manual[st.id],
+              [ind.id]: e.target.checked
+            }
+          });
+        }}
+      />
+    )
+}
                 </td>
               );
             })}

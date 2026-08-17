@@ -13,10 +13,10 @@ export default function CourseStep2() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef(null);
-
   
   const { course_id, year, semester } = location.state || {};
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showActivityDropdown, setShowActivityDropdown] = useState(false);
   const [instanceId, setInstanceId] = useState(null);
 
   /* =========================
@@ -53,8 +53,7 @@ export default function CourseStep2() {
     hours: '',
     instructor: '',
     cloIds: [],
-    examScore: '',
-    workScore: '',
+    activities: [],
     llos: ''
   });
 
@@ -80,6 +79,17 @@ export default function CourseStep2() {
   const [owner, setOwner] = useState(null);
   const [user, setUser] = useState(null);
 
+const teachingActivities = [
+  'บรรยาย',
+  'อภิปราย',
+  'การระดมพลังสมอง',
+  'กรณีศึกษา',
+  'ฝึกปฏิบัติ / ปฏิบัติการ',
+  'การมอบหมายงานให้ศึกษาค้นคว้า',
+  'Problem - based Learning',
+  'จัดกิจกรรม'
+];
+
   useEffect(() => {
     api.get('/instructor/me')
       .then(res => setUser(res.data))
@@ -90,11 +100,34 @@ export default function CourseStep2() {
   const handleClickOutside = (e) => {
     if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
       setShowDropdown(false);
+      
     }
   };
   document.addEventListener('mousedown', handleClickOutside);
   return () => {
     document.removeEventListener('mousedown', handleClickOutside);
+  };
+}, []);
+
+const activityDropdownRef = useRef(null);
+useEffect(() => {
+  const handleClickOutside = (e) => {
+    if (
+      activityDropdownRef.current &&
+      !activityDropdownRef.current.contains(
+        e.target
+      )
+    ) {setShowActivityDropdown(false);}
+  };
+  document.addEventListener(
+    'mousedown',
+    handleClickOutside
+  );
+  return () => {
+    document.removeEventListener(
+      'mousedown',
+      handleClickOutside
+    );
   };
 }, []);
 
@@ -138,14 +171,16 @@ useEffect(() => {
             ? c.guest_teacher_name
             : c.instructor_id,
           order: c.order || '',
-          examScore: c.exam_score || '',
-          workScore: c.work_score || '',
           cloIds:
             (
             typeof c.clo_ids === 'string'
             ? JSON.parse(c.clo_ids)
             : (c.clo_ids || [])
             ).map(String),
+          activities:
+            typeof c.activities === 'string'
+            ? JSON.parse(c.activities)
+            : (c.activities || []),  
           llos: c.llos || ''
         }))
       );
@@ -253,8 +288,7 @@ const addTeacher = (t) => {
       hours: '',
       instructor: '',
       cloIds: [],
-      examScore: '',
-      workScore: '',
+      activities: [],
       llos: ''
     });
   };
@@ -263,6 +297,10 @@ const addTeacher = (t) => {
 
     setCurrentContent({
   ...c, date: c.date || '',
+        activities:
+            typeof c.activities === 'string'
+            ? JSON.parse(c.activities)
+            : (c.activities || []),  
         llos: c.llos || '' 
 });
 
@@ -360,105 +398,6 @@ const formatDate = (d) => {
   return `${Number(da)} ${monthNames[Number(m) - 1]} ${Number(y) + 543}`;
 };
 
-// distributeScores //
-const round1 = (num) =>
-  Math.round((num + Number.EPSILON) * 100) / 100;
-const distributeScores = (contents, evaluations) => {
-  const updated = contents.map(c => ({
-    ...c,
-    examScore: 0,
-    workScore: 0
-  }));
-  evaluations.forEach(e => {
-    const selectedClos = e.cloIds || [];
-    if (!selectedClos.length) return;
-    const allIds = [
-      ...(e.lectureIds || []),
-      ...(e.labIds || [])
-    ];
-    const relatedContents = updated.filter(c =>      
-      allIds.includes(String(c.id)) ||
-      allIds.includes(String(c.order))
-    );
-    if (!relatedContents.length) return;
-
-    // =========================
-    // STEP A : หาชั่วโมงรวมของ CLO ที่ถูกเลือก
-    // =========================
-    const cloHours = {};
-    selectedClos.forEach(cloId => {
-      cloHours[cloId] = 0;
-    });
-    relatedContents.forEach(content => {
-      const matchedClos =
-        (content.cloIds || []).filter(cloId =>
-          selectedClos.includes(String(cloId))
-        );
-      if (!matchedClos.length) return;
-      const shareHours =
-        Number(content.hours || 0) /
-        matchedClos.length;
-      matchedClos.forEach(cloId => {
-        cloHours[cloId] += shareHours;
-      });
-    });
-    const totalCloHours =
-      Object.values(cloHours)
-        .reduce((sum, h) => sum + h, 0);
-    if (!totalCloHours) return;
-    // =========================
-    // STEP B : แจกคะแนนให้ CLO
-    // =========================
-    const cloScores = {};
-    Object.entries(cloHours).forEach(
-      ([cloId, hours]) => {
-        cloScores[cloId] =
-          Number(e.total || 0) *
-          (hours / totalCloHours);
-      }
-    );
-    // =========================
-    // STEP C : แจกคะแนน CLO → Content
-    // =========================
-    Object.entries(cloScores).forEach(
-      ([cloId, score]) => {
-        const cloContents =
-          relatedContents.filter(c =>
-            (
-            allIds.includes(String(c.id)) ||           
-            allIds.includes(String(c.order))
-            ) &&
-            (c.cloIds || []).includes(String(cloId))
-          );
-        const totalHoursForClo =
-          cloContents.reduce(
-            (sum, c) =>
-              sum + Number(c.hours || 0),
-            0
-          );
-        if (!totalHoursForClo) return;
-        cloContents.forEach(c => {
-          const scorePart =
-            score *
-            (Number(c.hours || 0) /
-              totalHoursForClo);
-          if (e.type === 'คะแนนสอบ') {
-            c.examScore = round1(
-              c.examScore + scorePart
-            );
-          }
-          if (e.type === 'คะแนนอื่นๆ') {
-            c.workScore = round1(
-              c.workScore + scorePart
-            );
-          }
-        });
-      }
-    );
-  });
-  return updated;
-};
-
 /* =========================
    SAVE (FULL VERSION)
 ========================= */
@@ -490,8 +429,7 @@ const handleSave = async () => {
 
 // ✅ 3. CLEAN CONTENTS (FIX VERSION)
 // ✅ 1. เริ่มจาก contents เดิม
-const calculatedContents =
-  distributeScores(contents, evaluations);
+const calculatedContents = [...contents];
 
 // ✅ 2. ตรวจสอบ order ซ้ำ  
 const duplicateLecture =
@@ -552,8 +490,7 @@ let cleanContents = calculatedContents.map(c => {
     instructor_id,
     guest_teacher_name,
     order: Number(c.order || 0),
-    examScore: Number(c.examScore || 0),
-    workScore: Number(c.workScore || 0),
+    activities: c.activities || [],
     clo_ids: Array.isArray(c.cloIds) ? c.cloIds : [],
     llos: c.llos || ''
   };
@@ -566,8 +503,7 @@ await api.post('/instructor/instance/contents', {
 });
 console.log("✅ CONTENTS SAVED");
 
-const contentReload = await api.get(
-  '/instructor/instance',
+const contentReload = await api.get('/instructor/instance',
   {
     params: {
       course_id,
@@ -576,18 +512,14 @@ const contentReload = await api.get(
     }
   }
 );
-const savedContents =
-  contentReload.data.contents || [];
+const savedContents = contentReload.data.contents || [];
 
 const tempToRealIdMap = {};
 contents.forEach(oldContent => {
   const matched = savedContents.find(c =>
-    String(c.topic || '') ===
-      String(oldContent.topic || '') &&
-    String(c.type || '') ===
-      String(oldContent.type || '') &&
-    Number(c.order || 0) ===
-      Number(oldContent.order || 0)
+    String(c.topic || '') === String(oldContent.topic || '') &&
+    String(c.type || '') === String(oldContent.type || '') &&
+    Number(c.order || 0) === Number(oldContent.order || 0)
   );
   if (matched) {
     tempToRealIdMap[
@@ -595,6 +527,7 @@ contents.forEach(oldContent => {
     ] = String(matched.id);
   }
 });
+
     // ✅ 5. SAVE EVALUATIONS
 const invalidEval =
   evaluations.find(e =>
@@ -612,13 +545,11 @@ if (invalidEval) {
   setLoading(false);
   return;
 }
-const validContentIds =
-  savedContents.map(
+const validContentIds = savedContents.map(
     c => String(c.id)
   );
 
-const cleanEvaluations =
-  evaluations
+const cleanEvaluations = evaluations
     .filter(
       e =>
         e &&
@@ -692,14 +623,16 @@ const cleanEvaluations =
               ? c.guest_teacher_name
               : c.instructor_id,
           order: c.order || '',
-          examScore: c.exam_score || '',
-          workScore: c.work_score || '',
           cloIds:
             (
               typeof c.clo_ids === 'string'
               ? JSON.parse(c.clo_ids)
               : (c.clo_ids || [])
             ).map(String),
+          activities:
+            typeof c.activities === 'string'
+            ? JSON.parse(c.activities)
+            : (c.activities || []),   
           llos: c.llos || ''
         };  
         })
@@ -897,8 +830,7 @@ evaluations.forEach(e => {
         <th className="p-2">หัวข้อ</th>
         <th className="p-2">ชม.</th>
         <th className="p-2">อาจารย์</th>
-        <th className="p-2">คะแนนสอบ</th>
-        <th className="p-2">คะแนนอื่นๆ</th>
+        <th className="p-2">กิจกรรมการเรียนการสอน</th>
       </tr>
     </thead>
 
@@ -937,17 +869,20 @@ evaluations.forEach(e => {
               </td>
               <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>{c.hours}</td>
               <td style={{ textAlign: 'center'}}>
-                {
-                (() => {
+                {(() => {
                 const teacher = selectedTeachers.find(t => t.id === c.instructor);
                 if (c.instructor === 'faculty') return 'คณาจารย์';
                 if (teacher) return teacher.name_th;
-                return `${c.instructor}`; // ✅ fallback debug
+                return `${c.instructor}`; 
                 })()
                 }
               </td>
-              <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>{Number(c.examScore).toFixed(1)}</td>
-              <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>{Number(c.workScore).toFixed(1)}</td>
+              <td style={{ 
+                  textAlign: 'center', 
+                  whiteSpace: 'normal',
+                  wordBreak: 'break-word',
+                  maxWidth: 160 }}>
+                {(c.activities || []).join(', ')}</td>
               </tr>
           ))}
         </tbody>
@@ -975,9 +910,9 @@ const isOwner =
      UI
   ========================= */
   return (
-<div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-white">
+<div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
   <InstructorMenu />
-  <div className="flex-1 p-6">
+  <div className="p-6 space-y-6">
     {/* HEADER */}
     <div className="bg-white rounded-2xl shadow p-5 mb-6">
       <h2 className="text-xl font-bold mb-2">Step2: Teaching Plan</h2>
@@ -1194,10 +1129,10 @@ const isOwner =
 <Card className="mb-6">
   <h3 className="font-semibold mb-4">เพิ่มหัวข้อสอน</h3>
 
-  <div className="grid grid-cols-12 gap-3 items-start">
+  <div className="grid grid-cols-14 gap-3 items-start">
 
     {/* TYPE */}
-    <div className="col-span-2">
+    <div className="col-span-1">
       <Select
         disabled={!isOwner}
         value={currentContent.type}
@@ -1206,6 +1141,16 @@ const isOwner =
         <option value="lecture">บรรยาย</option>
         <option value="lab">ปฏิบัติ</option>
       </Select>
+    </div>
+
+    {/* ORDER */}
+    <div className="col-span-1">
+      <Input
+        disabled={!isOwner}
+        placeholder="หัวข้อที่ (ใส่เฉพาะตัวเลข)"
+        value={currentContent.order}
+        onChange={e => setCurrentContent({ ...currentContent, order: e.target.value })}
+      />
     </div>
 
     {/* DATE */}
@@ -1219,21 +1164,11 @@ const isOwner =
       />
     </div>
 
-    {/* ORDER */}
-    <div className="col-span-1">
-      <Input
-        disabled={!isOwner}
-        placeholder="ลำดับ"
-        value={currentContent.order}
-        onChange={e => setCurrentContent({ ...currentContent, order: e.target.value })}
-      />
-    </div>
-
     {/* TOPIC */}
     <div className="col-span-4">
       <textarea
         disabled={!isOwner}
-        placeholder="หัวข้อ"
+        placeholder="รายละเอียดหัวข้อสอน"
         value={currentContent.topic}
         onChange={e => setCurrentContent({ ...currentContent, topic: e.target.value })}
         className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 resize-y"
@@ -1244,7 +1179,7 @@ const isOwner =
     <div className="col-span-1">
       <Input
         disabled={!isOwner}
-        placeholder="ชั่วโมง"
+        placeholder="จำนวนชั่วโมงสอน"
         type="number"
         step="0.1"
         value={currentContent.hours}
@@ -1328,7 +1263,92 @@ const isOwner =
         ))}
       </Select>
     </div>
+
+    {/* ACTIVITY */}    
+<div
+ref={activityDropdownRef}
+className="col-span-2 relative"
+>
+  <div
+    onClick={() =>
+      setShowActivityDropdown(
+        !showActivityDropdown
+      )
+    }
+    className="
+      border
+      rounded-lg
+      px-3
+      py-2
+      bg-white
+      cursor-pointer
+      hover:border-blue-400
+    "
+  >
+    {
+      currentContent.activities?.length > 0 
+      ? `${currentContent.activities.length} รายการ`
+      : 'กิจกรรมการเรียนการสอน'
+    }
   </div>
+  {showActivityDropdown && (
+    <div
+      className="
+        absolute
+        z-10
+        w-full
+        bg-white
+        border
+        rounded-lg
+        shadow
+        mt-1
+        max-h-48
+        overflow-y-auto
+      "
+    >
+      {teachingActivities.map(activity => {
+          const checked = currentContent.activities
+              ?.includes(activity);
+          return (
+            <label
+              key={activity}
+              className="
+                flex
+                items-center
+                gap-2
+                px-3
+                py-2
+                hover:bg-gray-100
+              "
+            >
+              <input
+                type="checkbox"
+                disabled={!isOwner}
+                checked={checked}
+                onChange={(e) => {
+                  let updated = [...(currentContent.activities || [])];
+                  if (e.target.checked) {
+                    updated.push(activity);
+                  } else {
+                    updated = updated.filter(
+                        x =>
+                          x !== activity
+                      );
+                  }
+                  setCurrentContent({...currentContent, activities: updated
+                  });
+                }}
+              />
+              {activity}
+            </label>
+          );
+        }
+      )}
+    </div>
+  )}
+
+</div>
+</div>
 
 {/* ✅ LLO */}
 <div className="mt-4 p-3 border rounded-lg bg-gray-50">

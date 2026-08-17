@@ -46,7 +46,12 @@ const contents = contentRes.rows.map(c => ({
   clo_ids:
     typeof c.clo_ids === 'string'
       ? JSON.parse(c.clo_ids)
-      : (c.clo_ids || [])
+      : (c.clo_ids || []),
+
+  activities:
+    typeof c.activities === 'string'
+      ? JSON.parse(c.activities)
+      : (c.activities || [])
 }));
 
 // ✅ evaluations
@@ -99,6 +104,8 @@ const profileRes = await pool.query(`
   WHERE user_id = $1
 `, [courseData.owner_id]);
 
+const cloKsecMappings = await getKsecMappings(instanceId);
+
 return {
   course: courseData,
   clos: clos.rows,
@@ -115,6 +122,7 @@ return {
   instructorProfile: profileRes.rows[0] || null, 
   subPlos,
   cloMappings,
+  cloKsecMappings,
 };
 
 };
@@ -145,6 +153,37 @@ const getCloMappings = async (instanceId) => {
       map.push({
         cloId: r.clo_id,
         subPloIds: [String(r.sub_plo_id)]
+      });
+    }
+  });
+  return map;
+};
+
+// ✅ ดึง mapping KSEC
+const getKsecMappings = async (instanceId) => {
+  const res = await pool.query(`
+    SELECT
+      m.clo_id,
+      k.code
+    FROM clo_ksec_mapping m
+    JOIN ksec_master k
+      ON m.ksec_id = k.id
+    JOIN clos c
+      ON m.clo_id = c.id
+    WHERE c.course_instance_id = $1
+    ORDER BY k.code
+  `, [instanceId]);
+  const map = [];
+  res.rows.forEach(r => {
+    const found = map.find(
+      m => m.cloId == r.clo_id
+    );
+    if (found) {
+      found.ksecCodes.push(r.code);
+    } else {
+      map.push({
+        cloId: r.clo_id,
+        ksecCodes: [r.code]
       });
     }
   });

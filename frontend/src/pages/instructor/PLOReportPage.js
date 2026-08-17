@@ -27,10 +27,9 @@ export default function PLOPage() {
   const [year, setYear] = useState('');
   const [students, setStudents] = useState([]);
   const [plos, setPlos] = useState([]);
-  const [mappings, setMappings] = useState([]);
+  const [indicatorResults, setIndicatorResults] = useState([]);
   const [manualChecks, setManualChecks] = useState({});
   const [cloResults, setCloResults] = useState([]);
-  const [courseResults, setCourseResults] = useState([]);
   const [yloResults, setYloResults] = useState([]);
   const [viewMode, setViewMode] = useState('plo'); 
   const [ylos, setYlos] = useState([]);
@@ -38,21 +37,16 @@ export default function PLOPage() {
 
   /* ================= LOAD DATA ================= */
 useEffect(() => {
-
   (async () => {
     try {
       const stuRes = await api.get('/student/all');
       const ploRes = await api.get('/plos');
-      const mapRes = await api.get('/mapping');
       const cloRes = await api.get('/instructor/clo-results');
-      const courseRes = await api.get('/instructor/course-results');
       const yloRes = await api.get('/admin/ylos');
 
       setStudents(stuRes.data);
       setPlos(ploRes.data);
-      setMappings(mapRes.data);
       setCloResults(cloRes.data);
-      setCourseResults(courseRes.data);
       setYlos(yloRes.data || []);
 
     } catch (err) {
@@ -97,49 +91,71 @@ useEffect(() => {
   })();
 }, [year]);
 
+useEffect(() => {
+  if (!year) {setIndicatorResults([]);
+    return;
+  }
+  (async () => {
+    try {
+      const res = await api.get('/admin/indicator-results',
+          {params: { year }}
+        );
+      setIndicatorResults(res.data || []
+      );
+    } catch(err) {
+      console.error(
+        'indicator load error',
+        err
+      );
+    }
+  })();
+}, [year]);
+
   /* ================= FILTER ================= */
   const filteredStudents = students.filter(st =>
     year && String(st.user_code).startsWith(year.slice(-2))
   );
 
-/* ================= CHECK PASS COURSE ================= */
-const checkStudentPassCourse = useCallback((studentId, courseId) => {
-  return courseResults.some(r =>
-    r.student_id === studentId &&
-    r.course_id === courseId &&
-    r.is_pass === true
-  );
-}, [courseResults]);
-
-/* ================= INDICATOR % ================= */
-const getIndicatorPercent = useCallback((studentId, indicatorCode) => {
-  const mappedCourses = mappings.filter(m =>
-    String(m.indicator_code).toLowerCase() === String(indicatorCode).toLowerCase()
-  );
-  if (mappedCourses.length === 0) return null;
-  let pass = 0;
-  mappedCourses.forEach(m => {
-    if (checkStudentPassCourse(studentId, m.course_id)) {
-      pass++;
-    }
-  });
-  return (pass / mappedCourses.length) * 100;
-}, [mappings, checkStudentPassCourse]);
+/* ================= INDICATOR RESULT ================= */
+const getIndicatorResult = useCallback(
+  (studentId, indicatorId) => {
+    return indicatorResults.find(
+      r =>
+        Number(r.student_id) === Number(studentId)
+      &&
+        Number(r.indicator_id) === Number(indicatorId)
+    );
+  },
+  [indicatorResults]
+);
 
 /* ================= PLO AVG ================= */
-const getPloAvg = useCallback((studentId, plo) => {
-  const values = plo.indicators.map(ind => {
-    let val = getIndicatorPercent(studentId, ind.code);
-    if (val === null) {
-      val = manualChecks?.[studentId]?.[ind.id]
+const getPloAvg = useCallback(
+  (studentId, plo) => {
+    const values = plo.indicators.map(ind => {
+      const result = getIndicatorResult(
+          studentId,
+          ind.id
+        );
+      if (result) {
+        return Number(
+          result.progress || 0
+        );
+      }
+      return manualChecks?.[studentId]?.[ind.id]
         ? 100
         : 0;
+    });
+    if (!values.length) {
+      return 0;
     }
-    return val ?? 0;
-  });
-  if (!values.length) return 0;
-  return values.reduce((a, b) => a + b, 0) / values.length;
-}, [manualChecks, getIndicatorPercent]);
+    return (
+      values.reduce(
+        (a,b)=>a+b, 0) / values.length
+    );
+  },
+  [manualChecks, getIndicatorResult]
+);
 
 /* ================= CHART DATA ================= */
 const ploAvgData = useMemo(() => {
@@ -190,9 +206,9 @@ const getPloColor = (value) => {
 
   /* ================= UI ================= */
   return (
-<div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-white">
+<div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
   <InstructorMenu />
-  <div className="flex-1 p-6 space-y-6">
+  <div className="p-6 space-y-6">
     {/* HEADER */}
     <div className="bg-white rounded-2xl shadow p-5">
       <h2 className="text-xl font-bold">📊 PLO/YLO results by Year</h2>
@@ -387,9 +403,12 @@ const getPloColor = (value) => {
 )}
 
 {selectedPlo && (
-  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">    
-    <div className="bg-white rounded-xl shadow-lg p-6 w-[500px] max-w-[95vw]">
-      <div className="flex justify-between items-center mb-4">
+  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+       onClick={() => setSelectedPlo(null)}
+  >    
+    <div onClick={(e) => e.stopPropagation()}
+         className="bg-white rounded-xl shadow-lg p-6 w-[600px] max-w-[95vw] max-h-[90vh] overflow-y-auto">
+      <div className="sticky top-0 flex bg-white z-10 justify-between items-center mb-4 pb-2">
         <h3 className="font-bold text-lg">
           {selectedPlo.student.name_th}
         </h3>
@@ -404,22 +423,34 @@ const getPloColor = (value) => {
         <div className="text-gray-600">
           รหัส : {selectedPlo.student.user_code}
         </div>
-        <div className="font-semibold">
-          {selectedPlo.plo.code}
+        <div className="font-semibold text-blue-600">
+          {selectedPlo.plo.code} Progress : {' '} {selectedPlo.avg.toFixed(2)}%
         </div>
-        <div className="text-blue-600">
-          Average : {selectedPlo.avg.toFixed(2)}%
+        <div className="text-gray-600">
+          Progress = ความก้าวหน้าในการบรรลุ PLO ตลอดหลักสูตร
+        </div>
+        <div className="text-gray-600">
+          Coverage = ความครอบคลุมของการประเมิน
+        </div>
+        <div className="text-gray-600">
+          Achievement = ผลสำเร็จของสิ่งที่ถูกประเมินแล้ว
         </div>
       </div>
       <div className="space-y-2">
         {selectedPlo.plo.indicators.map((ind) => {
-          let percent = getIndicatorPercent(
+          const result = getIndicatorResult(
             selectedPlo.student.id,
-            ind.code
-          );
-          if (percent === null) {
-            percent =
-              manualChecks?.[selectedPlo.student.id]?.[ind.id]
+            ind.id
+            );
+          const achievement = result?.achievement ?? 0;
+          const coverage = result?.coverage ?? 0;
+          let progress = result?.progress ?? 0;
+          const passed = result?.passed ?? 0;
+          const evaluated = result?.evaluated ?? 0;
+          const evaluatedCourses = result?.evaluatedCourses ?? 0;
+          const totalCourses = result?.totalCourses ?? 0;
+          if (progress === null) {
+            progress = manualChecks?.[selectedPlo.student.id]?.[ind.id]
                 ? 100
                 : 0;
           }
@@ -428,28 +459,45 @@ const getPloColor = (value) => {
               key={ind.id}
               className="border rounded-lg p-3"
             >
-  <div className="flex justify-between items-start gap-4">
-    <div>
+  <div className="flex justify-between items-start gap-4">    
       <div className="font-medium">
         {ind.description || ind.code}
+      </div>     
+      <div className="text-right text-sm">
+      <div className="font-semibold text-blue-600">
+        Progress
       </div>
+      <div className="font-bold text-lg">
+        {progress.toFixed(2)}%
+      </div>
+      </div> 
+  </div>              
+  <div className="mt-2 text-gray-600">
+    Achievement {' '} {achievement.toFixed(2)}%
+    <div className="text-xs">
+      ผ่าน {passed} จาก {evaluated} Indicators
     </div>
-    <span className="font-semibold whitespace-nowrap">
-      {percent.toFixed(2)}%
-    </span>
   </div>
+  <div className="mt-2 text-gray-600">
+    Coverage {' '} {coverage.toFixed(2)}%
+    <div className="text-xs">
+      ประเมินแล้ว {evaluatedCourses} วิชา จากทั้งหมด {totalCourses} รายวิชา
+    </div>
+  </div>
+
+  
               <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
                 <div
                   className={`h-2 rounded-full ${
-                    percent >= 80
+                    progress >= 80
                       ? 'bg-green-500'
-                      : percent >= 50
+                      : progress >= 50
                       ? 'bg-yellow-400'
-                      : percent > 0
+                      : progress > 0
                       ? 'bg-orange-400'
                       : 'bg-red-500'
                   }`}
-                  style={{ width: `${percent}%` }}
+                  style={{ width: `${progress}%` }}
                 />
               </div>
             </div>

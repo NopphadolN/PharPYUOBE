@@ -109,133 +109,105 @@ router.get('/summary', verifyToken, async (req, res) => {
 
 router.get('/indicator-results', verifyToken, async (req, res) => {
     try {
-      const indicatorSubplo = await pool.query(`
-          SELECT
-            plo_indicator_id,
-            sub_plo_id
-          FROM plo_indicator_subplo_mapping
-        `);
-      const indicatorCourse = await pool.query(`
-          SELECT
-            plo_indicator_id,
-            course_id
-          FROM plo_course_mapping
-        `);
-      const courseSubplo = await pool.query(`
-          SELECT
-            course_id,
-            sub_plo_id
-          FROM course_subplo_mapping
-        `);
-      const cloSubplo = await pool.query(`
-          SELECT
-            clo_id,
-            sub_plo_id
-          FROM clo_subplo_mapping
-        `);
-      const cloResults = await pool.query(`
-          SELECT
-            student_id,
-            course_id,
-            clo_id,
-            is_pass
-          FROM clo_results
-        `);
-      const results = [];
-      const studentIds = [...new Set(
-          cloResults.rows.map(
-            r => r.student_id
-          )
-        )
-      ];
-      const indicatorIds = [...new Set(
-          indicatorSubplo.rows.map(
-            r => r.plo_indicator_id
-          )
-        )
-      ];
-      for (const studentId of studentIds) {
-        for (const indicatorId of indicatorIds) {
-          const mappedCourses =
-            indicatorCourse.rows.filter(
-              r =>
-                Number(r.plo_indicator_id)
-                === Number(indicatorId)
-            );
-          const totalCourses = mappedCourses.length;
-          if (!totalCourses) {
-            continue;
-          }
-          let passedCourses = 0;
+      const { year } = req.query;
+      const scoreRes = await pool.query(`
+      SELECT
+      cis.student_id,
+      cis.indicator_id,
+      cis.is_pass,
+      cis.course_instance_id,
+      cpim.plo_indicator_id
 
-          for (const course of mappedCourses) {
-            const courseId = course.course_id;
-            const indicatorSubplos = indicatorSubplo.rows
-                .filter(
-                  r => Number(r.plo_indicator_id) === Number(indicatorId)
-                )
-                .map(r => r.sub_plo_id);
-            const relatedSubplos = courseSubplo.rows
-                .filter(
-                  r => Number(r.course_id) === Number(courseId)
-                    &&
-                    indicatorSubplos.includes(r.sub_plo_id)
-                )
-                .map(
-                  r => r.sub_plo_id
-                );
-            if (
-              relatedSubplos.length === 0
-            ) {
-              continue;
-            }
-            const cloIds = [...new Set(
-                cloSubplo.rows
-                  .filter(
-                    r =>
-                      relatedSubplos.includes(
-                        r.sub_plo_id
-                      )
-                  )
-                  .map(r => r.clo_id)
-              )
-            ];
-            if (!cloIds.length) {
-              continue;
-            }
-            const courseClos = cloResults.rows.filter(
-                r =>
-                  Number(r.student_id) === Number(studentId)
-                  &&
-                  Number( r.course_id) === Number(courseId)
-                  &&
-                  cloIds.includes(r.clo_id)
-              );
-            if (
-              !courseClos.length
-            ) {
-              continue;
-            }
-            const allPass = courseClos.every(
-                r => r.is_pass === true
-              );
-            if (allPass) {
-              passedCourses++;
-            }
-          }
-          results.push({
-            student_id: studentId,
-            indicator_id: indicatorId,
-            percent:
-              Number(
-                (passedCourses / totalCourses * 100).toFixed(2)
-              )
-          });
+      FROM clo_indicator_scores cis
+
+      JOIN course_instances ci
+        ON ci.id =
+         cis.course_instance_id
+
+      JOIN clo_indicator_plo_indicator_mapping cpim
+        ON cpim.clo_indicator_id =
+         cis.indicator_id
+
+      WHERE ci.year = $1
+        `,[year]);
+      
+      const mappingRes = await pool.query(`
+      SELECT
+      plo_indicator_id,
+      COUNT(
+        DISTINCT clo_indicator_id
+      ) AS total
+      FROM
+        clo_indicator_plo_indicator_mapping
+      GROUP BY
+        plo_indicator_id
+      `);
+
+      const courseMapRes = await pool.query(`
+      SELECT
+      plo_indicator_id,
+      COUNT(
+        DISTINCT course_id
+      ) AS total_courses
+      FROM plo_course_mapping
+      GROUP BY plo_indicator_id
+      `);
+
+      const totalCourseMap = {};
+        courseMapRes.rows.forEach(r => {
+        totalCourseMap[Number(r.plo_indicator_id)] = Number(r.total_courses);
+        });
+
+      const totalMap = {};
+        mappingRes.rows.forEach(r => {
+        totalMap[Number(r.plo_indicator_id)] = Number(r.total);
+      });
+
+      const map = {};
+      scoreRes.rows.forEach(row => {
+        const key = `${row.student_id}_${row.plo_indicator_id}`;
+        if (!map[key]) {
+          map[key] = {
+          student_id: Number(row.student_id),
+          indicator_id: Number(row.plo_indicator_id),
+          passed: 0,
+          evaluated: 0,
+          courseInstances: new Set()
+          };
         }
-      }
+        map[key].evaluated++;
+          if (row.is_pass) {map[key].passed++;}
+        map[key].courseInstances
+          .add(Number(row.course_instance_id));
+      });
+
+      const results = Object.values(map)
+          .map(r => {
+      const achievement = r.evaluated > 0
+          ? (r.passed / r.evaluated) * 100
+          : 0;
+      const evaluatedCourses = r.courseInstances.size;
+      const totalCourses = totalCourseMap[r.indicator_id] || 0;
+      const coverage = totalCourses > 0
+      ?(evaluatedCourses / totalCourses) * 100
+      :
+      0;
+      const progress = (achievement * coverage) / 100;
+        return {
+          student_id: r.student_id,
+          indicator_id: r.indicator_id,
+          achievement: Number(achievement.toFixed(2)),
+          coverage: Number(coverage.toFixed(2)),
+          progress: Number(progress.toFixed(2)),
+          passed: r.passed,
+          evaluated: r.evaluated,
+          evaluatedCourses: evaluatedCourses,
+          totalCourses:totalCourses
+          };
+});
       res.json(results);
 
-    } catch (err) {
+    } catch(err){
       console.error(err);
       res.status(500).json({
         error: err.message

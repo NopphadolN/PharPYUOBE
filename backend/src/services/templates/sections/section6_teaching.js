@@ -98,11 +98,14 @@ const formatTopic = (text = '') => {
 };
 
   // ✅ activity
-  const getActivity = (c) => {
-    if (c.type === 'lecture') return '- บรรยาย';
-    if (c.type === 'lab') return '- ปฏิบัติการ';
+const getActivity = (c) => {
+  if (!Array.isArray(c.activities) || c.activities.length === 0) {
     return '-';
-  };
+  }
+  return c.activities
+    .map(a => `- ${a}`)
+    .join('<br>');
+};
 
   return `
   <div class="section">
@@ -149,7 +152,7 @@ const formatTopic = (text = '') => {
             </td>
             <td>
               ${getActivity(c)}
-              <p>- เอกสารประกอบการสอน</p>
+              <br>- เอกสารประกอบการสอน
             </td>
             <td style="text-align:center; white-space: nowrap;">
               ${getInstructorName(c)}

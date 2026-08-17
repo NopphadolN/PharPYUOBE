@@ -1,6 +1,31 @@
 const renderSection1 = (data) => {
 
-  const { course, clos, instructors, guestTeachers, user_id, owner_id } = data;
+  const { course, clos, subPlos, instructors, guestTeachers, user_id, owner_id, cloMappings, cloKsecMappings } = data;
+  
+  const getPLOCodes = (cloId) => {
+  const mapping = cloMappings.find(
+    m => String(m.cloId) === String(cloId)
+  );
+  if (!mapping) return '';
+  return mapping.subPloIds
+    .map(id => {
+      const subPlo = subPlos.find(
+        p => String(p.id) === String(id)
+      );
+      if (!subPlo) return null;
+      return subPlo.code.replace(/^SubPLO/i, 'PLO');
+    })
+    .filter(Boolean)
+    .join(', ');
+};
+
+  const getKSECCodes = (cloId) => {
+  const mapping = cloKsecMappings.find(
+    m => String(m.cloId) === String(cloId)
+  );
+  if (!mapping) return '';
+  return mapping.ksecCodes.join(', ');
+};
 
   return `
   <div class="section">
@@ -51,12 +76,22 @@ const renderSection1 = (data) => {
     </div>
     <p style="margin-left: 40px;">
     เมื่อสิ้นสุดการเรียนการสอนแล้ว นักศึกษาที่สำเร็จการศึกษาในรายวิชา สามารถ<p>
-    ${clos.map((c, i) => `
-      <div style="text-indent: 40px; 
-      text-align: justify; text-justify: inter-word;">
-      <b>6.${i+1}.</b>
-      ${c.description} (${c.code})</div>
-    `).join('')}
+    ${clos.map((c, i) => {
+    const ploText = getPLOCodes(c.id);
+    const ksecText = getKSECCodes(c.id);
+    return `
+      <div style="
+        text-indent:40px;
+        text-align:justify;
+        text-justify:inter-word;
+      ">
+      <b>6.${i+1}.</b>${c.description}
+      (${c.code})
+      ${ploText ? `(${ploText})` : ''}
+      ${ksecText ? `(${ksecText})` : ''}
+    </div>
+    `;
+    }).join('')}
 
   </div>
   `;

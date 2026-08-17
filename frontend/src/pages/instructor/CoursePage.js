@@ -23,34 +23,26 @@ export default function CoursePage() {
   const [prereq, setPrereq] = useState('');
   const [courseType, setCourseType] = useState('');
   
-
   const [instanceId, setInstanceId] = useState(null);
   const [instructors, setInstructors] = useState([]);
-
-
 
   const [savedClos, setSavedClos] = useState([]);
   const [currentClo, setCurrentClo] = useState({
     id: null,
     code: '',
     description: '',
-    indicators: [
-    // ✅ ใหม่
-    // { description: '', target: '' }
-]
+    subPloIds: [],
+    ksecIds: [],
+    indicators: []
   });
 
-  const [selectedCloId, setSelectedCloId] = useState('');
-  const [selectedSubPloIds, setSelectedSubPloIds] = useState([]);
-  const [cloMappings, setCloMappings] = useState([]);
   const [subPlos, setSubPlos] = useState([]);
-  const [showSubPloDropdown, setShowSubPloDropdown] = useState(false);
-  
+  const [ksecs,setKsecs] = useState([]);
+  const [ploIndicators, setPloIndicators] = useState([]);
+
   const [ownerUser, setOwnerUser] = useState(null);
   const [owner, setOwner] = useState(null);
   const [user, setUser] = useState(null);
-
-
 
  // Load instructor list
   useEffect(() => {
@@ -61,8 +53,7 @@ export default function CoursePage() {
   // Load SubPLO
 useEffect(() => {
   if (!selectedCourse) return;
-  api.get(
-    '/instructor/course-subplos',
+  api.get('/instructor/course-subplos',
     {
       params: {
         course_id: selectedCourse
@@ -75,6 +66,40 @@ useEffect(() => {
   .catch(err => {
     console.error(err);
   });
+}, [selectedCourse]);
+
+  // Load PLO indicator
+useEffect(() => {
+  if (!selectedCourse) return;
+  api.get('/instructor/course-plo-indicators',
+    {
+      params: {
+        course_id: selectedCourse
+      }
+    }
+  )
+  .then(res => {
+    setPloIndicators(res.data || []);
+  })
+  .catch(console.error);
+}, [selectedCourse]);
+
+// Load course-ksecs
+useEffect(() => {
+  if (!selectedCourse) return;
+  api.get('/instructor/course-ksecs',
+    {
+      params:{
+        course_id:selectedCourse
+      }
+    }
+  )
+  .then(res => {
+    setKsecs(
+      res.data || []
+    );
+  })
+  .catch(console.error);
 }, [selectedCourse]);
 
   /* =========================
@@ -112,6 +137,12 @@ useEffect(() => {
       setOwner(res.data.owner);
       setOwnerUser(res.data.owner);
       setSavedClos(cloRes.data);
+      setCurrentClo({
+          id:null,
+          code:'',
+          description:'',
+          indicators:[]
+        });
     }
   } catch (err) {
     console.error(err);
@@ -140,14 +171,16 @@ useEffect(() => {
   /* =========================
      CLO FUNCTIONS
   ========================= */
-  const resetForm = () => {
-    setCurrentClo({
-      id: null,
-      code: '',
-      description: '',
-      indicators: []
-    });
-  };
+const resetForm = () => {
+  setCurrentClo({
+    id:null,
+    code:'',
+    description:'',
+    subPloIds:[],
+    ksecIds:[],
+    indicators:[]
+  });
+};
 
 const handleSave = async () => {
   let currentInstanceId = instanceId;
@@ -163,8 +196,7 @@ const handleSave = async () => {
       contents: [],
       evaluations: []
     });
-    const newRes = await api.get(
-      '/instructor/instance',
+    const newRes = await api.get('/instructor/instance',
       {
         params: {
           course_id: selectedCourse,
@@ -200,7 +232,6 @@ const handleSave = async () => {
     } else {
       updated.push({
         ...currentClo,
-        id: `tmp_${Date.now()}`
       });
     }
   }
@@ -212,13 +243,23 @@ updated = updated.filter(c =>
   c.description &&
   c.description.trim()
 );
-  await api.post('/instructor/clos', {
-    course_instance_id: currentInstanceId,
-    clos: updated
-  });
-  setSavedClos(updated);
-  resetForm();
-  alert('✅ save สำเร็จ');
+await api.post('/instructor/clos', {
+  course_instance_id: currentInstanceId,
+  clos: updated
+});
+/* reload จาก db */
+const cloRes = await api.get('/instructor/clos',
+  {
+    params: {
+      course_instance_id:
+        currentInstanceId
+    }
+  }
+);
+setSavedClos(cloRes.data);
+resetForm();
+
+alert('✅ save สำเร็จ');
 };
 
 const addIndicator = () => {
@@ -231,41 +272,9 @@ const addIndicator = () => {
   });
 };
 
-const addMapping = () => {
-  if (!selectedCloId || selectedSubPloIds.length === 0) return;
-  const cloIdNum = Number(selectedCloId); 
-  const uniqueSubPlo = [...new Set(selectedSubPloIds)];
-  const existing = cloMappings.find(
-    m => Number(m.cloId) === cloIdNum
-  );
-  if (existing) {
-    // ✅ UPDATE
-    existing.subPloIds = uniqueSubPlo;
-    setCloMappings([...cloMappings]);
-  } else {
-    // ✅ INSERT
-    setCloMappings([
-      ...cloMappings,
-      {
-        cloId: Number(cloIdNum),
-        subPloIds: uniqueSubPlo.map(id => Number(id))
-      }
-    ]);
-  }
-  // ✅ clear selection
-  setSelectedSubPloIds([]);
-
-};
-
 const handleDelete = (id) => {
   setSavedClos(prev =>
     prev.filter(c => Number(c.id) !== Number(id))
-  );
-  // ลบ Mapping ทิ้งด้วย
-  setCloMappings(prev =>
-    prev.filter(
-      m => Number(m.cloId) !== Number(id)
-    )
   );
   if (currentClo.id === id) {
     resetForm();
@@ -383,32 +392,11 @@ const handleImport = async () => {
 };
 
 // Load mapping
-useEffect(() => {
-  if (!instanceId) return;
-  api.get('/instructor/clo-mapping', {
-    params: { course_instance_id: instanceId }
-  })
-    .then(res => {
-      const map = [];
-      res.data.forEach(m => {
-        let existing = map.find(x => x.cloId === m.clo_id);
-        if (existing) {
-          existing.subPloIds.push(String(m.sub_plo_id));
-        } else {
-          map.push({
-            cloId: m.clo_id,
-            subPloIds: [String(m.sub_plo_id)]
-          });
-        }
-      });
-      setCloMappings(map);
-    });
-}, [instanceId]);
+
 
 // ✅ group PLO เช่น 1.1 → 1
 const ploGroups = subPlos.reduce((acc, p) => {
   const code = p.code.match(/\d+(\.\d+)?/)[0];
-
   const [plo] = code.split('.');
   if (!acc[plo]) acc[plo] = [];
   acc[plo].push({
@@ -433,10 +421,9 @@ if (loadingCourses) {
      UI
   ========================= */
   return (
-
-<div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-white">
+<div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
   <InstructorMenu />
-  <div className="flex-1 p-6 space-y-6">
+  <div className="p-6 space-y-6">
     
 <div className="bg-white rounded-2xl shadow p-5 mb-6">
   <div className="flex items-center justify-between">
@@ -578,7 +565,7 @@ if (loadingCourses) {
     </div>
     <div className="col-span-10">
       <Input
-        placeholder="คำอธิบาย (เลข Sub PLO ที่เกี่ยวข้อง) (อักษร KSEC ที่เกี่ยวข้อง) ไม่ต้องใส่เลขหัวข้อ"
+        placeholder="คำอธิบาย (ไม่ต้องใส่เลขหัวข้อ)"
         value={currentClo.description}
         onChange={e =>
           setCurrentClo({ ...currentClo, description: e.target.value })
@@ -588,6 +575,94 @@ if (loadingCourses) {
 
   </div>
   {/* BUTTON */}
+  <div className="mt-4">
+  <div className="font-medium mb-2">
+    SubPLO Mapping
+  </div>
+  <div className="flex flex-wrap gap-3">
+    {subPlos.map(sp => (
+      <label 
+        key={sp.id}
+        className="relative flex gap-2 group"
+        >
+        <input
+          type="checkbox"
+          checked={
+            (currentClo.subPloIds || []).includes(sp.id)
+          }
+          onChange={(e)=>{
+            let arr =
+              [...currentClo.subPloIds];
+            if(e.target.checked){
+              arr.push(sp.id);
+            } else {
+              arr =
+                arr.filter(
+                  id => id !== sp.id
+                );
+            }
+            setCurrentClo({
+              ...currentClo,
+              subPloIds: arr
+            });
+          }}
+        />
+        <span className="cursor-help text-blue-600">
+        {sp.code} ⓘ
+        </span>
+        <div className=" hidden
+              group-hover:block
+              absolute
+              z-50
+              w-80
+              p-3
+              text-sm
+              bg-black
+              text-white
+              rounded-lg
+              shadow-lg
+              left-0
+              top-6
+              "
+        >
+          {sp.description}
+        </div>
+      </label>
+    ))}
+  </div>
+</div>
+
+<div className="mt-4">
+  <div className="font-medium mb-2">
+    KSEC Mapping
+  </div>
+  <div className="flex flex-wrap gap-3">
+    {ksecs.map(k => (
+      <label key={k.id} className="flex gap-2">
+        <input
+          type="checkbox"
+          checked={
+            (currentClo.ksecIds || []).includes(k.id)
+          }
+          onChange={(e)=>{
+            let arr = [...currentClo.ksecIds];
+            if(e.target.checked){
+              arr.push(k.id);
+            } else {
+              arr = arr.filter(id => id !== k.id);
+            }
+            setCurrentClo({
+              ...currentClo,
+              ksecIds: arr
+            });
+          }}
+        />
+        {k.code}
+      </label>
+    ))}
+  </div>
+</div>
+
   <div className="mt-3">
     <Button disabled={!isOwner} onClick={addIndicator}>➕ Indicator</Button>
   </div>
@@ -624,16 +699,70 @@ if (loadingCourses) {
           }}
         />
       </div>
+      <div className="col-span-12">
+  <div className="text-sm font-medium mb-2">
+    PLO Indicator Mapping (เช็คเฉพาะตัวชี้วัดที่ตรงกับตัวชี้วัด PLO)
+  </div>
+  <div className="flex flex-wrap gap-3">
+    {ploIndicators.map(pi => (
+<label
+  key={pi.id}
+  className="relative flex gap-2 group"
+>
+  <input
+    type="checkbox"
+    checked={(ind.ploIndicatorIds || []).includes(pi.id)}
+    onChange={(e) => {
+const updated = [...currentClo.indicators];
+let mapping = updated[i].ploIndicatorIds || [];
+if (e.target.checked) {
+  mapping = [...mapping, pi.id];
+} else {
+  mapping = mapping.filter(id => id !== pi.id);
+}
+updated[i].ploIndicatorIds = mapping;
+setCurrentClo({...currentClo,
+  indicators: updated
+});
+    }}
+  />
+<span className="cursor-help text-blue-600">
+  {pi.code} ⓘ
+</span>
+<div className="
+    hidden
+    group-hover:block
+    absolute
+    z-50
+    w-80
+    p-3
+    text-sm
+    bg-black
+    text-white
+    rounded-lg
+    shadow-lg
+    left-0
+    top-6
+    "
+>
+  {pi.description}
+</div>
+</label>
+    ))}
+  </div>
+</div>
+
     </div>
   ))}
 </div>
 <div className="mt-4">
   <Button disabled={!isOwner} onClick={handleSave}>
-    💾 Add/Edit/Save CLOs
+    💾 Save CLOs
   </Button>
     <div className="mt-4 text-sm text-gray-600">
     กรณีเพิ่ม CLO ใหม่ หรือกดแก้ไข CLO ให้กดปุ่มบันทึกนี้ทุกครั้ง
     </div>
+
 </div>
 </Card>
 
@@ -642,26 +771,72 @@ if (loadingCourses) {
   <h4 className="font-semibold mb-3">รายการ CLOs</h4>
   <div className="space-y-3">
     {savedClos.map(c => (
-      <div
-        key={c.id}
-        className="border rounded-lg p-3 bg-gray-50"
-      >
+<div key={c.id} className="border rounded-lg p-3 bg-gray-50">
         <div className="flex justify-between">
-          <div>
-            <b className="text-blue-600">{c.code}</b> - {c.description}
-          </div>
+  
+  <div>
+  <b className="text-blue-600">{c.code}</b>
+  {' - '}{c.description}{' '}
+  {(c.subPloIds || []).length > 0 && (
+    <span className="text-purple-600 text-sm">
+      ({(c.subPloIds || [])
+      .map(id => {
+            const sp = subPlos.find(s => Number(s.id) === Number(id));
+            return sp?.code;
+          })
+          .filter(Boolean)
+          .join(', ')
+      })
+    </span>
+  )}{' '}
+  {(c.ksecIds || []).length > 0 && (
+    <span className="text-green-600 text-sm">
+      ({(c.ksecIds || [])
+        .map(id => {
+            const k = ksecs.find(x => Number(x.id) === Number(id));
+            return k?.code;
+          })
+          .filter(Boolean)
+          .join(', ')
+      })
+    </span>
+  )}
+</div>
 
           <div>
-            <button onClick={() => setCurrentClo(c)} className="mr-2">✏️</button>
+            <button onClick={() => 
+            setCurrentClo({...c,
+              subPloIds: c.subPloIds || [],
+              ksecIds: c.ksecIds || [],
+              indicators: (c.indicators || []).map(ind => ({...ind,
+              ploIndicatorIds: ind.ploIndicatorIds || []}))
+              })                  
+              } 
+            className="mr-2">✏️</button>
             <button onClick={() => handleDelete(c.id)} className="text-red-500">❌</button>
           </div>
         </div>
 
         <ul className="mt-2 text-sm text-gray-600">
           {(c.indicators || []).map((ind, i) => (
-            <li key={i}>
-              {ind.description} (target: {ind.target})
-            </li>
+<li key={i}>
+  <div>
+    {ind.description}(target: {ind.target})
+  </div>
+  <div className="text-xs text-blue-600">
+    {
+      (ind.ploIndicatorIds || [])
+      .map(id => {
+        const p = ploIndicators.find(x =>
+              Number(x.id) === Number(id)
+          );
+        return p?.code;
+      })
+      .filter(Boolean)
+      .join(', ')
+    }
+  </div>
+</li>
           ))}
         </ul>
       </div>
@@ -676,47 +851,9 @@ if (loadingCourses) {
     </div>
   </div>
 </Card>
+
 <Card>
   <h4 className="font-semibold mb-4">Mapping CLOs / SubPLOs</h4>
-  <div className="flex gap-3 mb-4">
-    <Select value={selectedCloId} onChange={e => setSelectedCloId(e.target.value)}>
-      <option value="">-- CLO --</option>
-      {savedClos.map(c => (
-        <option key={c.id} value={c.id}>{c.code}</option>
-      ))}
-    </Select>
-    <div className="relative">
-      <Button onClick={() => setShowSubPloDropdown(!showSubPloDropdown)}>
-        เลือก SubPLOs
-      </Button>
-      {showSubPloDropdown && (
-        <div className="absolute bg-white border rounded-lg shadow p-3 mt-1 max-h-48 overflow-auto z-20">
-
-          {subPlos.map(p => (
-            <label key={p.id} className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                value={p.id}
-                checked={selectedSubPloIds.includes(String(p.id))}
-                onChange={(e) => {
-                  const val = String(p.id);
-                  if (e.target.checked) {
-                    setSelectedSubPloIds([...selectedSubPloIds, val]);
-                  } else {
-                    setSelectedSubPloIds(
-                      selectedSubPloIds.filter(id => id !== val)
-                    );
-                  }
-                }}
-              />
-              {p.code}
-            </label>
-          ))}
-        </div>
-      )}
-    </div>
-    <Button disabled={!isOwner} onClick={addMapping}>➕ เพิ่ม</Button>
-  </div>
 <div className="overflow-x-auto flex justify-start">
   <table className="text-sm w-auto border min-w-max">      
     {/* ✅ HEADER */}
@@ -745,15 +882,16 @@ if (loadingCourses) {
     arr[i + 1].code.split('.')[0] !== p.code.split('.')[0];
 
   return (
-    <th
-      key={p.id}
-      title={p.description || p.name || ''}
-      className={`px-3 py-2 text-center text-xs ${
-        isLastInGroup ? 'border-r-2 border-gray-300' : ''
-      }`}
-    >
-      {p.cleanCode}
-    </th>
+<th
+  key={p.id}
+  className={`px-3 py-2 text-center text-xs group ${
+    isLastInGroup
+      ? 'border-r-2 border-gray-300'
+      : ''
+  }`}
+>
+  {p.cleanCode}
+</th>
   );
 })}
       </tr>
@@ -761,9 +899,6 @@ if (loadingCourses) {
     {/* ✅ BODY */}
     <tbody>
       {savedClos.map(c => {
-        const mapping = cloMappings.find(
-          m => Number(m.cloId) === Number(c.id)
-        );
         return (
           <tr key={c.id} className="border-t text-center hover:bg-gray-50">
             {/* CLO */}
@@ -782,7 +917,9 @@ if (loadingCourses) {
         isLastInGroup ? 'border-r-2 border-gray-300' : ''
       }`}
     >
-      {mapping?.subPloIds.includes(String(p.id)) ? '✓' : ''}
+      {(c.subPloIds || []).map(Number).includes(Number(p.id))
+    ? '✓'
+    : ''}
     </td>
   );
 })}
@@ -791,32 +928,6 @@ if (loadingCourses) {
       })}
     </tbody>
   </table>
-</div>
-
-<div className="mt-3">
-  <Button
-    disabled={!isOwner}
-    onClick={async () => {     
-
-const validCloIds =
-  savedClos.map(c =>
-    Number(c.id)
-  );
-const cleanedMappings =
-  cloMappings.filter(m =>
-    validCloIds.includes(
-      Number(m.cloId)
-    )
-  );
-await api.post('/instructor/clo-mapping', {
-  course_instance_id: instanceId,
-  cloMappings: cleanedMappings
-});
-      alert('✅ บันทึก Mapping แล้ว');
-    }}
-  >
-    💾 Save Mapping
-  </Button>
 </div>
 </Card>
 

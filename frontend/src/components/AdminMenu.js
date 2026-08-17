@@ -8,8 +8,9 @@ const menus = [
 
   { name: 'PLO Setup', path: '/admin/plos' },
 
-  { name: 'Mapping PLO-Course', path: '/admin/mapping' },
+  { name: 'Mapping Indicator-Course', path: '/admin/mapping' },
   { name: 'Mapping SubPLO-Course', path: '/admin/subploMapping' },
+  { name: 'Mapping Indicator-SubPLO', path: '/admin/indicatorSubploMapping' },
 
   { name: 'PLO Evaluation', path: '/admin/Admin-PLO' },
 

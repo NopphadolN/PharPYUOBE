@@ -241,9 +241,9 @@ const isOwner = user &&
      UI
   ========================= */
   return (
-<div className="flex min-h-screen bg-gradient-to-br from-blue-50 to-white">
+<div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
   <InstructorMenu />
-  <div className="flex-1 p-6 space-y-6">
+  <div className="p-6 space-y-6">
     {/* HEADER */}
     <div className="bg-white rounded-2xl shadow p-5">
       <h2 className="text-xl font-bold">👨‍🎓 จัดการนักศึกษา</h2>

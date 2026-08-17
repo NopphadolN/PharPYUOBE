@@ -201,6 +201,65 @@ router.post(
     }
 });
 
+// ✅ get course-plo-indicators
+router.get('/course-plo-indicators', async (req, res) => {
+    const { course_id } = req.query;
+    try {
+      const result = await pool.query(`
+        SELECT DISTINCT
+          pi.id,
+          pi.code,
+          pi.description,
+          p.code AS plo_code
+        FROM plo_course_mapping pcm
+        JOIN plo_indicators pi
+          ON pi.id = pcm.plo_indicator_id
+        JOIN plos p
+          ON p.id = pi.plo_id
+        WHERE pcm.course_id = $1
+        ORDER BY pi.code
+      `,[course_id]);
+
+      res.json(result.rows);
+    } catch(err){
+      console.error(err);
+      res.status(500).json({
+        error:'load indicator failed'
+      });
+    }
+  }
+);
+
+// ✅ get course-ksecs 
+router.get('/course-ksecs', verifyToken, async (req,res) => {
+    try {
+      const { course_id } = req.query;
+      const result = await pool.query(`
+        SELECT
+          km.id,
+          km.code,
+          km.description,
+          km.type
+        FROM course_ksec_mapping ckm
+
+        JOIN ksec_master km
+          ON km.id = ckm.ksec_id
+
+        WHERE ckm.course_id = $1
+        ORDER BY
+          km.type,
+          km.code
+      `,[course_id]);
+      res.json(result.rows);
+    } catch(err){
+      console.error(err);
+      res.status(500).json({
+        error: err.message
+      });
+    }
+  }
+);
+
 // ✅ save mapping (VERSION ถูกต้อง)
 router.post('/clo-mapping', verifyToken, checkOwner, async (req, res) => {
   const { course_instance_id, cloMappings } = req.body;
@@ -281,7 +340,6 @@ router.get('/course-subplos',
     }
   }
 );
-
 
 // GET /clo-indicator-scores-all
 router.get('/clo-indicator-scores-all', verifyToken, 
@@ -819,12 +877,11 @@ for (const c of contentRes.rows) {
       instructor_id,
       guest_teacher_name,
       "order",
-      exam_score,
-      work_score,
       clo_ids,
+      activities,
       llos
     )
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
     RETURNING id
   `, [
     newId,
@@ -835,9 +892,8 @@ for (const c of contentRes.rows) {
     c.instructor_id,
     c.guest_teacher_name,
     c.order,
-    c.exam_score,
-    c.work_score,
     JSON.stringify(newCloIds),
+    c.activities,
     c.llos
   ]);
   contentMap[c.id] = insert.rows[0].id;

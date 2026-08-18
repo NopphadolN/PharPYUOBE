@@ -41,6 +41,8 @@ const generateTQF3 = async (data, res) => {
     // ✅ launch browser (Render compatible)
     if (!browser) {
       browser = await puppeteer.launch({
+        args: chromium.args,
+        executablePath: await chromium.executablePath(),
         headless: true,
       });
     }

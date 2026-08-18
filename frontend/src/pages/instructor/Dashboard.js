@@ -27,10 +27,30 @@ export default function Dashboard() {
     });
   }, []);
 
-  useEffect(() => {
-  const currentYear = new Date().getFullYear() + 543;
-  setYear(String(currentYear));
-  }, []);
+useEffect(() => {
+  const now = new Date();
+  const thaiYear = now.getFullYear() + 543;
+  const month = now.getMonth() + 1;
+
+  let academicYear;
+  let academicSemester;
+
+  // ✅ ปีการศึกษา
+  if (month >= 6) {
+    academicYear = thaiYear;
+  } else {
+    academicYear = thaiYear - 1;
+  }
+
+  // ✅ เทอม
+  if (month >= 6 && month <= 10) {
+    academicSemester = '1';
+  } else {
+    academicSemester = '2';
+  }
+  setYear(String(academicYear));
+  setSemester(academicSemester);
+}, []);
 
   useEffect(() => {
     api.get('/instructor/me')

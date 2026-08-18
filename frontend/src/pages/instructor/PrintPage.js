@@ -41,13 +41,13 @@ const loadCourses = async () => {
     }
     let url = '';
 if (docType === 'plan') {
-  url = `http://localhost:5000/api/instructor/print-plan/${id}`;
+  url = `https://pharpyuobe.onrender.com/api/instructor/print-plan/${id}`;
 }
 else if (docType === 'tqf3') {
-  url = `http://localhost:5000/api/instructor/print-tqf3/${id}`;
+  url = `https://pharpyuobe.onrender.com/api/instructor/print-tqf3/${id}`;
 }
 else if (docType === 'tqf5') {
-  url = `http://localhost:5000/api/instructor/print-tqf5/${id}`;
+  url = `https://pharpyuobe.onrender.com/api/instructor/print-tqf5/${id}`;
 }
     window.open(url, '_blank');
   };

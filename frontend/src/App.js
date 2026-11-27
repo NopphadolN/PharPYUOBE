@@ -17,6 +17,7 @@ import AdminYLOPage from './pages/admin/AdminYLOEvaluation';
 
 import CoursePage from './pages/instructor/CoursePage';
 import CLOPage from './pages/instructor/CLOPage';
+import CloRemedialPage from './pages/instructor/CloRemedialPage';
 import CourseStep2 from './pages/instructor/CourseStep2';
 import StudentEnrollPage from './pages/instructor/StudentEnrollPage';
 import PLOReportPage from './pages/instructor/PLOReportPage';
@@ -114,7 +115,14 @@ function App() {
             <ProtectedRoute role="instructor">
               <CLOPage />
             </ProtectedRoute>}/>
-          
+                    
+          <Route
+            path="/instructor/CloRemedial"
+          element={
+            <ProtectedRoute role="instructor">
+              <CloRemedialPage />
+            </ProtectedRoute>}/>
+
           <Route
             path="/instructor/advisor"
           element={

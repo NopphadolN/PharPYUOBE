@@ -109,7 +109,8 @@ const loadedIndicators = {};indicatorRes.data
     {loadedIndicators[r.student_id][r.indicator_id] = {};}
 loadedIndicators[r.student_id][r.indicator_id][r.evaluation_id] = {
   score: Number(r.score),
-  fullScore: Number(r.full_score)
+  fullScore: Number(r.full_score),
+  isRemedial: r.is_remedial === true
 };
 });
 setIndicatorScores(loadedIndicators);
@@ -552,6 +553,17 @@ const selectedClo =
 const isOwner = user &&
   (user.id === owner?.id || user.can_edit_all_courses === true);
 
+const isCloRemedialPass = (studentId,clo) => {
+  return (clo.indicators || []).some(ind => {
+    const evals = Object.values(
+        indicatorScores?.[studentId]?.[ind.id] || {}
+      );
+    return evals.some(
+      e => e.isRemedial === true
+    );
+  });
+};
+
   /* ================= UI ================= */
   return (
 <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
@@ -736,6 +748,9 @@ onChange={(e) => {
   <h3 className="font-semibold">
     ตารางคะแนน
   </h3>
+  ✅ = ผ่าน
+  ☑️ = ผ่านโดยแก้ไขตัวชี้วัด
+  ❌ = ไม่ผ่าน
   {isOwner && (
     <button
       onClick={() =>
@@ -902,6 +917,8 @@ return evs.map(ev => {
   const data = indicatorScores?.[st.id]?.[ind.id]?.[ev.id];
   const indicatorPercent = getIndicatorPercent(st.id, ind.id);
   const isPass = indicatorPercent >= Number(ind.target || 50);
+  const isRemedial = data?.isRemedial === true;
+
   return (
     <td
       key={`${st.id}_${ind.id}_${ev.id}`}
@@ -916,7 +933,9 @@ return evs.map(ev => {
           ${
             !isPass
               ? 'bg-red-50 text-red-600 font-semibold'
-              : ''
+            : isRemedial
+              ? 'text-blue-600 font-semibold'
+            : 'text-black'
           }
         `}
         onChange={e =>
@@ -933,9 +952,20 @@ return evs.map(ev => {
 });
       })
     }
-    <td className="border text-center font-bold">
+    <td className={`border text-center font-bold
+    ${
+      isPassCLO(st.id, clo)
+        ? isCloRemedialPass(st.id, clo)
+          ? 'text-blue-600'
+          : 'text-green-600'
+          : 'text-red-500'
+      }
+    `}
+    >
       {isPassCLO(st.id, clo)
-          ? '✅'
+        ? isCloRemedialPass(st.id, clo)
+          ? '☑️'
+          : '✅'
           : '❌'
       }
     </td>

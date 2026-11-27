@@ -80,8 +80,14 @@ export default function InstructorMenu() {
 
               <MenuItem
                 to="/instructor/clo"
-                label="CLO"
+                label="ประเมิน CLO"
                 active={isActive('/instructor/clo')}
+              />
+
+              <MenuItem
+                to="/instructor/CloRemedial"
+                label="แก้ไข CLO"
+                active={isActive('/instructor/CloRemedial')}
               />
 
               <MenuItem
@@ -165,6 +171,12 @@ export default function InstructorMenu() {
             <MobileItem
               to="/instructor/clo"
               label="ประเมิน CLO"
+              setOpen={setOpen}
+            />
+
+            <MobileItem
+              to="/instructor/CloRemedial"
+              label="แก้ไข CLO"
               setOpen={setOpen}
             />
 

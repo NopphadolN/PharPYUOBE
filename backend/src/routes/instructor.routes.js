@@ -359,9 +359,17 @@ router.get('/clo-indicator-scores', verifyToken,
   async (req, res) => {
     const {course_instance_id} = req.query;
     const result = await pool.query(`
-        SELECT *
-        FROM clo_indicator_scores
-        WHERE course_instance_id = $1
+        SELECT
+        cis.*,
+        EXISTS(
+          SELECT 1
+          FROM clo_remedials r
+          WHERE r.indicator_id = cis.indicator_id
+          AND r.student_id = cis.student_id
+          AND r.evaluation_id = cis.evaluation_id
+          ) AS is_remedial
+        FROM clo_indicator_scores cis
+        WHERE cis.course_instance_id = $1
       `, [
         course_instance_id
       ]);
@@ -993,5 +1001,182 @@ for (const e of evalRes.rows) {
     return res.status(500).send('Import error');
   }
 });
+
+//indicator-failed
+router.get('/indicator-failed',
+  async (req, res) => {
+    const { course_instance_id } = req.query;
+    const result = await pool.query(`
+      SELECT
+        cis.*,
+        u.user_code,
+        u.name_th,
+        clo.code AS clo_code,
+        ci.description AS indicator_description,
+        ci.target AS indicator_target,
+        ev.name AS evaluation_name
+      FROM clo_indicator_scores cis
+      JOIN users u
+        ON u.id = cis.student_id
+      JOIN clos clo
+        ON clo.id = cis.clo_id
+      JOIN clo_indicators ci
+        ON ci.id = cis.indicator_id
+      LEFT JOIN course_evaluations ev
+        ON ev.id = cis.evaluation_id
+      WHERE
+        cis.course_instance_id = $1
+        AND cis.is_pass = false
+      ORDER BY
+        u.user_code
+    `, [course_instance_id]);
+    res.json(result.rows);
+  }
+);
+
+router.get('/indicator-remedials',
+  async (req,res) => {
+    const {course_instance_id} = req.query;
+    const result = await pool.query(`
+        SELECT
+          r.*,
+          u.user_code,
+          u.name_th,
+          clo.code AS clo_code,
+          ci.description AS indicator_description,
+          ci.target AS indicator_target,
+          ev.name AS evaluation_name
+        FROM clo_remedials r
+        JOIN users u
+          ON u.id = r.student_id
+        JOIN clos clo
+          ON clo.id = r.clo_id
+        JOIN clo_indicators ci
+          ON ci.id = r.indicator_id
+        LEFT JOIN course_evaluations ev
+          ON ev.id = r.evaluation_id
+        WHERE
+          r.course_instance_id = $1
+        ORDER BY
+          r.created_at DESC
+      `,
+      [course_instance_id]);
+      res.json(
+        result.rows
+      );
+  }
+);
+
+router.post(
+  '/indicator-remedial',
+  async (req,res) => {
+    const {
+      recalculateStudent
+    } = require('../services/recalculateResult');
+    const {
+      scoreId,
+      newScore,
+      method,
+      remark,
+      userId
+    } = req.body;
+    const client = await pool.connect();
+    try {
+      await client.query(
+        'BEGIN'
+      );
+      const oldResult = await client.query(`
+          SELECT
+            cis.*,
+            ci.target
+          FROM
+            clo_indicator_scores cis
+          JOIN clo_indicators ci
+            ON ci.id =
+               cis.indicator_id
+          WHERE
+            cis.id = $1
+        `,
+        [scoreId]);
+      if (oldResult.rows.length === 0) {
+        throw new Error('score not found');
+      }
+      const oldData = oldResult.rows[0];
+      const passTarget = Number(oldData.target || 50);
+      const newPercent = oldData.full_score > 0
+        ?
+        (Number(newScore)/Number(oldData.full_score)) * 100:0;
+      await client.query(`
+        INSERT INTO
+          clo_remedials (
+            course_instance_id,
+            student_id,
+            clo_id,
+            indicator_id,
+            evaluation_id,
+            old_score,
+            new_score,
+            old_percent,
+            new_percent,
+            remedial_method,
+            remedial_date,
+            remark,
+            created_by
+          )
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
+          CURRENT_DATE,$11,$12)
+      `,
+      [
+        oldData.course_instance_id,
+        oldData.student_id,
+        oldData.clo_id,
+        oldData.indicator_id,
+        oldData.evaluation_id,
+        oldData.score,
+        newScore,
+        oldData.percent,
+        newPercent,
+        method,
+        remark,
+        userId
+      ]);
+      await client.query(`
+        UPDATE
+          clo_indicator_scores
+        SET
+          score = $1,
+          percent = $2,
+          is_pass = $3
+        WHERE
+          id = $4
+      `,
+      [Number(newScore),
+        Number(newPercent.toFixed(2)),
+        newPercent >= passTarget,
+        scoreId
+      ]);
+
+      await recalculateStudent(
+        oldData.course_instance_id,
+        oldData.student_id
+      );
+
+      await client.query(
+        'COMMIT'
+      );
+
+      res.json({
+        ok:true
+      });
+
+    }
+    catch(err){
+      await client.query('ROLLBACK');
+      console.error(err);
+      res.status(500).json({error: err.message});
+    }
+    finally{client.release();}
+  }
+);
 
 module.exports = router;
